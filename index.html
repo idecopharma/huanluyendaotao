@@ -1462,57 +1462,6 @@
   <button id="showTableOfContents" class="btn-toc" title="Mục lục"><i class="fas fa-list"></i></button>
 
   <script>
-    /* ============ AUTO-SEARCH FROM URL PARAMETER ============ */
-    /* When opened via index.html?search=keyword, pre-fill the search box */
-    /* The Firebase load handler at showContentList() will then auto-filter */
-    (function autoSearchFromURL() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const preset = params.get('search');
-        if (preset && preset.trim()) {
-          const apply = () => {
-            const input = document.getElementById('searchInput');
-            if (input) {
-              input.value = preset.trim();
-              showAutoSearchBanner(preset.trim());
-            }
-          };
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', apply);
-          } else {
-            apply();
-          }
-        }
-      } catch (e) { /* silent */ }
-    })();
-
-    function showAutoSearchBanner(term) {
-      const banner = document.createElement('div');
-      banner.style.cssText = `
-        position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-        background: linear-gradient(135deg, #4CAF50, #2196F3);
-        color: white; padding: 12px 20px; border-radius: 999px;
-        font-size: 14px; font-weight: 500; z-index: 9999;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-        display: flex; align-items: center; gap: 10px;
-        max-width: 90vw;
-        font-family: 'Inter', -apple-system, sans-serif;
-        animation: slideDown 0.4s ease-out;
-      `;
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideDown {
-          from { opacity: 0; transform: translate(-50%, -20px); }
-          to { opacity: 1; transform: translate(-50%, 0); }
-        }
-      `;
-      document.head.appendChild(style);
-      banner.innerHTML = `🔎 Đang tìm: <strong style="font-weight:700;">${term.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</strong> <span style="opacity:.7; cursor:pointer; margin-left:6px;" onclick="this.parentElement.remove()">✕</span>`;
-      const insert = () => document.body && document.body.appendChild(banner);
-      if (document.body) insert(); else document.addEventListener('DOMContentLoaded', insert);
-      setTimeout(() => { banner.style.transition = 'opacity 0.4s'; banner.style.opacity = '0'; setTimeout(() => banner.remove(), 400); }, 6000);
-    }
-
     const firebaseConfig = {
       apiKey: "AIzaSyA1VY6qnw9cSyTtPONSXsJiI2sG0t7fBwg",
       authDomain: "baogia-561a0.firebaseapp.com",
