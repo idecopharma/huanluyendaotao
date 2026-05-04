@@ -1308,14 +1308,669 @@
   }
   
   .hidden {
-    display: none;
+    display: none !important;
+  }
+
+  /* ============ PASSWORD GATE ============ */
+  .password-gate {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(45, 55, 72, 0.96), rgba(33, 150, 243, 0.85));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: gateFadeIn 0.4s ease-out;
+  }
+  @keyframes gateFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .gate-card {
+    background: white;
+    border-radius: 20px;
+    padding: 44px 36px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: gateSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes gateSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .gate-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+  }
+
+  .gate-card h2 {
+    font-size: 1.55rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .gate-card .gate-subtitle {
+    color: var(--text-light);
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .gate-card input[type="password"] {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+    transition: all 0.2s;
+  }
+  .gate-card input[type="password"]:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.15);
+  }
+
+  .gate-btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), #45A049);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .gate-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.35);
+  }
+  .gate-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .gate-message {
+    font-size: 0.88rem;
+    margin-top: 4px;
+    min-height: 1.2em;
+    font-weight: 500;
+  }
+  .gate-message.error { color: var(--danger); }
+  .gate-message.success { color: var(--primary); }
+  .gate-message.info { color: var(--text-light); }
+
+  .gate-admin-link {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .gate-admin-link:hover {
+    background: #f1f5f9;
+    color: var(--text-dark);
+  }
+
+  /* Floating admin button — visible after login */
+  .admin-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--text-light);
+    transition: all 0.25s;
+    z-index: 1000;
+  }
+  .admin-fab:hover {
+    transform: rotate(45deg) scale(1.05);
+    color: var(--secondary);
+    border-color: var(--secondary);
+  }
+
+  /* ============ ADMIN PASSWORD MODAL ============ */
+  .admin-pw-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 55, 72, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: gateFadeIn 0.3s ease-out;
+  }
+
+  .admin-pw-modal .modal-card {
+    background: white;
+    border-radius: 18px;
+    padding: 36px 32px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    position: relative;
+    animation: gateSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-close-x {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close-x:hover {
+    background: var(--danger);
+    color: white;
+  }
+
+  .admin-pw-modal h3 {
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .admin-pw-modal .modal-subtitle {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 22px;
+  }
+
+  .admin-pw-modal input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.98rem;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+  }
+  .admin-pw-modal input[type="password"]:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+  }
+
+  .admin-pw-modal .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .admin-pw-modal .btn-row button { flex: 1; }
+
+  .admin-pw-modal .btn-secondary {
+    background: #f1f5f9;
+    color: var(--text-dark);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .admin-pw-modal .btn-secondary:hover { background: #e2e8f0; }
+
+  /* ============ MAIN TAB NAVIGATION ============ */
+  .main-tabs {
+    display: flex;
+    gap: 6px;
+    margin: -10px -10px 24px;
+    padding: 6px;
+    background: #f1f5f9;
+    border-radius: 14px;
+    position: sticky;
+    top: 8px;
+    z-index: 50;
+  }
+  .main-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .main-tab:hover { color: var(--text-dark); }
+  .main-tab.active {
+    background: white;
+    color: var(--secondary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .main-tab .badge {
+    background: var(--primary);
+    color: white;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  /* ============ LIST VIEW (9 STAGES) ============ */
+  .list-hero {
+    background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+    color: white;
+    padding: 36px 32px;
+    border-radius: 16px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 28px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .list-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .list-hero h2 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .list-hero p {
+    opacity: 0.92;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    max-width: 520px;
+  }
+  .list-hero img {
+    height: 130px;
+    width: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    background: white;
+  }
+  @media (max-width: 700px) {
+    .list-hero { grid-template-columns: 1fr; padding: 28px 22px; }
+    .list-hero img { height: 90px; width: 90px; justify-self: center; }
+    .list-hero h2 { font-size: 1.4rem; }
+  }
+
+  .stage-block {
+    margin-bottom: 36px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid #edf2f7;
+  }
+  .stage-block:last-child { border-bottom: none; }
+
+  .stage-block-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .stage-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .stage-block-info h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .stage-block-info p {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .training-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .training-item {
+    background: white;
+    border: 1.5px solid #edf2f7;
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+  }
+  .training-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--secondary);
+    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.12);
+  }
+  .training-item-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    align-self: flex-start;
+  }
+  .tt-podcast { background: #fef2f2; color: #ef4444; }
+  .tt-video { background: #eff6ff; color: #3b82f6; }
+  .tt-document { background: #f0fdf4; color: #16a34a; }
+  .training-item-title {
+    font-weight: 600;
+    font-size: 0.96rem;
+    color: var(--text-dark);
+    line-height: 1.35;
+  }
+  .training-item-cta {
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 0.78rem;
+    color: var(--secondary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .training-item-cta::after { content: '→'; transition: transform 0.2s; }
+  .training-item:hover .training-item-cta::after { transform: translateX(3px); }
+
+  .list-info-banner {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(33, 150, 243, 0.08));
+    border: 1px solid rgba(33, 150, 243, 0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    color: var(--text-dark);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .list-info-banner i { color: var(--secondary); font-size: 18px; margin-top: 2px; }
+
+  /* Admin: list management */
+  .admin-menu-item {
+    background: #f8fafc;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+  }
+  .admin-menu-item:hover {
+    background: white;
+    border-color: var(--secondary);
+    transform: translateX(4px);
+  }
+  .admin-menu-item-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .admin-menu-item-text { flex: 1; }
+  .admin-menu-item-text strong {
+    display: block;
+    color: var(--text-dark);
+    font-size: 0.96rem;
+    margin-bottom: 2px;
+  }
+  .admin-menu-item-text small {
+    color: var(--text-light);
+    font-size: 0.82rem;
+  }
+
+  .admin-back-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .admin-back-btn:hover { background: #f1f5f9; color: var(--text-dark); }
+
+  .list-mgmt-stage-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .list-mgmt-stage-row select { flex: 1; padding: 10px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 0.9rem; background: white; }
+
+  .list-mgmt-form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .list-mgmt-form-row input,
+  .list-mgmt-form-row select {
+    padding: 10px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .list-mgmt-form-row input:focus,
+  .list-mgmt-form-row select:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
+  }
+
+  .list-mgmt-items {
+    max-height: 280px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #edf2f7;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+  .list-mgmt-item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf2f7;
+    background: white;
+    margin: 2px;
+    border-radius: 6px;
+  }
+  .list-mgmt-item-row:last-child { border-bottom: none; }
+  .list-mgmt-item-info { flex: 1; min-width: 0; }
+  .list-mgmt-item-title {
+    font-size: 0.86rem;
+    color: var(--text-dark);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .list-mgmt-item-meta { font-size: 0.72rem; color: var(--text-light); }
+  .list-mgmt-icon-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0;
+    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-light); transition: all 0.15s;
+  }
+  .list-mgmt-icon-btn:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+  .list-mgmt-icon-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+
+  .list-mgmt-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.88rem;
   }
   </style>
 </head>
 <body>
+  <!-- ============ ADMIN MODAL (MENU + SUB-VIEWS) ============ -->
+  <div id="adminPwModal" class="admin-pw-modal hidden">
+    <div class="modal-card" style="max-width:560px;">
+      <button class="modal-close-x" onclick="closeAdminPwModal()" title="Đóng">×</button>
+
+      <!-- List management (opens directly, no password) -->
+      <div id="adminListMgmt">
+        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý danh sách đào tạo</h3>
+        <p class="modal-subtitle">Thêm/sửa/xoá nội dung trong các giai đoạn. Lưu trên Firebase, áp dụng cho mọi thiết bị.</p>
+
+        <div class="list-mgmt-stage-row">
+          <select id="mgmtStageSelect" onchange="renderMgmtItems()"></select>
+          <button class="list-mgmt-icon-btn" onclick="addMgmtStage()" title="Thêm giai đoạn" style="width:36px;height:36px;"><i class="fas fa-plus"></i></button>
+          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtStage()" title="Xoá giai đoạn này" style="width:36px;height:36px;"><i class="fas fa-trash"></i></button>
+        </div>
+
+        <div class="list-mgmt-form-row">
+          <input type="text" id="mgmtItemTitle" placeholder='Tiêu đề (vd: "Số 62 — Cách ứng xử công sở")'>
+          <select id="mgmtItemType">
+            <option value="podcast">🎧 Podcast</option>
+            <option value="video">🎬 Video</option>
+            <option value="document">📄 Tài liệu</option>
+          </select>
+          <button class="gate-btn-primary" style="margin-bottom:0;" onclick="saveMgmtItem()">
+            <i class="fas fa-save"></i> <span id="mgmtSaveBtnText">Thêm vào giai đoạn</span>
+          </button>
+        </div>
+
+        <div id="mgmtItemList" class="list-mgmt-items"></div>
+
+        <div style="margin-top:14px; display:flex; gap:8px;">
+          <button class="btn-secondary" style="flex:1;" onclick="resetListToDefaults()">↻ Khôi phục mặc định</button>
+          <button class="btn-secondary" style="flex:1;" onclick="closeAdminPwModal()">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating admin button (always visible) -->
+  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Quản trị danh sách">
+    <i class="fas fa-cog"></i>
+  </button>
+
   <div class="container">
     <h1><i class="fas fa-podcast"></i> VIDEO PODCAST HUẤN LUYỆN QUẢN LÝ CHUNG CÁC BẠN</h1>
-    
+
+    <!-- ============ MAIN TAB NAVIGATION ============ -->
+    <div class="main-tabs">
+      <button class="main-tab active" id="tabBtnList" onclick="switchMainTab('list')">
+        <i class="fas fa-list-check"></i>
+        <span>DANH SÁCH ĐÀO TẠO</span>
+      </button>
+      <button class="main-tab" id="tabBtnPodcast" onclick="switchMainTab('podcast')">
+        <i class="fas fa-headphones"></i>
+        <span>NGHE PODCAST</span>
+      </button>
+    </div>
+
+    <!-- ============ LIST VIEW (TRAINING JOURNEY) ============ -->
+    <div id="listView">
+      <div class="list-hero">
+        <div>
+          <h2>Lộ trình đào tạo nhân viên kinh doanh</h2>
+          <p>Bấm vào bất kỳ mục nào — hệ thống sẽ tự động tìm và mở đúng podcast/video tương ứng để bạn nghe ngay. Không cần copy tên, không cần tìm thủ công.</p>
+        </div>
+        <img src="https://cdn.imgpile.com/f/k6mAb9L_xl.png" alt="Sales team" onerror="this.style.display='none'">
+      </div>
+
+      <div class="list-info-banner">
+        <i class="fas fa-info-circle"></i>
+        <div><strong>Hướng dẫn:</strong> Học theo thứ tự giai đoạn để hiệu quả tốt nhất. Mục có biểu tượng 🎧 sẽ mở podcast, 🎬 mở video, 📄 mở tài liệu.</div>
+      </div>
+
+      <div id="trainingStagesContainer">
+        <div style="text-align:center; padding:40px; color:var(--text-light);">
+          <i class="fas fa-spinner fa-spin" style="font-size:24px;"></i>
+          <p style="margin-top:12px;">Đang tải danh sách đào tạo...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PODCAST VIEW (ORIGINAL APP) ============ -->
+    <div id="podcastView" class="hidden">
     <div class="input-group">
       <label for="contentType"><i class="fas fa-file-alt"></i> Chọn loại nội dung:</label>
       <select id="contentType" style="width:100%; padding:12px 15px; margin-bottom:15px; border-radius:8px; border:1px solid #e2e8f0;">
@@ -1440,6 +2095,7 @@
         </div>
       </div>
     </div>
+    </div><!-- end #podcastView -->
   </div>
 
   <div id="loginModal" class="modal">
@@ -1462,6 +2118,429 @@
   <button id="showTableOfContents" class="btn-toc" title="Mục lục"><i class="fas fa-list"></i></button>
 
   <script>
+    /* ============================================================
+       PASSWORD GATE + AUTO-SEARCH FROM URL
+       Listen password (default 'ideco2026') is loaded from Firebase
+       Master password (hardcoded 'minhtriet1973') unlocks admin
+       ============================================================ */
+    /* No password — admin opens directly to list management */
+
+    function openAdminPwModal() {
+      document.getElementById('adminPwModal').classList.remove('hidden');
+      renderMgmtStageOptions();
+      renderMgmtItems();
+    }
+
+    function closeAdminPwModal() {
+      document.getElementById('adminPwModal').classList.add('hidden');
+    }
+
+    /* --- Init: load training list, show app immediately --------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sync training list from Firebase
+      startTrainingListSync();
+
+      // If URL has ?search= param, jump to podcast tab and auto-search
+      if (pendingAutoSearch) {
+        setTimeout(() => {
+          switchMainTab('podcast');
+          showAutoSearchBanner(pendingAutoSearch);
+        }, 300);
+      }
+
+      // ESC closes admin modal
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') {
+          const modal = document.getElementById('adminPwModal');
+          if (modal && !modal.classList.contains('hidden')) closeAdminPwModal();
+        }
+      });
+    });
+
+    /* ============================================================
+       MAIN TAB SWITCHING (List <-> Podcast)
+       ============================================================ */
+    let currentMainTab = 'list';
+    function switchMainTab(tab) {
+      currentMainTab = tab;
+      document.getElementById('listView').classList.toggle('hidden', tab !== 'list');
+      document.getElementById('podcastView').classList.toggle('hidden', tab !== 'podcast');
+      document.getElementById('tabBtnList').classList.toggle('active', tab === 'list');
+      document.getElementById('tabBtnPodcast').classList.toggle('active', tab === 'podcast');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    let pendingAutoSearch = null;
+    let isAuthenticated = false;
+
+    /* --- Auto-search: capture URL ?search= param ---------------- */
+    (function captureAutoSearch() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const preset = params.get('search');
+        if (preset && preset.trim()) {
+          pendingAutoSearch = preset.trim();
+          // Pre-fill input as soon as DOM is ready (Firebase load handler will trigger filterContent)
+          const apply = () => {
+            const input = document.getElementById('searchInput');
+            if (input) input.value = pendingAutoSearch;
+          };
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', apply);
+          } else {
+            apply();
+          }
+        }
+      } catch (e) { /* silent */ }
+    })();
+
+    function showAutoSearchBanner(term) {
+      const banner = document.createElement('div');
+      banner.style.cssText = `
+        position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+        background: linear-gradient(135deg, #4CAF50, #2196F3);
+        color: white; padding: 12px 20px; border-radius: 999px;
+        font-size: 14px; font-weight: 500; z-index: 9999;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        display: flex; align-items: center; gap: 10px;
+        max-width: 90vw;
+        font-family: 'Inter', -apple-system, sans-serif;
+        animation: slideDown 0.4s ease-out;
+      `;
+      const style = document.createElement('style');
+      style.textContent = `@keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }`;
+      document.head.appendChild(style);
+      banner.innerHTML = `🔎 Đang tìm: <strong style="font-weight:700;">${term.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</strong> <span style="opacity:.7; cursor:pointer; margin-left:6px;" onclick="this.parentElement.remove()">✕</span>`;
+      document.body.appendChild(banner);
+      setTimeout(() => { banner.style.transition = 'opacity 0.4s'; banner.style.opacity = '0'; setTimeout(() => banner.remove(), 400); }, 6000);
+    }
+
+
+    /* ============================================================
+       TRAINING LIST: data + sync with Firebase
+       ============================================================ */
+    const DEFAULT_TRAINING_DATA = (() => {
+      const mk = (id, num, title) => ({
+        id, title: `Số ${num} — ${title}`, type: 'podcast'
+      });
+      return {
+        stages: [
+          { id:'s1', name:'Hội nhập & Tư duy ban đầu', description:'Hiểu môi trường, văn hóa, mindset làm việc — "làm người trước khi làm việc".',
+            items:[
+              mk('s1_01',1,'Lời chia sẻ hội nhập'), mk('s1_02',2,'Lời chia sẻ hội nhập'),
+              mk('s1_04',4,'Lời chia sẻ hội nhập'), mk('s1_05',5,'Lời chia sẻ hội nhập'),
+              mk('s1_03',3,'Bạn kinh doanh mới cần tìm hiểu gì'),
+              mk('s1_06',6,'Nội dung toàn công ty nên nắm'),
+              mk('s1_07',7,'Quy định công việc cơ bản'),
+              mk('s1_08',8,'Những điều cần tránh'), mk('s1_09',9,'Những điều cần tránh'), mk('s1_10',10,'Những điều cần tránh'),
+              mk('s1_62',62,'Cách ứng xử công sở'),
+              mk('s1_64',64,'Tại sao phải phấn đấu mỗi ngày'),
+              mk('s1_74',74,'Tránh hối tiếc trong công việc'),
+              mk('s1_70',70,'Lý do không thành công & sai lầm phổ biến'),
+              mk('s1_71',71,'Lý do không thành công & sai lầm phổ biến'),
+              mk('s1_72',72,'Lý do không thành công & sai lầm phổ biến')
+            ]},
+          { id:'s2', name:'Hiểu công việc & Cách làm việc', description:'Làm việc có hệ thống, không làm theo cảm tính.',
+            items:[
+              mk('s2_12',12,'Checklist & kế hoạch'), mk('s2_13',13,'Checklist & kế hoạch'),
+              mk('s2_14',14,'Checklist & kế hoạch'), mk('s2_15',15,'Checklist & kế hoạch'),
+              mk('s2_69',69,'Chủ động công việc là gì'),
+              mk('s2_78',78,'Quản trị công việc'), mk('s2_79',79,'Quản trị công việc'),
+              mk('s2_59',59,'KPI công ty'),
+              mk('s2_61',61,'Báo cáo cuối tháng'),
+              mk('s2_44',44,'Xử lý phát sinh'),
+              mk('s2_45',45,'Sai sót giao hàng ảnh hưởng gì')
+            ]},
+          { id:'s3', name:'Công cụ & Quy trình (ERP — Nội bộ)', description:'Làm đúng quy trình = không bị lỗi hệ thống.',
+            items:[
+              mk('s3_17',17,'Lập kế hoạch tuần ERP'),
+              mk('s3_18',18,'Báo cáo giao dịch khách hàng'), mk('s3_22',22,'Báo cáo giao dịch khách hàng'),
+              mk('s3_19',19,'Quản lý khách hàng trên ERP'),
+              mk('s3_20',20,'Lên đơn hàng ERP'), mk('s3_21',21,'Lên đơn hàng ERP'), mk('s3_82',82,'Lên đơn hàng ERP'),
+              mk('s3_80',80,'Quản lý khách hàng – Chăm sóc KH'), mk('s3_83',83,'Quản lý khách hàng – Chăm sóc KH'),
+              mk('s3_52',52,'IDECO AI'), mk('s3_53',53,'IDECO AI'),
+              mk('s3_41',41,'Quy trình công ty'), mk('s3_42',42,'Quy trình công ty'),
+              mk('s3_46',46,'Điều phối kho'), mk('s3_47',47,'Điều phối kho'), mk('s3_48',48,'Điều phối kho'),
+              mk('s3_49',49,'Vai trò điều phối & phát triển KD'),
+              mk('s3_50',50,'Vai trò điều phối & phát triển KD'),
+              mk('s3_51',51,'Vai trò điều phối & phát triển KD')
+            ]},
+          { id:'s4', name:'Kỹ năng kinh doanh cơ bản', description:'Biết nói chuyện để bán được hàng.',
+            items:[
+              mk('s4_29',29,'Tránh dùng từ sai'),
+              mk('s4_30',30,'Giao tiếp khách hàng'), mk('s4_31',31,'Giao tiếp khách hàng'),
+              mk('s4_40',40,'Giao dịch hợp tác'),
+              mk('s4_84',84,'Thiết lập giao dịch'),
+              mk('s4_76',76,'Kịch bản telesales'),
+              mk('s4_63',63,'Thuyết phục khách hàng'),
+              mk('s4_65',65,'Kỹ năng chốt sales')
+            ]},
+          { id:'s5', name:'Bán hàng thực chiến & Xử lý tình huống', description:'Biết bán hàng thật – không chỉ học lý thuyết.',
+            items:[
+              mk('s5_33',33,'Vì sao không chốt được đơn'),
+              mk('s5_34',34,'Xử lý tình huống bán hàng'), mk('s5_35',35,'Xử lý tình huống bán hàng'),
+              mk('s5_36',36,'Những lỗi cần tránh'),
+              mk('s5_37',37,'Xử lý đơn hàng'), mk('s5_38',38,'Xử lý đơn hàng'),
+              mk('s5_60',60,'Rút kinh nghiệm chốt sales'),
+              mk('s5_66',66,'Lỗi kinh doanh'),
+              mk('s5_67',67,'Sai lầm báo giá'),
+              mk('s5_72b',72,'Sai lầm không phát triển')
+            ]},
+          { id:'s6', name:'Kiến thức ngành (Dược & Sản phẩm)', description:'Hiểu sản phẩm = bán hàng tự tin hơn.',
+            items:[
+              mk('s6_32',32,'Kinh doanh thuốc'),
+              mk('s6_67b',67,'Bán thuốc cần hiểu gì'),
+              mk('s6_68',68,'Nhóm không phải thuốc'),
+              mk('s6_75',75,'Chính sách bán thuốc'),
+              mk('s6_80b',80,'Giao dịch thuốc')
+            ]},
+          { id:'s7', name:'Quy định – Chuẩn GDP – Thanh tra', description:'Làm đúng luật – tránh rủi ro lớn.',
+            items:[
+              mk('s7_43',43,'GDP là gì'),
+              mk('s7_56',56,'Chuẩn bị thẩm định'),
+              mk('s7_57',57,'Tình huống thanh tra'), mk('s7_58',58,'Tình huống thanh tra')
+            ]},
+          { id:'s8', name:'Phát triển nâng cao & Quản lý', description:'Từ nhân viên → người có tư duy quản lý.',
+            items:[
+              mk('s8_39',39,'Quản lý chuỗi nhà thuốc'),
+              mk('s8_81',81,'Pharmacity'),
+              mk('s8_82b',82,'Chính sách thưởng'),
+              mk('s8_77',77,'AI trợ lý BGĐ'),
+              mk('s8_85',85,'Tham gia đào tạo')
+            ]},
+          { id:'s9', name:'Tư duy – Động lực – Phát triển bản thân', description:'Giữ lửa & phát triển bền.',
+            items:[
+              mk('s9_23',23,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_24',24,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_25',25,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_26',26,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_27',27,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_28',28,'Chuỗi lời khuyên kinh doanh'),
+              mk('s9_11',11,'Đừng để tiếc nuối'),
+              mk('s9_73',73,'Thư giãn'),
+              mk('s9_77b',77,'Hiểu chuyện để làm tốt')
+            ]}
+        ]
+      };
+    })();
+
+    let trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
+    let currentMgmtStageId = trainingData.stages[0]?.id || null;
+
+    function startTrainingListSync() {
+      // Initial render with defaults so users see something instantly
+      renderTrainingList();
+      try {
+        db.ref('settings/trainingList').on('value', snap => {
+          const val = snap.val();
+          if (val && val.stages && Array.isArray(val.stages)) {
+            trainingData = val;
+          }
+          // Always re-render after Firebase responds (even if empty - keeps defaults)
+          renderTrainingList();
+        });
+      } catch (e) { /* keep defaults */ }
+    }
+
+    function saveTrainingList() {
+      try {
+        return db.ref('settings/trainingList').set(trainingData);
+      } catch (e) { return Promise.reject(e); }
+    }
+
+    function escHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function getSearchKeyword(title) {
+      const dashChars = ['—', '–', '-'];
+      for (const ch of dashChars) {
+        const idx = title.indexOf(ch);
+        if (idx > 0 && idx < title.length - 1) return title.slice(idx + 1).trim();
+      }
+      return title.trim();
+    }
+
+    function typeIcon(type) {
+      if (type === 'video') return '🎬';
+      if (type === 'document') return '📄';
+      return '🎧';
+    }
+    function typeLabel(type) {
+      if (type === 'video') return 'Video';
+      if (type === 'document') return 'Tài liệu';
+      return 'Podcast';
+    }
+
+    function renderTrainingList() {
+      const container = document.getElementById('trainingStagesContainer');
+      if (!container) return;
+      if (!trainingData.stages || trainingData.stages.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-light); padding:40px;">Chưa có giai đoạn nào.</p>';
+        return;
+      }
+      container.innerHTML = trainingData.stages.map((stage, idx) => {
+        const num = String(idx + 1).padStart(2, '0');
+        const itemsHtml = !stage.items || stage.items.length === 0
+          ? '<p style="color:var(--text-light); font-style:italic; padding:14px;">Chưa có nội dung.</p>'
+          : `<div class="training-items-grid">${stage.items.map(item => `
+              <button class="training-item" onclick="goToPodcastSearch('${escHtml(getSearchKeyword(item.title)).replace(/'/g, "\\'")}')">
+                <span class="training-item-type tt-${escHtml(item.type || 'podcast')}">${typeIcon(item.type)} ${typeLabel(item.type)}</span>
+                <div class="training-item-title">${escHtml(item.title)}</div>
+                <div class="training-item-cta">Mở để nghe</div>
+              </button>
+            `).join('')}</div>`;
+        return `
+          <div class="stage-block">
+            <div class="stage-block-header">
+              <div class="stage-num">${num}</div>
+              <div class="stage-block-info">
+                <h3>${escHtml(stage.name)}</h3>
+                ${stage.description ? `<p>${escHtml(stage.description)}</p>` : ''}
+              </div>
+            </div>
+            ${itemsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* Click on training item: switch to podcast tab and auto-search */
+    function goToPodcastSearch(keyword) {
+      switchMainTab('podcast');
+      setTimeout(() => {
+        const input = document.getElementById('searchInput');
+        if (input) {
+          input.value = keyword;
+          // Trigger filter — same logic the search box uses
+          if (typeof filterContent === 'function') {
+            filterContent();
+          } else {
+            // Fallback: dispatch input event
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+        showAutoSearchBanner(keyword);
+      }, 200);
+    }
+
+    /* ============================================================
+       LIST MANAGEMENT (admin)
+       ============================================================ */
+    let editingMgmtItemId = null;
+
+    function renderMgmtStageOptions() {
+      const sel = document.getElementById('mgmtStageSelect');
+      sel.innerHTML = trainingData.stages.map((s, i) =>
+        `<option value="${escHtml(s.id)}" ${s.id === currentMgmtStageId ? 'selected' : ''}>GĐ ${i+1}: ${escHtml(s.name)}</option>`
+      ).join('');
+      if (!trainingData.stages.find(s => s.id === currentMgmtStageId)) {
+        currentMgmtStageId = trainingData.stages[0]?.id || null;
+        if (currentMgmtStageId) sel.value = currentMgmtStageId;
+      }
+    }
+
+    function renderMgmtItems() {
+      currentMgmtStageId = document.getElementById('mgmtStageSelect').value;
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      const list = document.getElementById('mgmtItemList');
+      if (!stage || !stage.items || stage.items.length === 0) {
+        list.innerHTML = '<div class="list-mgmt-empty">Chưa có nội dung. Hãy thêm bằng form trên.</div>';
+        return;
+      }
+      list.innerHTML = stage.items.map(item => `
+        <div class="list-mgmt-item-row">
+          <div class="list-mgmt-item-info">
+            <div class="list-mgmt-item-title">${typeIcon(item.type)} ${escHtml(item.title)}</div>
+            <div class="list-mgmt-item-meta">${typeLabel(item.type)} · 🔎 "${escHtml(getSearchKeyword(item.title))}"</div>
+          </div>
+          <button class="list-mgmt-icon-btn" onclick="editMgmtItem('${escHtml(item.id)}')" title="Sửa"><i class="fas fa-pen"></i></button>
+          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtItem('${escHtml(item.id)}')" title="Xoá"><i class="fas fa-times"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function genId() { return 'i_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+    function saveMgmtItem() {
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      if (!stage) { alert('Chưa chọn giai đoạn'); return; }
+      const title = document.getElementById('mgmtItemTitle').value.trim();
+      const type = document.getElementById('mgmtItemType').value;
+      if (!title) { alert('Vui lòng nhập tiêu đề'); return; }
+      if (!stage.items) stage.items = [];
+      if (editingMgmtItemId) {
+        const it = stage.items.find(i => i.id === editingMgmtItemId);
+        if (it) { it.title = title; it.type = type; }
+        editingMgmtItemId = null;
+        document.getElementById('mgmtSaveBtnText').textContent = 'Thêm vào giai đoạn';
+      } else {
+        stage.items.push({ id: genId(), title, type });
+      }
+      saveTrainingList().then(() => {
+        document.getElementById('mgmtItemTitle').value = '';
+        renderMgmtItems();
+      }).catch(err => alert('Lỗi lưu: ' + (err.message || err)));
+    }
+
+    function editMgmtItem(id) {
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      if (!stage) return;
+      const it = stage.items.find(i => i.id === id);
+      if (!it) return;
+      document.getElementById('mgmtItemTitle').value = it.title;
+      document.getElementById('mgmtItemType').value = it.type || 'podcast';
+      editingMgmtItemId = id;
+      document.getElementById('mgmtSaveBtnText').textContent = 'Cập nhật';
+      document.getElementById('mgmtItemTitle').focus();
+    }
+
+    function deleteMgmtItem(id) {
+      if (!confirm('Xoá mục này?')) return;
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      if (!stage) return;
+      stage.items = stage.items.filter(i => i.id !== id);
+      saveTrainingList().then(() => renderMgmtItems());
+    }
+
+    function addMgmtStage() {
+      const name = prompt('Tên giai đoạn mới:');
+      if (!name || !name.trim()) return;
+      const desc = prompt('Mô tả ngắn (có thể bỏ trống):') || '';
+      const newStage = { id: 's_' + Date.now().toString(36), name: name.trim(), description: desc.trim(), items: [] };
+      trainingData.stages.push(newStage);
+      currentMgmtStageId = newStage.id;
+      saveTrainingList().then(() => {
+        renderMgmtStageOptions();
+        renderMgmtItems();
+      });
+    }
+
+    function deleteMgmtStage() {
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      if (!stage) return;
+      if (!confirm(`Xoá giai đoạn "${stage.name}" và toàn bộ nội dung bên trong?`)) return;
+      trainingData.stages = trainingData.stages.filter(s => s.id !== currentMgmtStageId);
+      currentMgmtStageId = trainingData.stages[0]?.id || null;
+      saveTrainingList().then(() => {
+        renderMgmtStageOptions();
+        renderMgmtItems();
+      });
+    }
+
+    function resetListToDefaults() {
+      if (!confirm('Khôi phục toàn bộ 9 giai đoạn và 86 nội dung mặc định? Mọi thay đổi hiện tại sẽ bị mất.')) return;
+      trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
+      currentMgmtStageId = trainingData.stages[0]?.id || null;
+      saveTrainingList().then(() => {
+        renderMgmtStageOptions();
+        renderMgmtItems();
+      });
+    }
+
+    /* ============================================================ */
+
+    /* ============================================================ */
+
     const firebaseConfig = {
       apiKey: "AIzaSyA1VY6qnw9cSyTtPONSXsJiI2sG0t7fBwg",
       authDomain: "baogia-561a0.firebaseapp.com",
