@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>HUẤN LUYỆN - ĐÀO TẠO - CHIA SẼ CÔNG TY IDECO CHUNG TA</title>
+  <title>PODCAST & VIDEO - Đào Tạo Hội Nhập & Kỹ Năng</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -1932,7 +1932,7 @@
   </button>
 
   <div class="container">
-    <h1><i class="fas fa-podcast"></i> NGHE - XEM ĐỂ CÙNG LÀM TỐT HƠN - IDECO </h1>
+    <h1><i class="fas fa-podcast"></i> VIDEO PODCAST HUẤN LUYỆN QUẢN LÝ CHUNG CÁC BẠN</h1>
 
     <!-- ============ MAIN TAB NAVIGATION ============ -->
     <div class="main-tabs">
@@ -1950,8 +1950,8 @@
     <div id="listView">
       <div class="list-hero">
         <div>
-          <h2>Ứng dụng được phát triển bởi MTRIET </h2>
-          <p>Bấm vào mục từ DANH SÁCH để nghe - xem , hệ thống sẽ tự chuyển sang nội dung cần  - Nghe để học và hành thì mới giỏi</p>
+          <h2>Lộ trình đào tạo nhân viên kinh doanh</h2>
+          <p>Bấm vào bất kỳ mục nào — hệ thống sẽ tự động tìm và mở đúng podcast/video tương ứng để bạn nghe ngay. Không cần copy tên, không cần tìm thủ công.</p>
         </div>
         <img src="https://cdn.imgpile.com/f/k6mAb9L_xl.png" alt="Sales team" onerror="this.style.display='none'">
       </div>
@@ -2011,6 +2011,16 @@
       </div>
       
       <button onclick="uploadContent()"><i class="fas fa-upload"></i> Upload</button>
+      
+      <!-- Sync to training list button -->
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+        <button onclick="syncAllToTrainingList()" style="background: linear-gradient(135deg, #f59e0b, #ef4444); width: 100%; font-size: 0.95rem;">
+          <i class="fas fa-sync-alt"></i> Đồng bộ tất cả Podcast/Video → Danh sách đào tạo
+        </button>
+        <p style="font-size: 0.78rem; color: #718096; margin-top: 6px; text-align: center;">
+          <i>Quét toàn bộ podcast/video hiện có và thêm vào tab "Danh sách đào tạo" (bỏ qua mục đã tồn tại)</i>
+        </p>
+      </div>
     </div>
     
     <div class="slide-container">
@@ -2345,6 +2355,194 @@
       try {
         return db.ref('settings/trainingList').set(trainingData);
       } catch (e) { return Promise.reject(e); }
+    }
+
+    /* ============================================================
+       AUTO-SYNC: Podcast → Training List
+       When new content is added in Podcast tab, auto-add to training list
+       ============================================================ */
+    const AUTO_STAGE_ID = 's_auto_new';
+    const AUTO_STAGE_NAME = '📌 Nội dung mới cập nhật';
+
+    function autoAddToTrainingList(podcastName, podcastType) {
+      if (!podcastName) return;
+
+      // Convert podcast name "62. Cách ứng xử công sở" → training title "Số 62 — Cách ứng xử công sở"
+      let trainingTitle = podcastName;
+      const numMatch = podcastName.match(/^(\d+)\.\s*(.+)/);
+      if (numMatch) {
+        trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
+      }
+
+      // Map podcast type → training type
+      const typeMap = { 'audio': 'podcast', 'video': 'video' };
+      const itemType = typeMap[podcastType] || 'podcast';
+
+      // Find or create the "Nội dung mới cập nhật" stage
+      let autoStage = trainingData.stages.find(s => s.id === AUTO_STAGE_ID);
+      if (!autoStage) {
+        autoStage = {
+          id: AUTO_STAGE_ID,
+          name: AUTO_STAGE_NAME,
+          description: 'Nội dung podcast/video mới được thêm sẽ tự động xuất hiện ở đây.',
+          items: []
+        };
+        // Insert at beginning so it's visible first
+        trainingData.stages.unshift(autoStage);
+      }
+
+      // Check if item already exists (by matching number or exact title)
+      const alreadyExists = autoStage.items.some(item => item.title === trainingTitle);
+      if (alreadyExists) return;
+
+      // Also check across all stages
+      const existsAnywhere = trainingData.stages.some(stage =>
+        stage.items.some(item => item.title === trainingTitle)
+      );
+      if (existsAnywhere) return;
+
+      // Add new item
+      autoStage.items.push({
+        id: genId(),
+        title: trainingTitle,
+        type: itemType
+      });
+
+      // Save to Firebase → triggers listener → re-renders training list
+      saveTrainingList();
+      showSyncNotification('📋 Đã tự động thêm "' + trainingTitle + '" vào Danh sách đào tạo!', 'success');
+    }
+
+    function autoRemoveFromTrainingList(podcastName) {
+      if (!podcastName) return;
+      // Build the training title to match
+      let trainingTitle = podcastName;
+      const numMatch = podcastName.match(/^(\d+)\.\s*(.+)/);
+      if (numMatch) trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
+
+      let changed = false;
+      trainingData.stages.forEach(stage => {
+        const before = stage.items.length;
+        stage.items = stage.items.filter(item => item.title !== trainingTitle);
+        if (stage.items.length < before) changed = true;
+      });
+      if (changed) saveTrainingList();
+    }
+
+    function autoRenameInTrainingList(oldName, newName) {
+      if (!oldName || !newName) return;
+      // Convert both names to training title format
+      let oldTitle = oldName, newTitle = newName;
+      const oldMatch = oldName.match(/^(\d+)\.\s*(.+)/);
+      if (oldMatch) oldTitle = `Số ${oldMatch[1]} — ${oldMatch[2]}`;
+      const newMatch = newName.match(/^(\d+)\.\s*(.+)/);
+      if (newMatch) newTitle = `Số ${newMatch[1]} — ${newMatch[2]}`;
+
+      let changed = false;
+      trainingData.stages.forEach(stage => {
+        stage.items.forEach(item => {
+          if (item.title === oldTitle) {
+            item.title = newTitle;
+            changed = true;
+          }
+        });
+      });
+      if (changed) saveTrainingList();
+    }
+
+    /* --- Sync ALL existing podcast/video to training list ------- */
+    function syncAllToTrainingList() {
+      if (!allContent || allContent.length === 0) {
+        showSyncNotification('Chưa có dữ liệu podcast. Vui lòng đợi tải xong.', 'warning');
+        return;
+      }
+
+      let addedCount = 0;
+
+      // Find or create auto stage
+      let autoStage = trainingData.stages.find(s => s.id === AUTO_STAGE_ID);
+      if (!autoStage) {
+        autoStage = {
+          id: AUTO_STAGE_ID,
+          name: AUTO_STAGE_NAME,
+          description: 'Nội dung podcast/video mới được thêm sẽ tự động xuất hiện ở đây.',
+          items: []
+        };
+        trainingData.stages.unshift(autoStage);
+      }
+
+      allContent.forEach(content => {
+        if (!content.name) return;
+        // Only sync audio and video types
+        if (content.type !== 'audio' && content.type !== 'video') return;
+
+        // Convert name to training title
+        let trainingTitle = content.name;
+        const numMatch = content.name.match(/^(\d+)\.\s*(.+)/);
+        if (numMatch) trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
+
+        const itemType = content.type === 'video' ? 'video' : 'podcast';
+
+        // Check if already exists anywhere
+        const existsAnywhere = trainingData.stages.some(stage =>
+          stage.items.some(item => item.title === trainingTitle)
+        );
+        if (existsAnywhere) return;
+
+        autoStage.items.push({
+          id: genId(),
+          title: trainingTitle,
+          type: itemType
+        });
+        addedCount++;
+      });
+
+      if (addedCount > 0) {
+        saveTrainingList();
+        showSyncNotification('✅ Đã thêm ' + addedCount + ' mục mới vào Danh sách đào tạo!', 'success');
+      } else {
+        showSyncNotification('Tất cả podcast/video đã có trong Danh sách rồi — không có gì mới.', 'info');
+      }
+    }
+
+    /* --- Sync notification (visible floating banner) ------------ */
+    function showSyncNotification(message, type) {
+      const old = document.getElementById('syncNotification');
+      if (old) old.remove();
+
+      const colors = {
+        success: 'linear-gradient(135deg, #10b981, #059669)',
+        warning: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        info: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+      };
+
+      const banner = document.createElement('div');
+      banner.id = 'syncNotification';
+      banner.style.cssText =
+        'position:fixed;top:20px;left:50%;transform:translateX(-50%);' +
+        'background:' + (colors[type] || colors.info) + ';' +
+        'color:white;padding:16px 28px;border-radius:14px;' +
+        'font-size:15px;font-weight:600;z-index:999999;' +
+        'box-shadow:0 12px 40px rgba(0,0,0,0.25);' +
+        'display:flex;align-items:center;gap:12px;' +
+        'max-width:92vw;text-align:center;' +
+        'animation:syncSlideDown 0.5s cubic-bezier(0.4,0,0.2,1);';
+      if (!document.getElementById('syncAnimStyle')) {
+        const style = document.createElement('style');
+        style.id = 'syncAnimStyle';
+        style.textContent = '@keyframes syncSlideDown{from{opacity:0;transform:translate(-50%,-30px)}to{opacity:1;transform:translate(-50%,0)}}';
+        document.head.appendChild(style);
+      }
+      banner.innerHTML = '<span>' + message + '</span><span style="cursor:pointer;opacity:.7;font-size:18px;margin-left:8px;" onclick="this.parentElement.remove()">✕</span>';
+      document.body.appendChild(banner);
+      setTimeout(function() {
+        if (banner.parentElement) {
+          banner.style.transition = 'opacity 0.5s,transform 0.5s';
+          banner.style.opacity = '0';
+          banner.style.transform = 'translate(-50%,-20px)';
+          setTimeout(function() { banner.remove(); }, 500);
+        }
+      }, 5000);
     }
 
     function escHtml(s) {
@@ -2985,6 +3183,9 @@
           db.ref('contentOrder').set(order);
         });
         
+        // Auto-sync to training list
+        autoAddToTrainingList(name, type);
+        
         showGlobalNotification(name);
       }
     }
@@ -2994,6 +3195,9 @@
       if (pass === null) return;
       if (pass === "minhtriet1973") {
         if (!confirm("Bạn chắc chắn muốn xóa nội dung này?")) return;
+        // Get name before deleting for training list sync
+        const content = allContent.find(p => p.key === key);
+        const contentName = content ? content.name : null;
         db.ref('contents/' + key).remove();
         db.ref('contentListeners/' + key).remove();
         db.ref('contentOrder').once('value', snap => {
@@ -3001,6 +3205,8 @@
           order = order.filter(k => k !== key);
           db.ref('contentOrder').set(order);
         });
+        // Auto-sync: remove from training list
+        if (contentName) autoRemoveFromTrainingList(contentName);
       } else {
         alert("Sai password!");
       }
@@ -3047,14 +3253,19 @@
         return;
       }
       
+      // Get old name for training list sync
+      const content = allContent.find(p => p.key === key);
+      const oldName = content ? content.name : null;
+      
       db.ref('contents/' + key).update({ name: newName }, (error) => {
         if (error) {
           alert("Có lỗi khi lưu tên: " + error.message);
         } else {
-          const content = allContent.find(p => p.key === key);
           if (content) content.name = newName;
           filterContent();
-          populateTableOfContents(); 
+          populateTableOfContents();
+          // Auto-sync: rename in training list
+          if (oldName && oldName !== newName) autoRenameInTrainingList(oldName, newName);
         }
       });
     }
