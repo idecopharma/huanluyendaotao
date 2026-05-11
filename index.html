@@ -1,4328 +1,731 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>PODCAST & VIDEO - Đào Tạo Hội Nhập & Kỹ Năng</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-  :root {
-    --primary: #4CAF50;
-    --secondary: #2196F3;
-    --danger: #F44336;
-    --warning: #FFC107;
-    --light-bg: #f5f7fa;
-    --card-bg: #ffffff;
-    --text-dark: #2d3748;
-    --text-light: #718096;
-  }
-  
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--light-bg);
-    padding: 20px;
-    color: var(--text-dark);
-    line-height: 1.6;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: var(--card-bg);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    padding: 30px;
-    overflow: auto;
-  }
-  
-  h1 {
-    color: var(--primary);
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 2.2rem;
-    position: relative;
-    padding-bottom: 15px;
-    font-weight: 700;
-  }
-  
-  h1::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 4px;
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    border-radius: 2px;
-  }
-  
-  .input-group {
-    margin-bottom: 25px;
-    background: #f8fafc;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    border: 1px solid #edf2f7;
-  }
-  
-  label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-    font-size: 0.95rem;
-  }
-  
-  input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    font-size: 1rem;
-    transition: all 0.3s;
-    background: white;
-  }
-  
-  input[type="text"]:focus, input[type="password"]:focus {
-    border-color: var(--secondary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
-  }
-  
-  button {
-    background: var(--secondary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    margin-right: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  }
-  
-  button:active {
-    transform: translateY(0);
-  }
-  
-  button.delete {
-    background: var(--danger);
-  }
-  
-  button.edit {
-    background: var(--warning);
-    color: var(--text-dark);
-  }
-  
-  button.save {
-    background: var(--primary);
-    display: none;
-  }
-  
-  button.listeners {
-    background: #6b46c1;
-  }
-  
-  .audio-list {
-    margin-top: 30px;
-    max-height: 60vh;
-    overflow-y: auto;
-    border-radius: 12px;
-    background: #f8fafc;
-    padding: 15px;
-    border: 1px solid #e2e8f0;
-  }
-  
-  .audio-item {
-    background: white;
-    border-radius: 12px;
-    margin: 15px 0;
-    padding: 0;
-    cursor: grab;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    border: 1px solid #edf2f7;
-  }
-  
-  .audio-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-  }
-  
-  .audio-header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-    border-bottom: 1px solid #e2e8f0;
-  }
-  
-  .audio-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    object-fit: cover;
-    margin-right: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    flex-shrink: 0;
-  }
-  
-  .audio-name {
-    font-weight: 700;
-    font-size: 1.3rem;
-    flex-grow: 1;
-    color: var(--text-dark);
-    margin-right: 15px;
-  }
-  
-  .audio-name-input {
-    width: 100%;
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    font-size: 1.3rem;
-    font-weight: 700;
-    font-family: inherit;
-    display: none;
-  }
-  
-  .audio-content {
-    padding: 20px;
-    position: relative;
-  }
-
-  .video-container {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    height: 0;
-    overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin: 15px auto;
-    transition: all 0.3s ease;
-  }
-
-  .video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .video-container.regular-video {
-    padding-bottom: 56.25%;
-    max-width: 800px;
-  }
-
-  .video-container.shorts-video {
-    padding-bottom: 177.78%;
-    max-width: 360px;
-  }
-
-  .audio-actions {
-    display: flex;
-    justify-content: flex-end;
-    padding: 15px;
-    border-top: 1px solid #eee;
-    gap: 10px;
-  }
-  
-  .sort-controls {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 15px;
-  }
-  
-  .sort-btn {
-    background: var(--light-bg);
-    color: var(--text-dark);
-    border: 1px solid #e2e8f0;
-    padding: 8px 15px;
-    margin-left: 10px;
-    font-size: 0.9rem;
-  }
-  
-  .sort-btn.active {
-    background: var(--secondary);
-    color: white;
-    border-color: var(--secondary);
-  }
-  
-  .new-badge {
-    background: var(--danger);
-    color: white;
-    border-radius: 12px;
-    padding: 3px 8px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    margin-left: 10px;
-    animation: pulse 2s infinite;
-  }
-  
-  .new-podcast {
-    border-left: 4px solid var(--primary);
-    animation: highlight 3s ease-out;
-  }
-  
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-  }
-  
-  .modal-image-content {
-    margin: auto;
-    display: block;
-    width: 100%; 
-    height: 100%;
-    max-width: 98vw;
-    max-height: 98vh;
-    object-fit: contain;
-    border-radius: 4px;
-    animation: zoom 0.4s;
-  }
-  
-  @keyframes zoom {
-    from {transform:scale(0)}
-    to {transform:scale(1)}
-  }
-
-  .modal h2 {
-    margin-top: 0;
-    color: var(--primary);
-  }
-  
-  .modal-input {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 15px 0;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    font-size: 1rem;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .listeners-panel {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8fafc;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    display: none;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  
-  .listeners-panel.show {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  .listeners-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .listeners-title {
-    font-weight: 600;
-    color: var(--text-dark);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .listeners-count {
-    background: var(--primary);
-    color: white;
-    border-radius: 12px;
-    padding: 2px 8px;
-    font-size: 0.8rem;
-  }
-  
-  .listeners-list {
-    margin-top: 10px;
-  }
-  
-  .listener-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .listener-info {
-    flex-grow: 1;
-  }
-  
-  .listener-name {
-    font-weight: 500;
-  }
-  
-  .listener-time {
-    color: var(--text-light);
-    font-size: 0.85rem;
-  }
-  
-  .listener-actions {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .delete-listener-btn {
-    background: transparent;
-    color: var(--danger);
-    border: none;
-    padding: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9rem;
-  }
-  
-  .delete-listener-btn:hover {
-    background: #fee2e2;
-  }
-  
-  .play-button {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-weight: 600;
-    cursor: pointer;
-    margin: 10px 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .content-placeholder {
-    text-align: center;
-    padding: 40px 20px;
-    background: #f8fafc;
-    border-radius: 8px;
-    border: 2px dashed #e2e8f0;
-    margin: 15px 0;
-  }
-  
-  .content-placeholder i {
-    font-size: 3rem;
-    color: #cbd5e1;
-    margin-bottom: 15px;
-  }
-  
-  .content-placeholder p {
-    color: var(--text-light);
-    margin: 10px 0;
-  }
-  
-  .admin-panel {
-    margin-top: 30px;
-    padding: 15px;
-    background: #fff8e1;
-    border-radius: 12px;
-    border: 1px solid #ffe082;
-    position: relative;
-  }
-  
-  .admin-panel h3 {
-    margin-top: 0;
-    color: var(--warning);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-  }
-  
-  .admin-panel h3 .toggle-icon {
-    transition: transform 0.3s ease;
-  }
-  
-  .admin-panel.collapsed h3 .toggle-icon {
-    transform: rotate(-90deg);
-  }
-  
-  .admin-content {
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
-    max-height: 500px;
-    opacity: 1;
-  }
-  
-  .admin-panel.collapsed .admin-content {
-    max-height: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin: 15px 0;
-  }
-  
-  .stat-card {
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 8px 0;
-  }
-  
-  .stat-label {
-    color: var(--text-light);
-    font-size: 0.8rem;
-  }
-  
-  .cleanup-controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    margin-top: 15px;
-  }
-  
-  .cleanup-controls button {
-    font-size: 0.85rem;
-    padding: 10px 15px;
-    margin: 0;
-    justify-content: center;
-  }
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-  
-  @keyframes highlight {
-    from { background-color: rgba(76, 175, 80, 0.2); }
-    to { background-color: transparent; }
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-  
-  @keyframes searchPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-    100% { transform: scale(1); }
-  }
-  
-  .global-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: var(--primary);
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    animation: slideIn 0.5s ease-out;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .global-notification i {
-    font-size: 1.2rem;
-  }
-  
-  .search-container {
-    margin-bottom: 20px;
-    position: relative;
-  }
-  
-  .search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-box {
-    width: 100%;
-    padding: 14px 45px 14px 20px;
-    border-radius: 30px;
-    border: 2px solid #e2e8f0;
-    font-size: 1rem;
-    transition: all 0.3s;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  }
-  
-  .search-box:focus {
-    border-color: var(--secondary);
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1);
-  }
-  
-  .search-icon {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-light);
-    pointer-events: none;
-    font-size: 1.1rem;
-  }
-  
-  .search-clear-btn {
-    position: absolute;
-    right: 50px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: #999;
-    cursor: pointer;
-    display: none;
-    font-size: 1.2rem;
-    padding: 5px;
-    z-index: 10;
-  }
-  
-  .search-clear-btn:hover {
-    color: var(--danger);
-  }
-  
-  .search-results-info {
-    margin-top: 10px;
-    color: var(--text-light);
-    font-size: 0.95rem;
-    padding-left: 10px;
-  }
-  
-  .search-results-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 15px 0;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #f0f9ff, #e6f3ff);
-    border-radius: 30px;
-    border: 1px solid var(--secondary);
-  }
-  
-  .search-highlight {
-    background-color: #fff3cd;
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-weight: 600;
-    color: #856404;
-  }
-  
-  .search-result-item {
-    animation: searchPulse 0.5s ease-out;
-  }
-  
-  .suggestions-container {
-    margin-top: 30px;
-    padding: 25px;
-    background: linear-gradient(135deg, #f8fafc, #f0f9ff);
-    border-radius: 20px;
-    border: 2px dashed var(--secondary);
-  }
-  
-  .suggestions-title {
-    font-size: 1.2rem;
-    color: var(--text-dark);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .suggestions-title i {
-    color: var(--warning);
-    font-size: 1.5rem;
-  }
-  
-  .suggestions-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-  }
-  
-  .suggestion-tag {
-    background: white;
-    color: var(--text-dark);
-    border: 2px solid var(--secondary);
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .suggestion-tag:hover {
-    background: var(--secondary);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(33, 150, 243, 0.3);
-  }
-  
-  .suggestion-tag i {
-    font-size: 0.9rem;
-    opacity: 0.7;
-  }
-
-  /* Live keyword suggestions panel - shows phrases matching current search term */
-  .keyword-suggest-panel {
-    margin: 12px 0 18px 0;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, #fffaf0, #fff7e6);
-    border-radius: 14px;
-    border: 1px solid #ffd591;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    animation: searchPulse 0.3s ease-out;
-  }
-
-  .keyword-suggest-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: #b45309;
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-  }
-
-  .keyword-suggest-header i {
-    color: var(--warning);
-  }
-
-  .keyword-suggest-count {
-    background: var(--warning);
-    color: #fff;
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin-left: 4px;
-  }
-
-  .keyword-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .keyword-chip {
-    background: white;
-    color: var(--text-dark);
-    border: 1.5px solid #ffd591;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    line-height: 1.4;
-  }
-
-  .keyword-chip:hover {
-    background: var(--warning);
-    color: #fff;
-    border-color: var(--warning);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.35);
-  }
-
-  .keyword-chip .chip-count {
-    background: rgba(0,0,0,0.08);
-    color: inherit;
-    border-radius: 10px;
-    padding: 1px 7px;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  .keyword-chip:hover .chip-count {
-    background: rgba(255,255,255,0.3);
-  }
-
-  .keyword-chip i {
-    font-size: 0.75rem;
-    opacity: 0.65;
-  }
-
-  /* Slide search results section */
-  .slide-search-results {
-    margin: 15px 0 20px 0;
-    padding: 18px 20px;
-    background: linear-gradient(135deg, #fef2f2, #fee2e2);
-    border-radius: 14px;
-    border: 1.5px solid #fca5a5;
-    animation: searchPulse 0.3s ease-out;
-  }
-
-  .slide-search-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    color: #991b1b;
-    font-size: 1rem;
-    margin-bottom: 12px;
-  }
-
-  .slide-search-header i {
-    color: var(--danger);
-    font-size: 1.15rem;
-  }
-
-  .slide-search-count {
-    background: var(--danger);
-    color: #fff;
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-
-  .slide-search-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .slide-search-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #fecaca;
-    transition: all 0.2s ease;
-  }
-
-  .slide-search-item:hover {
-    border-color: var(--danger);
-    box-shadow: 0 3px 8px rgba(244, 67, 54, 0.15);
-    transform: translateX(3px);
-  }
-
-  .slide-search-item i.slide-icon {
-    color: var(--danger);
-    font-size: 1.1rem;
-    flex-shrink: 0;
-  }
-
-  .slide-search-item a {
-    color: var(--text-dark);
-    text-decoration: none;
-    font-weight: 500;
-    flex: 1;
-    word-break: break-word;
-  }
-
-  .slide-search-item a:hover {
-    color: var(--danger);
-    text-decoration: underline;
-  }
-
-  .slide-container {
-    margin-bottom: 20px;
-  }
-
-  .slide-toggle-btn {
-    background: var(--danger);
-    color: white;
-    border: 2px solid white;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    width: auto;
-    margin: 0;
-  }
-  
-  .slide-toggle-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-  }
-
-  .slide-list {
-    margin-top: 15px;
-    padding: 20px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    display: none; 
-  }
-
-  .slide-list ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .slide-list li {
-    padding: 12px 0;
-    border-bottom: 1px solid #edf2f7;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .slide-list li:last-child {
-    border-bottom: none;
-  }
-
-  .slide-list a {
-    text-decoration: none;
-    color: var(--text-dark);
-    font-weight: 600;
-    transition: color 0.2s;
-  }
-  
-  .slide-list a:hover {
-    color: var(--secondary);
-  }
-
-  .delete-slide-btn {
-    background: transparent;
-    border: none;
-    color: var(--danger);
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 5px;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-  }
-  .delete-slide-btn:hover {
-    background-color: #fee2e2;
-  }
-  
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 10px;
-  }
-
-  .info-item {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.2s;
-    position: relative;
-    border: 1px solid #e2e8f0;
-  }
-
-  .info-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-
-  .info-thumb {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    cursor: pointer;
-  }
-
-  .info-caption {
-    padding: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    text-align: center;
-  }
-
-  .btn-delete-info {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(244, 67, 54, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    z-index: 10;
-  }
-  
-  .btn-toc {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 999;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.2rem;
-  }
-
-  .btn-toc:hover {
-    transform: scale(1.1);
-    background: var(--secondary);
-  }
-  
-  .toc-panel {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 300px;
-    background-color: white;
-    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 998;
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
-    padding: 20px;
-    overflow-y: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .toc-panel.show {
-    transform: translateX(0);
-  }
-
-  .toc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-shrink: 0;
-  }
-
-  .toc-header h4 {
-    margin: 0;
-    color: var(--primary);
-  }
-
-  .toc-list {
-    list-style-type: none;
-    padding: 0;
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-
-  .toc-list li {
-    margin-bottom: 10px;
-  }
-
-  .toc-list a {
-    text-decoration: none;
-    color: var(--text-dark);
-    font-weight: 500;
-    display: block;
-    padding: 8px 10px;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-  }
-
-  .toc-list a:hover {
-    background-color: #f0f4f8;
-    color: var(--secondary);
-  }
-  
-  .toc-sort-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    flex-shrink: 0;
-  }
-  .toc-sort-btn {
-    flex-grow: 1;
-    background: var(--light-bg);
-    color: var(--text-dark);
-    border: 1px solid #e2e8f0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-  }
-  .toc-sort-btn:hover {
-    background: #e2e8f0;
-  }
-  .toc-sort-btn.active {
-    background: var(--secondary);
-    color: white;
-    border-color: var(--secondary);
-  }
-  
-  @media (max-width: 768px) {
-    .container {
-      padding: 20px;
-    }
-    
-    h1 {
-      font-size: 1.8rem;
-    }
-    
-    .audio-header {
-      flex-direction: column;
-      text-align: center;
-      padding: 15px;
-    }
-    
-    .audio-image {
-      width: 100%;
-      height: auto;
-      max-height: 200px;
-      margin-right: 0;
-      margin-bottom: 15px;
-    }
-    
-    .audio-list {
-      max-height: 65vh;
-    }
-    
-    .audio-actions {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    
-    button {
-      width: 100%;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-    
-    .sort-controls {
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .sort-btn {
-      margin: 5px;
-    }
-    
-    .global-notification {
-      left: 20px;
-      right: 20px;
-      top: 10px;
-    }
-    
-    .video-container {
-      max-width: 100%;
-    }
-    
-    .video-container.regular-video {
-      padding-bottom: 56.25%;
-    }
-    
-    .video-container.shorts-video {
-      max-width: 100%;
-      padding-bottom: 177.78%;
-    }
-    
-    .modal-content {
-      padding: 20px;
-      margin: 20px;
-    }
-    
-    .modal-buttons {
-      flex-direction: column;
-    }
-    
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .cleanup-controls {
-      grid-template-columns: 1fr;
-    }
-    
-    .listener-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-    }
-    
-    .listener-actions {
-      align-self: flex-end;
-    }
-    
-    .toc-panel {
-      width: 100%;
-    }
-    
-    .suggestions-grid {
-      gap: 8px;
-    }
-    
-    .suggestion-tag {
-      padding: 8px 15px;
-      font-size: 0.9rem;
-    }
-  }
-  
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  
-  .empty-state {
-    text-align: center;
-    padding: 50px 20px;
-    color: var(--text-light);
-  }
-  
-  .empty-state i {
-    font-size: 3.5rem;
-    color: #e2e8f0;
-    margin-bottom: 20px;
-  }
-  
-  .empty-state p {
-    font-size: 1.1rem;
-    margin-top: 10px;
-  }
-  
-  .edit-mode .audio-name {
-    display: none;
-  }
-  
-  .edit-mode .audio-name-input {
-    display: block;
-  }
-  
-  .edit-mode .edit {
-    display: none;
-  }
-  
-  .edit-mode .save {
-    display: inline-flex;
-  }
-  
-  .hidden {
-    display: none !important;
-  }
-
-  /* ============ PASSWORD GATE ============ */
-  .password-gate {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(45, 55, 72, 0.96), rgba(33, 150, 243, 0.85));
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: gateFadeIn 0.4s ease-out;
-  }
-  @keyframes gateFadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .gate-card {
-    background: white;
-    border-radius: 20px;
-    padding: 44px 36px;
-    max-width: 440px;
-    width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-    text-align: center;
-    animation: gateSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  @keyframes gateSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-  .gate-icon {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 32px;
-    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
-  }
-
-  .gate-card h2 {
-    font-size: 1.55rem;
-    color: var(--text-dark);
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-
-  .gate-card .gate-subtitle {
-    color: var(--text-light);
-    margin-bottom: 28px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .gate-card input[type="password"] {
-    width: 100%;
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1rem;
-    text-align: center;
-    letter-spacing: 0.05em;
-    margin-bottom: 14px;
-    transition: all 0.2s;
-  }
-  .gate-card input[type="password"]:focus {
-    outline: none;
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.15);
-  }
-
-  .gate-btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, var(--primary), #45A049);
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 16px;
-  }
-  .gate-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.35);
-  }
-  .gate-btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .gate-message {
-    font-size: 0.88rem;
-    margin-top: 4px;
-    min-height: 1.2em;
-    font-weight: 500;
-  }
-  .gate-message.error { color: var(--danger); }
-  .gate-message.success { color: var(--primary); }
-  .gate-message.info { color: var(--text-light); }
-
-  .gate-admin-link {
-    background: transparent;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    font-size: 0.85rem;
-    margin-top: 8px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: all 0.2s;
-  }
-  .gate-admin-link:hover {
-    background: #f1f5f9;
-    color: var(--text-dark);
-  }
-
-  /* Floating admin button — visible after login */
-  .admin-fab {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: white;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: var(--text-light);
-    transition: all 0.25s;
-    z-index: 1000;
-  }
-  .admin-fab:hover {
-    transform: rotate(45deg) scale(1.05);
-    color: var(--secondary);
-    border-color: var(--secondary);
-  }
-
-  /* ============ ADMIN PASSWORD MODAL ============ */
-  .admin-pw-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(45, 55, 72, 0.7);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: gateFadeIn 0.3s ease-out;
-  }
-
-  .admin-pw-modal .modal-card {
-    background: white;
-    border-radius: 18px;
-    padding: 36px 32px;
-    max-width: 420px;
-    width: 100%;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-    position: relative;
-    animation: gateSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .modal-close-x {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: #f1f5f9;
-    cursor: pointer;
-    color: var(--text-light);
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  .modal-close-x:hover {
-    background: var(--danger);
-    color: white;
-  }
-
-  .admin-pw-modal h3 {
-    font-size: 1.25rem;
-    color: var(--text-dark);
-    margin-bottom: 6px;
-    font-weight: 700;
-  }
-  .admin-pw-modal .modal-subtitle {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-bottom: 22px;
-  }
-
-  .admin-pw-modal input[type="password"] {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.98rem;
-    margin-bottom: 12px;
-    transition: all 0.2s;
-  }
-  .admin-pw-modal input[type="password"]:focus {
-    outline: none;
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
-  }
-
-  .admin-pw-modal .btn-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .admin-pw-modal .btn-row button { flex: 1; }
-
-  .admin-pw-modal .btn-secondary {
-    background: #f1f5f9;
-    color: var(--text-dark);
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-  }
-  .admin-pw-modal .btn-secondary:hover { background: #e2e8f0; }
-
-  /* ============ MAIN TAB NAVIGATION ============ */
-  .main-tabs {
-    display: flex;
-    gap: 6px;
-    margin: -10px -10px 24px;
-    padding: 6px;
-    background: #f1f5f9;
-    border-radius: 14px;
-    position: sticky;
-    top: 8px;
-    z-index: 50;
-  }
-  .main-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-light);
-    cursor: pointer;
-    transition: all 0.25s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .main-tab:hover { color: var(--text-dark); }
-  .main-tab.active {
-    background: white;
-    color: var(--secondary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-  .main-tab .badge {
-    background: var(--primary);
-    color: white;
-    font-size: 0.72rem;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-weight: 700;
-  }
-
-  /* ============ LIST VIEW (9 STAGES) ============ */
-  .list-hero {
-    background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
-    color: white;
-    padding: 36px 32px;
-    border-radius: 16px;
-    margin-bottom: 28px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 28px;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .list-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  .list-hero h2 {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .list-hero p {
-    opacity: 0.92;
-    font-size: 0.96rem;
-    line-height: 1.55;
-    max-width: 520px;
-  }
-  .list-hero img {
-    height: 130px;
-    width: 130px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid rgba(255,255,255,0.4);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    background: white;
-  }
-  @media (max-width: 700px) {
-    .list-hero { grid-template-columns: 1fr; padding: 28px 22px; }
-    .list-hero img { height: 90px; width: 90px; justify-self: center; }
-    .list-hero h2 { font-size: 1.4rem; }
-  }
-
-  .stage-block {
-    margin-bottom: 36px;
-    padding-bottom: 36px;
-    border-bottom: 1px solid #edf2f7;
-  }
-  .stage-block:last-child { border-bottom: none; }
-
-  .stage-block-header {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 18px;
-  }
-  .stage-num {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--primary);
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .stage-block-info h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 4px;
-  }
-  .stage-block-info p {
-    color: var(--text-light);
-    font-size: 0.88rem;
-    line-height: 1.5;
-  }
-
-  .training-items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
-  }
-  .training-item {
-    background: white;
-    border: 1.5px solid #edf2f7;
-    border-radius: 10px;
-    padding: 16px 18px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: left;
-    font-family: inherit;
-    color: inherit;
-  }
-  .training-item:hover {
-    transform: translateY(-2px);
-    border-color: var(--secondary);
-    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.12);
-  }
-  .training-item-type {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 999px;
-    align-self: flex-start;
-  }
-  .tt-podcast { background: #fef2f2; color: #ef4444; }
-  .tt-video { background: #eff6ff; color: #3b82f6; }
-  .tt-document { background: #f0fdf4; color: #16a34a; }
-  .training-item-title {
-    font-weight: 600;
-    font-size: 0.96rem;
-    color: var(--text-dark);
-    line-height: 1.35;
-  }
-  .training-item-cta {
-    margin-top: auto;
-    padding-top: 6px;
-    font-size: 0.78rem;
-    color: var(--secondary);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .training-item-cta::after { content: '→'; transition: transform 0.2s; }
-  .training-item:hover .training-item-cta::after { transform: translateX(3px); }
-
-  .list-info-banner {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(33, 150, 243, 0.08));
-    border: 1px solid rgba(33, 150, 243, 0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    margin-bottom: 28px;
-    color: var(--text-dark);
-    font-size: 0.92rem;
-    line-height: 1.55;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .list-info-banner i { color: var(--secondary); font-size: 18px; margin-top: 2px; }
-
-  /* Admin: list management */
-  .admin-menu-item {
-    background: #f8fafc;
-    border: 1.5px solid transparent;
-    border-radius: 10px;
-    padding: 16px 18px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    text-align: left;
-    width: 100%;
-    font-family: inherit;
-  }
-  .admin-menu-item:hover {
-    background: white;
-    border-color: var(--secondary);
-    transform: translateX(4px);
-  }
-  .admin-menu-item-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .admin-menu-item-text { flex: 1; }
-  .admin-menu-item-text strong {
-    display: block;
-    color: var(--text-dark);
-    font-size: 0.96rem;
-    margin-bottom: 2px;
-  }
-  .admin-menu-item-text small {
-    color: var(--text-light);
-    font-size: 0.82rem;
-  }
-
-  .admin-back-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    margin-bottom: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .admin-back-btn:hover { background: #f1f5f9; color: var(--text-dark); }
-
-  .list-mgmt-stage-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .list-mgmt-stage-row select { flex: 1; padding: 10px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 0.9rem; background: white; }
-
-  .list-mgmt-form-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .list-mgmt-form-row input,
-  .list-mgmt-form-row select {
-    padding: 10px 12px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-family: inherit;
-  }
-  .list-mgmt-form-row input:focus,
-  .list-mgmt-form-row select:focus {
-    outline: none;
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
-  }
-
-  .list-mgmt-items {
-    max-height: 280px;
-    overflow-y: auto;
-    margin-top: 10px;
-    border: 1px solid #edf2f7;
-    border-radius: 8px;
-    background: #f8fafc;
-  }
-  .list-mgmt-item-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-bottom: 1px solid #edf2f7;
-    background: white;
-    margin: 2px;
-    border-radius: 6px;
-  }
-  .list-mgmt-item-row:last-child { border-bottom: none; }
-  .list-mgmt-item-info { flex: 1; min-width: 0; }
-  .list-mgmt-item-title {
-    font-size: 0.86rem;
-    color: var(--text-dark);
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .list-mgmt-item-meta { font-size: 0.72rem; color: var(--text-light); }
-  .list-mgmt-icon-btn {
-    width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0;
-    background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: var(--text-light); transition: all 0.15s;
-  }
-  .list-mgmt-icon-btn:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
-  .list-mgmt-icon-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
-
-  .list-mgmt-empty {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-light);
-    font-style: italic;
-    font-size: 0.88rem;
-  }
-  </style>
-</head>
-<body>
-  <!-- ============ ADMIN MODAL (MENU + SUB-VIEWS) ============ -->
-  <div id="adminPwModal" class="admin-pw-modal hidden">
-    <div class="modal-card" style="max-width:560px;">
-      <button class="modal-close-x" onclick="closeAdminPwModal()" title="Đóng">×</button>
-
-      <!-- List management (opens directly, no password) -->
-      <div id="adminListMgmt">
-        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý danh sách đào tạo</h3>
-        <p class="modal-subtitle">Thêm/sửa/xoá nội dung trong các giai đoạn. Lưu trên Firebase, áp dụng cho mọi thiết bị.</p>
-
-        <div class="list-mgmt-stage-row">
-          <select id="mgmtStageSelect" onchange="renderMgmtItems()"></select>
-          <button class="list-mgmt-icon-btn" onclick="addMgmtStage()" title="Thêm giai đoạn" style="width:36px;height:36px;"><i class="fas fa-plus"></i></button>
-          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtStage()" title="Xoá giai đoạn này" style="width:36px;height:36px;"><i class="fas fa-trash"></i></button>
-        </div>
-
-        <div class="list-mgmt-form-row">
-          <input type="text" id="mgmtItemTitle" placeholder='Tiêu đề (vd: "Số 62 — Cách ứng xử công sở")'>
-          <select id="mgmtItemType">
-            <option value="podcast">🎧 Podcast</option>
-            <option value="video">🎬 Video</option>
-            <option value="document">📄 Tài liệu</option>
-          </select>
-          <button class="gate-btn-primary" style="margin-bottom:0;" onclick="saveMgmtItem()">
-            <i class="fas fa-save"></i> <span id="mgmtSaveBtnText">Thêm vào giai đoạn</span>
-          </button>
-        </div>
-
-        <div id="mgmtItemList" class="list-mgmt-items"></div>
-
-        <div style="margin-top:14px; display:flex; gap:8px;">
-          <button class="btn-secondary" style="flex:1;" onclick="resetListToDefaults()">↻ Khôi phục mặc định</button>
-          <button class="btn-secondary" style="flex:1;" onclick="closeAdminPwModal()">Đóng</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Floating admin button (always visible) -->
-  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Quản trị danh sách">
-    <i class="fas fa-cog"></i>
-  </button>
-
-  <div class="container">
-    <h1><i class="fas fa-podcast"></i> VIDEO PODCAST HUẤN LUYỆN QUẢN LÝ CHUNG CÁC BẠN</h1>
-
-    <!-- ============ MAIN TAB NAVIGATION ============ -->
-    <div class="main-tabs">
-      <button class="main-tab active" id="tabBtnList" onclick="switchMainTab('list')">
-        <i class="fas fa-list-check"></i>
-        <span>DANH SÁCH ĐÀO TẠO</span>
-      </button>
-      <button class="main-tab" id="tabBtnPodcast" onclick="switchMainTab('podcast')">
-        <i class="fas fa-headphones"></i>
-        <span>NGHE PODCAST</span>
-      </button>
-    </div>
-
-    <!-- ============ LIST VIEW (TRAINING JOURNEY) ============ -->
-    <div id="listView">
-      <div class="list-hero">
-        <div>
-          <h2>Lộ trình đào tạo nhân viên kinh doanh</h2>
-          <p>Bấm vào bất kỳ mục nào — hệ thống sẽ tự động tìm và mở đúng podcast/video tương ứng để bạn nghe ngay. Không cần copy tên, không cần tìm thủ công.</p>
-        </div>
-        <img src="https://cdn.imgpile.com/f/k6mAb9L_xl.png" alt="Sales team" onerror="this.style.display='none'">
-      </div>
-
-      <div class="list-info-banner">
-        <i class="fas fa-info-circle"></i>
-        <div><strong>Hướng dẫn:</strong> Học theo thứ tự giai đoạn để hiệu quả tốt nhất. Mục có biểu tượng 🎧 sẽ mở podcast, 🎬 mở video, 📄 mở tài liệu.</div>
-      </div>
-
-      <div id="trainingStagesContainer">
-        <div style="text-align:center; padding:40px; color:var(--text-light);">
-          <i class="fas fa-spinner fa-spin" style="font-size:24px;"></i>
-          <p style="margin-top:12px;">Đang tải danh sách đào tạo...</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ PODCAST VIEW (ORIGINAL APP) ============ -->
-    <div id="podcastView" class="hidden">
-    <div class="input-group">
-      <label for="contentType"><i class="fas fa-file-alt"></i> Chọn loại nội dung:</label>
-      <select id="contentType" style="width:100%; padding:12px 15px; margin-bottom:15px; border-radius:8px; border:1px solid #e2e8f0;">
-        <option value="audio">Podcast (Audio)</option>
-        <option value="video">Video (YouTube - Hỗ trợ cả Shorts)</option>
-        <option value="slide">Slide Đào Tạo</option>
-        <option value="infographic">Infographic (Ảnh Đào Tạo)</option>
-      </select>
-      
-      <div id="podcastVideoInputs">
-        <label for="contentName"><i class="fas fa-heading"></i> Tên nội dung:</label>
-        <input type="text" id="contentName" placeholder="Nhập tên (ví dụ: 1. Bài học A)..." />
-        
-        <label for="contentLink"><i class="fas fa-link"></i> Link nội dung:</label>
-        <input type="text" id="contentLink" placeholder="Link Vocaroo, YouTube hoặc YouTube Shorts..." />
-        <p style="font-size: 0.8rem; color: #718096; margin-top: -10px; margin-bottom: 15px;">
-          <i>Hỗ trợ: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/...</i>
-        </p>
-      </div>
-
-      <div id="slideInputs" style="display: none;">
-        <label for="slideTitle"><i class="fas fa-heading"></i> Tiêu đề Slide:</label>
-        <input type="text" id="slideTitle" placeholder="Nhập tiêu đề cho slide đào tạo..." />
-        
-        <label for="slideLink"><i class="fas fa-link"></i> Xem slide đào tạo:</label>
-        <input type="text" id="slideLink" placeholder="Dán link website vào đây, ví dụ: https://idecopharma-697ee22.gamma.site/" />
-      </div>
-      
-      <div id="infographicInputs" style="display: none;">
-        <label for="infoTitle"><i class="fas fa-heading"></i> Tên Infographic:</label>
-        <input type="text" id="infoTitle" placeholder="Ví dụ: Quy trình nhập kho..." />
-        
-        <label for="infoLink"><i class="fas fa-image"></i> Link ảnh:</label>
-        <input type="text" id="infoLink" placeholder="Dán địa chỉ hình ảnh (URL) vào đây..." />
-        <p style="font-size: 0.8rem; color: #718096; margin-top: -10px; margin-bottom: 15px;">
-          <i>Mẹo: Chuột phải vào ảnh trên mạng/Zalo chọn 'Copy Image Address'</i>
-        </p>
-      </div>
-      
-      <button onclick="uploadContent()"><i class="fas fa-upload"></i> Upload</button>
-      
-      <!-- Sync to training list button -->
-      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-        <button onclick="syncAllToTrainingList()" style="background: linear-gradient(135deg, #f59e0b, #ef4444); width: 100%; font-size: 0.95rem;">
-          <i class="fas fa-sync-alt"></i> Đồng bộ tất cả Podcast/Video → Danh sách đào tạo
-        </button>
-        <p style="font-size: 0.78rem; color: #718096; margin-top: 6px; text-align: center;">
-          <i>Quét toàn bộ podcast/video hiện có và thêm vào tab "Danh sách đào tạo" (bỏ qua mục đã tồn tại)</i>
-        </p>
-      </div>
-    </div>
-    
-    <div class="slide-container">
-      <button class="slide-toggle-btn" onclick="toggleSlideList()">
-        <i class="fas fa-chalkboard-teacher"></i> Xem slide đào tạo
-      </button>
-      <div id="slideList" class="slide-list">
-      </div>
-    </div>
-
-    <div class="infographic-container" style="margin-bottom: 20px;">
-      <button class="slide-toggle-btn" onclick="toggleInfographicList()" style="background: #e91e63;">
-        <i class="fas fa-images"></i> Xem lược đồ đào tạo
-      </button>
-      <div id="infographicList" class="slide-list" style="display: none;">
-        <div class="info-grid" id="infoGrid">
-        </div>
-      </div>
-    </div>
-
-    <div class="search-container">
-      <div class="search-wrapper">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm nội dung... (VD: kinh doanh, kế hoạch, quy định...)" oninput="filterContent()" autocomplete="off" />
-        <i class="fas fa-search search-icon"></i>
-        <button id="clearSearchBtn" class="search-clear-btn" onclick="clearSearch()">
-          <i class="fas fa-times-circle"></i>
-        </button>
-      </div>
-      <div id="searchResultsInfo" class="search-results-info"></div>
-      <div id="searchStats" class="search-results-stats" style="display: none;">
-        <span><i class="fas fa-filter"></i> <span id="filteredCount">0</span>/<span id="totalCount">0</span> kết quả</span>
-        <button onclick="clearSearch()" style="background: transparent; border: none; color: var(--primary); cursor: pointer; font-weight: 600;">
-          <i class="fas fa-times-circle"></i> Xóa bộ lọc
-        </button>
-      </div>
-      <!-- Live keyword/phrase suggestions appear here as user types -->
-      <div id="keywordSuggestPanel" class="keyword-suggest-panel" style="display: none;"></div>
-      <!-- Matching slide results appear here when user searches -->
-      <div id="slideSearchResults" class="slide-search-results" style="display: none;"></div>
-    </div>
-    
-    <div class="sort-controls">
-      <button class="sort-btn" onclick="sortContent('default')"><i class="fas fa-sort"></i> Mặc định</button>
-      <button class="sort-btn" onclick="sortContent('title-asc')"><i class="fas fa-sort-alpha-down"></i> A-Z</button>
-      <button class="sort-btn" onclick="sortContent('title-desc')"><i class="fas fa-sort-alpha-up"></i> Z-A</button>
-    </div>
-    
-    <div class="audio-list" id="contentList">
-      <div class="empty-state">
-        <i class="fas fa-headphones"></i>
-        <p>Chưa có nội dung nào. Hãy thêm nội dung đầu tiên!</p>
-      </div>
-    </div>
-
-    <div class="admin-panel" id="adminPanel">
-      <h3 onclick="toggleAdminPanel()">
-        <i class="fas fa-cog"></i> 
-        <span>Quản lý dữ liệu & Sắp xếp</span>
-        <i class="fas fa-chevron-down toggle-icon"></i>
-      </h3>
-      <div class="admin-content">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-value" id="totalListeners">0</div>
-            <div class="stat-label">Tổng lượt nghe</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="uniqueListeners">0</div>
-            <div class="stat-label">Người nghe duy nhất</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="oldestRecord">N/A</div>
-            <div class="stat-label">Dữ liệu cũ nhất</div>
-          </div>
-        </div>
-        <div class="cleanup-controls">
-          <button onclick="applyStandardOrder()" style="background: #2d3748; color: white;"><i class="fas fa-sort-amount-down"></i> ĐÁNH SỐ & SẮP XẾP CHUẨN</button>
-          <button onclick="cleanupOldData(30)"><i class="fas fa-broom"></i> Xóa dữ liệu > 30 ngày</button>
-          <button onclick="cleanupOldData(7)" style="background: var(--warning)"><i class="fas fa-broom"></i> Xóa dữ liệu > 7 ngày</button>
-          <button onclick="removeDuplicateListeners()" style="background: var(--primary)"><i class="fas fa-compress"></i> Gộp bản ghi trùng</button>
-          <button onclick="exportListenersData()" style="background: #6b46c1"><i class="fas fa-download"></i> Xuất dữ liệu</button>
-        </div>
-      </div>
-    </div>
-    </div><!-- end #podcastView -->
-  </div>
-
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h2><i class="fas fa-user"></i> Đăng nhập để nghe/xem</h2>
-      <p>Vui lòng nhập tên của bạn để tiếp tục</p>
-      <input type="text" id="userNameInput" class="modal-input" placeholder="Nhập họ tên của bạn">
-      <div class="modal-buttons">
-        <button onclick="closeLoginModal()"><i class="fas fa-times"></i> Hủy</button>
-        <button onclick="confirmLogin()" style="background: var(--primary)"><i class="fas fa-check"></i> Xác nhận</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="imageModal" class="modal" onclick="this.style.display='none'" style="z-index: 9999; background-color: rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center;">
-    <span style="position:absolute; top:20px; right:30px; color:#fff; font-size:40px; font-weight:bold; cursor:pointer; z-index:10001;">&times;</span>
-    <img class="modal-image-content" id="img01">
-  </div>
-
-  <button id="showTableOfContents" class="btn-toc" title="Mục lục"><i class="fas fa-list"></i></button>
-
-  <script>
-    /* ============================================================
-       PASSWORD GATE + AUTO-SEARCH FROM URL
-       Listen password (default 'ideco2026') is loaded from Firebase
-       Master password (hardcoded 'minhtriet1973') unlocks admin
-       ============================================================ */
-    /* No password — admin opens directly to list management */
-
-    function openAdminPwModal() {
-      document.getElementById('adminPwModal').classList.remove('hidden');
-      renderMgmtStageOptions();
-      renderMgmtItems();
-    }
-
-    function closeAdminPwModal() {
-      document.getElementById('adminPwModal').classList.add('hidden');
-    }
-
-    /* --- Init: load training list, show app immediately --------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      // Sync training list from Firebase
-      startTrainingListSync();
-
-      // If URL has ?search= param, jump to podcast tab and auto-search
-      if (pendingAutoSearch) {
-        setTimeout(() => {
-          switchMainTab('podcast');
-          showAutoSearchBanner(pendingAutoSearch);
-        }, 300);
-      }
-
-      // ESC closes admin modal
-      document.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Escape') {
-          const modal = document.getElementById('adminPwModal');
-          if (modal && !modal.classList.contains('hidden')) closeAdminPwModal();
+<!-- ====================================================================
+     POPUP TỔNG HỢP — Chuẩn TBKH (nhóm NHÂN VIÊN) + Bảng 8 cột
+     Phiên bản: v3.1 — Thêm CƠ CHẾ BÙ GIỜ + localStorage persistence
+     
+     CÁC SỬA SO VỚI v3.0:
+       ⭐ LATE_TOLERANCE_MINUTES = 60: Cửa sổ "bù" sau mốc thiết lập.
+          Vd: mốc 10:00 + bù 60 phút → máy vào trước 11:00 vẫn thấy popup
+          Sau 11:00 (mốc 10:00 đã trễ > 60p) thì không hiện nữa
+       ⭐ localStorage: máy nào đã đóng popup sau ≥ 8s thì KHÔNG hiện lại
+          cho mốc đó trong ngày (kể cả khi reload trang/đổi tab)
+          → Đảm bảo "ai cũng thấy", nhưng không lặp lại khó chịu
+       ⭐ Auto cleanup localStorage cũ của ngày trước (tránh phình to)
+     ==================================================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+(function () {
+    'use strict';
+
+    // ================================================================
+    // CẤU HÌNH
+    // ================================================================
+    const DEBUG = true;
+    const LOG  = (...a) => { if (DEBUG) console.log('%c[POPUP]', 'color:#1976d2;font-weight:bold', ...a); };
+    const WARN = (...a) => console.warn('%c[POPUP]', 'color:#f57c00;font-weight:bold', ...a);
+    const ERR  = (...a) => console.error('%c[POPUP]', 'color:#d32f2f;font-weight:bold', ...a);
+
+    // ---------- Firebase #1: TBKH ----------
+    const FIREBASE_TBKH = {
+        appName: 'tbkhDatHangApp',
+        config: {
+            apiKey: "AIzaSyDKNLLhisemYQJeCW8QCOwfbvVsvUur-60",
+            authDomain: "quetbarcode-2361a.firebaseapp.com",
+            databaseURL: "https://quetbarcode-2361a-default-rtdb.firebaseio.com",
+            projectId: "quetbarcode-2361a",
+            storageBucket: "quetbarcode-2361a.firebasestorage.app",
+            messagingSenderId: "209619008657",
+            appId: "1:209619008657:web:ee4af6f6ec567a1d745330",
+            measurementId: "G-2TRYH9DYK5"
         }
-      });
-    });
-
-    /* ============================================================
-       MAIN TAB SWITCHING (List <-> Podcast)
-       ============================================================ */
-    let currentMainTab = 'list';
-    function switchMainTab(tab) {
-      currentMainTab = tab;
-      document.getElementById('listView').classList.toggle('hidden', tab !== 'list');
-      document.getElementById('podcastView').classList.toggle('hidden', tab !== 'podcast');
-      document.getElementById('tabBtnList').classList.toggle('active', tab === 'list');
-      document.getElementById('tabBtnPodcast').classList.toggle('active', tab === 'podcast');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    let pendingAutoSearch = null;
-    let isAuthenticated = false;
-
-    /* --- Auto-search: capture URL ?search= param ---------------- */
-    (function captureAutoSearch() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const preset = params.get('search');
-        if (preset && preset.trim()) {
-          pendingAutoSearch = preset.trim();
-          // Pre-fill input as soon as DOM is ready (Firebase load handler will trigger filterContent)
-          const apply = () => {
-            const input = document.getElementById('searchInput');
-            if (input) input.value = pendingAutoSearch;
-          };
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', apply);
-          } else {
-            apply();
-          }
-        }
-      } catch (e) { /* silent */ }
-    })();
-
-    function showAutoSearchBanner(term) {
-      const banner = document.createElement('div');
-      banner.style.cssText = `
-        position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-        background: linear-gradient(135deg, #4CAF50, #2196F3);
-        color: white; padding: 12px 20px; border-radius: 999px;
-        font-size: 14px; font-weight: 500; z-index: 9999;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-        display: flex; align-items: center; gap: 10px;
-        max-width: 90vw;
-        font-family: 'Inter', -apple-system, sans-serif;
-        animation: slideDown 0.4s ease-out;
-      `;
-      const style = document.createElement('style');
-      style.textContent = `@keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }`;
-      document.head.appendChild(style);
-      banner.innerHTML = `🔎 Đang tìm: <strong style="font-weight:700;">${term.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</strong> <span style="opacity:.7; cursor:pointer; margin-left:6px;" onclick="this.parentElement.remove()">✕</span>`;
-      document.body.appendChild(banner);
-      setTimeout(() => { banner.style.transition = 'opacity 0.4s'; banner.style.opacity = '0'; setTimeout(() => banner.remove(), 400); }, 6000);
-    }
-
-
-    /* ============================================================
-       TRAINING LIST: data + sync with Firebase
-       ============================================================ */
-    const DEFAULT_TRAINING_DATA = (() => {
-      const mk = (id, num, title) => ({
-        id, title: `Số ${num} — ${title}`, type: 'podcast'
-      });
-      return {
-        stages: [
-          { id:'s1', name:'Hội nhập & Tư duy ban đầu', description:'Hiểu môi trường, văn hóa, mindset làm việc — "làm người trước khi làm việc".',
-            items:[
-              mk('s1_01',1,'Lời chia sẻ hội nhập'), mk('s1_02',2,'Lời chia sẻ hội nhập'),
-              mk('s1_04',4,'Lời chia sẻ hội nhập'), mk('s1_05',5,'Lời chia sẻ hội nhập'),
-              mk('s1_03',3,'Bạn kinh doanh mới cần tìm hiểu gì'),
-              mk('s1_06',6,'Nội dung toàn công ty nên nắm'),
-              mk('s1_07',7,'Quy định công việc cơ bản'),
-              mk('s1_08',8,'Những điều cần tránh'), mk('s1_09',9,'Những điều cần tránh'), mk('s1_10',10,'Những điều cần tránh'),
-              mk('s1_62',62,'Cách ứng xử công sở'),
-              mk('s1_64',64,'Tại sao phải phấn đấu mỗi ngày'),
-              mk('s1_74',74,'Tránh hối tiếc trong công việc'),
-              mk('s1_70',70,'Lý do không thành công & sai lầm phổ biến'),
-              mk('s1_71',71,'Lý do không thành công & sai lầm phổ biến'),
-              mk('s1_72',72,'Lý do không thành công & sai lầm phổ biến')
-            ]},
-          { id:'s2', name:'Hiểu công việc & Cách làm việc', description:'Làm việc có hệ thống, không làm theo cảm tính.',
-            items:[
-              mk('s2_12',12,'Checklist & kế hoạch'), mk('s2_13',13,'Checklist & kế hoạch'),
-              mk('s2_14',14,'Checklist & kế hoạch'), mk('s2_15',15,'Checklist & kế hoạch'),
-              mk('s2_69',69,'Chủ động công việc là gì'),
-              mk('s2_78',78,'Quản trị công việc'), mk('s2_79',79,'Quản trị công việc'),
-              mk('s2_59',59,'KPI công ty'),
-              mk('s2_61',61,'Báo cáo cuối tháng'),
-              mk('s2_44',44,'Xử lý phát sinh'),
-              mk('s2_45',45,'Sai sót giao hàng ảnh hưởng gì')
-            ]},
-          { id:'s3', name:'Công cụ & Quy trình (ERP — Nội bộ)', description:'Làm đúng quy trình = không bị lỗi hệ thống.',
-            items:[
-              mk('s3_17',17,'Lập kế hoạch tuần ERP'),
-              mk('s3_18',18,'Báo cáo giao dịch khách hàng'), mk('s3_22',22,'Báo cáo giao dịch khách hàng'),
-              mk('s3_19',19,'Quản lý khách hàng trên ERP'),
-              mk('s3_20',20,'Lên đơn hàng ERP'), mk('s3_21',21,'Lên đơn hàng ERP'), mk('s3_82',82,'Lên đơn hàng ERP'),
-              mk('s3_80',80,'Quản lý khách hàng – Chăm sóc KH'), mk('s3_83',83,'Quản lý khách hàng – Chăm sóc KH'),
-              mk('s3_52',52,'IDECO AI'), mk('s3_53',53,'IDECO AI'),
-              mk('s3_41',41,'Quy trình công ty'), mk('s3_42',42,'Quy trình công ty'),
-              mk('s3_46',46,'Điều phối kho'), mk('s3_47',47,'Điều phối kho'), mk('s3_48',48,'Điều phối kho'),
-              mk('s3_49',49,'Vai trò điều phối & phát triển KD'),
-              mk('s3_50',50,'Vai trò điều phối & phát triển KD'),
-              mk('s3_51',51,'Vai trò điều phối & phát triển KD')
-            ]},
-          { id:'s4', name:'Kỹ năng kinh doanh cơ bản', description:'Biết nói chuyện để bán được hàng.',
-            items:[
-              mk('s4_29',29,'Tránh dùng từ sai'),
-              mk('s4_30',30,'Giao tiếp khách hàng'), mk('s4_31',31,'Giao tiếp khách hàng'),
-              mk('s4_40',40,'Giao dịch hợp tác'),
-              mk('s4_84',84,'Thiết lập giao dịch'),
-              mk('s4_76',76,'Kịch bản telesales'),
-              mk('s4_63',63,'Thuyết phục khách hàng'),
-              mk('s4_65',65,'Kỹ năng chốt sales')
-            ]},
-          { id:'s5', name:'Bán hàng thực chiến & Xử lý tình huống', description:'Biết bán hàng thật – không chỉ học lý thuyết.',
-            items:[
-              mk('s5_33',33,'Vì sao không chốt được đơn'),
-              mk('s5_34',34,'Xử lý tình huống bán hàng'), mk('s5_35',35,'Xử lý tình huống bán hàng'),
-              mk('s5_36',36,'Những lỗi cần tránh'),
-              mk('s5_37',37,'Xử lý đơn hàng'), mk('s5_38',38,'Xử lý đơn hàng'),
-              mk('s5_60',60,'Rút kinh nghiệm chốt sales'),
-              mk('s5_66',66,'Lỗi kinh doanh'),
-              mk('s5_67',67,'Sai lầm báo giá'),
-              mk('s5_72b',72,'Sai lầm không phát triển')
-            ]},
-          { id:'s6', name:'Kiến thức ngành (Dược & Sản phẩm)', description:'Hiểu sản phẩm = bán hàng tự tin hơn.',
-            items:[
-              mk('s6_32',32,'Kinh doanh thuốc'),
-              mk('s6_67b',67,'Bán thuốc cần hiểu gì'),
-              mk('s6_68',68,'Nhóm không phải thuốc'),
-              mk('s6_75',75,'Chính sách bán thuốc'),
-              mk('s6_80b',80,'Giao dịch thuốc')
-            ]},
-          { id:'s7', name:'Quy định – Chuẩn GDP – Thanh tra', description:'Làm đúng luật – tránh rủi ro lớn.',
-            items:[
-              mk('s7_43',43,'GDP là gì'),
-              mk('s7_56',56,'Chuẩn bị thẩm định'),
-              mk('s7_57',57,'Tình huống thanh tra'), mk('s7_58',58,'Tình huống thanh tra')
-            ]},
-          { id:'s8', name:'Phát triển nâng cao & Quản lý', description:'Từ nhân viên → người có tư duy quản lý.',
-            items:[
-              mk('s8_39',39,'Quản lý chuỗi nhà thuốc'),
-              mk('s8_81',81,'Pharmacity'),
-              mk('s8_82b',82,'Chính sách thưởng'),
-              mk('s8_77',77,'AI trợ lý BGĐ'),
-              mk('s8_85',85,'Tham gia đào tạo')
-            ]},
-          { id:'s9', name:'Tư duy – Động lực – Phát triển bản thân', description:'Giữ lửa & phát triển bền.',
-            items:[
-              mk('s9_23',23,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_24',24,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_25',25,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_26',26,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_27',27,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_28',28,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_11',11,'Đừng để tiếc nuối'),
-              mk('s9_73',73,'Thư giãn'),
-              mk('s9_77b',77,'Hiểu chuyện để làm tốt')
-            ]}
-        ]
-      };
-    })();
-
-    let trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
-    let currentMgmtStageId = trainingData.stages[0]?.id || null;
-
-    function startTrainingListSync() {
-      // Initial render with defaults so users see something instantly
-      renderTrainingList();
-      try {
-        db.ref('settings/trainingList').on('value', snap => {
-          const val = snap.val();
-          if (val && val.stages && Array.isArray(val.stages)) {
-            trainingData = val;
-          }
-          // Always re-render after Firebase responds (even if empty - keeps defaults)
-          renderTrainingList();
-        });
-      } catch (e) { /* keep defaults */ }
-    }
-
-    function saveTrainingList() {
-      try {
-        return db.ref('settings/trainingList').set(trainingData);
-      } catch (e) { return Promise.reject(e); }
-    }
-
-    /* ============================================================
-       AUTO-SYNC: Podcast → Training List
-       When new content is added in Podcast tab, auto-add to training list
-       ============================================================ */
-    const AUTO_STAGE_ID = 's_auto_new';
-    const AUTO_STAGE_NAME = '📌 Nội dung mới cập nhật';
-
-    function autoAddToTrainingList(podcastName, podcastType) {
-      if (!podcastName) return;
-
-      // Convert podcast name "62. Cách ứng xử công sở" → training title "Số 62 — Cách ứng xử công sở"
-      let trainingTitle = podcastName;
-      const numMatch = podcastName.match(/^(\d+)\.\s*(.+)/);
-      if (numMatch) {
-        trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
-      }
-
-      // Map podcast type → training type
-      const typeMap = { 'audio': 'podcast', 'video': 'video' };
-      const itemType = typeMap[podcastType] || 'podcast';
-
-      // Find or create the "Nội dung mới cập nhật" stage
-      let autoStage = trainingData.stages.find(s => s.id === AUTO_STAGE_ID);
-      if (!autoStage) {
-        autoStage = {
-          id: AUTO_STAGE_ID,
-          name: AUTO_STAGE_NAME,
-          description: 'Nội dung podcast/video mới được thêm sẽ tự động xuất hiện ở đây.',
-          items: []
-        };
-        // Insert at beginning so it's visible first
-        trainingData.stages.unshift(autoStage);
-      }
-
-      // Check if item already exists (by matching number or exact title)
-      const alreadyExists = autoStage.items.some(item => item.title === trainingTitle);
-      if (alreadyExists) return;
-
-      // Also check across all stages
-      const existsAnywhere = trainingData.stages.some(stage =>
-        stage.items.some(item => item.title === trainingTitle)
-      );
-      if (existsAnywhere) return;
-
-      // Add new item
-      autoStage.items.push({
-        id: genId(),
-        title: trainingTitle,
-        type: itemType
-      });
-
-      // Save to Firebase → triggers listener → re-renders training list
-      saveTrainingList();
-      showSyncNotification('📋 Đã tự động thêm "' + trainingTitle + '" vào Danh sách đào tạo!', 'success');
-    }
-
-    function autoRemoveFromTrainingList(podcastName) {
-      if (!podcastName) return;
-      // Build the training title to match
-      let trainingTitle = podcastName;
-      const numMatch = podcastName.match(/^(\d+)\.\s*(.+)/);
-      if (numMatch) trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
-
-      let changed = false;
-      trainingData.stages.forEach(stage => {
-        const before = stage.items.length;
-        stage.items = stage.items.filter(item => item.title !== trainingTitle);
-        if (stage.items.length < before) changed = true;
-      });
-      if (changed) saveTrainingList();
-    }
-
-    function autoRenameInTrainingList(oldName, newName) {
-      if (!oldName || !newName) return;
-      // Convert both names to training title format
-      let oldTitle = oldName, newTitle = newName;
-      const oldMatch = oldName.match(/^(\d+)\.\s*(.+)/);
-      if (oldMatch) oldTitle = `Số ${oldMatch[1]} — ${oldMatch[2]}`;
-      const newMatch = newName.match(/^(\d+)\.\s*(.+)/);
-      if (newMatch) newTitle = `Số ${newMatch[1]} — ${newMatch[2]}`;
-
-      let changed = false;
-      trainingData.stages.forEach(stage => {
-        stage.items.forEach(item => {
-          if (item.title === oldTitle) {
-            item.title = newTitle;
-            changed = true;
-          }
-        });
-      });
-      if (changed) saveTrainingList();
-    }
-
-    /* --- Sync ALL existing podcast/video to training list ------- */
-    function syncAllToTrainingList() {
-      if (!allContent || allContent.length === 0) {
-        showSyncNotification('Chưa có dữ liệu podcast. Vui lòng đợi tải xong.', 'warning');
-        return;
-      }
-
-      let addedCount = 0;
-
-      // Find or create auto stage
-      let autoStage = trainingData.stages.find(s => s.id === AUTO_STAGE_ID);
-      if (!autoStage) {
-        autoStage = {
-          id: AUTO_STAGE_ID,
-          name: AUTO_STAGE_NAME,
-          description: 'Nội dung podcast/video mới được thêm sẽ tự động xuất hiện ở đây.',
-          items: []
-        };
-        trainingData.stages.unshift(autoStage);
-      }
-
-      allContent.forEach(content => {
-        if (!content.name) return;
-        // Only sync audio and video types
-        if (content.type !== 'audio' && content.type !== 'video') return;
-
-        // Convert name to training title
-        let trainingTitle = content.name;
-        const numMatch = content.name.match(/^(\d+)\.\s*(.+)/);
-        if (numMatch) trainingTitle = `Số ${numMatch[1]} — ${numMatch[2]}`;
-
-        const itemType = content.type === 'video' ? 'video' : 'podcast';
-
-        // Check if already exists anywhere
-        const existsAnywhere = trainingData.stages.some(stage =>
-          stage.items.some(item => item.title === trainingTitle)
-        );
-        if (existsAnywhere) return;
-
-        autoStage.items.push({
-          id: genId(),
-          title: trainingTitle,
-          type: itemType
-        });
-        addedCount++;
-      });
-
-      if (addedCount > 0) {
-        saveTrainingList();
-        showSyncNotification('✅ Đã thêm ' + addedCount + ' mục mới vào Danh sách đào tạo!', 'success');
-      } else {
-        showSyncNotification('Tất cả podcast/video đã có trong Danh sách rồi — không có gì mới.', 'info');
-      }
-    }
-
-    /* --- Sync notification (visible floating banner) ------------ */
-    function showSyncNotification(message, type) {
-      const old = document.getElementById('syncNotification');
-      if (old) old.remove();
-
-      const colors = {
-        success: 'linear-gradient(135deg, #10b981, #059669)',
-        warning: 'linear-gradient(135deg, #f59e0b, #d97706)',
-        info: 'linear-gradient(135deg, #3b82f6, #2563eb)'
-      };
-
-      const banner = document.createElement('div');
-      banner.id = 'syncNotification';
-      banner.style.cssText =
-        'position:fixed;top:20px;left:50%;transform:translateX(-50%);' +
-        'background:' + (colors[type] || colors.info) + ';' +
-        'color:white;padding:16px 28px;border-radius:14px;' +
-        'font-size:15px;font-weight:600;z-index:999999;' +
-        'box-shadow:0 12px 40px rgba(0,0,0,0.25);' +
-        'display:flex;align-items:center;gap:12px;' +
-        'max-width:92vw;text-align:center;' +
-        'animation:syncSlideDown 0.5s cubic-bezier(0.4,0,0.2,1);';
-      if (!document.getElementById('syncAnimStyle')) {
-        const style = document.createElement('style');
-        style.id = 'syncAnimStyle';
-        style.textContent = '@keyframes syncSlideDown{from{opacity:0;transform:translate(-50%,-30px)}to{opacity:1;transform:translate(-50%,0)}}';
-        document.head.appendChild(style);
-      }
-      banner.innerHTML = '<span>' + message + '</span><span style="cursor:pointer;opacity:.7;font-size:18px;margin-left:8px;" onclick="this.parentElement.remove()">✕</span>';
-      document.body.appendChild(banner);
-      setTimeout(function() {
-        if (banner.parentElement) {
-          banner.style.transition = 'opacity 0.5s,transform 0.5s';
-          banner.style.opacity = '0';
-          banner.style.transform = 'translate(-50%,-20px)';
-          setTimeout(function() { banner.remove(); }, 500);
-        }
-      }, 5000);
-    }
-
-    function escHtml(s) {
-      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-
-    function getSearchKeyword(title) {
-      // Extract number from "Số X — Title" format → search "X." for precise match
-      // Podcast files are named like "62. Cách ứng xử công sở"
-      const numMatch = title.match(/[Ss]ố\s*(\d+)/);
-      if (numMatch) return numMatch[1] + '.';
-      // Fallback: try to get number at start like "62 — Title"
-      const numStart = title.match(/^(\d+)\s*[—–\-]/);
-      if (numStart) return numStart[1] + '.';
-      // Last fallback: use text after dash
-      const dashChars = ['—', '–', '-'];
-      for (const ch of dashChars) {
-        const idx = title.indexOf(ch);
-        if (idx > 0 && idx < title.length - 1) return title.slice(idx + 1).trim();
-      }
-      return title.trim();
-    }
-
-    function typeIcon(type) {
-      if (type === 'video') return '🎬';
-      if (type === 'document') return '📄';
-      return '🎧';
-    }
-    function typeLabel(type) {
-      if (type === 'video') return 'Video';
-      if (type === 'document') return 'Tài liệu';
-      return 'Podcast';
-    }
-
-    function renderTrainingList() {
-      const container = document.getElementById('trainingStagesContainer');
-      if (!container) return;
-      if (!trainingData.stages || trainingData.stages.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-light); padding:40px;">Chưa có giai đoạn nào.</p>';
-        return;
-      }
-      container.innerHTML = trainingData.stages.map((stage, idx) => {
-        const num = String(idx + 1).padStart(2, '0');
-        const itemsHtml = !stage.items || stage.items.length === 0
-          ? '<p style="color:var(--text-light); font-style:italic; padding:14px;">Chưa có nội dung.</p>'
-          : `<div class="training-items-grid">${stage.items.map(item => `
-              <button class="training-item" onclick="goToPodcastSearch('${escHtml(getSearchKeyword(item.title)).replace(/'/g, "\\'")}')">
-                <span class="training-item-type tt-${escHtml(item.type || 'podcast')}">${typeIcon(item.type)} ${typeLabel(item.type)}</span>
-                <div class="training-item-title">${escHtml(item.title)}</div>
-                <div class="training-item-cta">Mở để nghe</div>
-              </button>
-            `).join('')}</div>`;
-        return `
-          <div class="stage-block">
-            <div class="stage-block-header">
-              <div class="stage-num">${num}</div>
-              <div class="stage-block-info">
-                <h3>${escHtml(stage.name)}</h3>
-                ${stage.description ? `<p>${escHtml(stage.description)}</p>` : ''}
-              </div>
-            </div>
-            ${itemsHtml}
-          </div>
-        `;
-      }).join('');
-    }
-
-    /* Click on training item: switch to podcast tab and auto-search */
-    function goToPodcastSearch(keyword) {
-      switchMainTab('podcast');
-      setTimeout(() => {
-        const input = document.getElementById('searchInput');
-        if (input) {
-          input.value = keyword;
-          // Trigger filter — same logic the search box uses
-          if (typeof filterContent === 'function') {
-            filterContent();
-          } else {
-            // Fallback: dispatch input event
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-        }
-        showAutoSearchBanner(keyword);
-      }, 200);
-    }
-
-    /* ============================================================
-       LIST MANAGEMENT (admin)
-       ============================================================ */
-    let editingMgmtItemId = null;
-
-    function renderMgmtStageOptions() {
-      const sel = document.getElementById('mgmtStageSelect');
-      sel.innerHTML = trainingData.stages.map((s, i) =>
-        `<option value="${escHtml(s.id)}" ${s.id === currentMgmtStageId ? 'selected' : ''}>GĐ ${i+1}: ${escHtml(s.name)}</option>`
-      ).join('');
-      if (!trainingData.stages.find(s => s.id === currentMgmtStageId)) {
-        currentMgmtStageId = trainingData.stages[0]?.id || null;
-        if (currentMgmtStageId) sel.value = currentMgmtStageId;
-      }
-    }
-
-    function renderMgmtItems() {
-      currentMgmtStageId = document.getElementById('mgmtStageSelect').value;
-      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      const list = document.getElementById('mgmtItemList');
-      if (!stage || !stage.items || stage.items.length === 0) {
-        list.innerHTML = '<div class="list-mgmt-empty">Chưa có nội dung. Hãy thêm bằng form trên.</div>';
-        return;
-      }
-      list.innerHTML = stage.items.map(item => `
-        <div class="list-mgmt-item-row">
-          <div class="list-mgmt-item-info">
-            <div class="list-mgmt-item-title">${typeIcon(item.type)} ${escHtml(item.title)}</div>
-            <div class="list-mgmt-item-meta">${typeLabel(item.type)} · 🔎 "${escHtml(getSearchKeyword(item.title))}"</div>
-          </div>
-          <button class="list-mgmt-icon-btn" onclick="editMgmtItem('${escHtml(item.id)}')" title="Sửa"><i class="fas fa-pen"></i></button>
-          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtItem('${escHtml(item.id)}')" title="Xoá"><i class="fas fa-times"></i></button>
-        </div>
-      `).join('');
-    }
-
-    function genId() { return 'i_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-    function saveMgmtItem() {
-      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      if (!stage) { alert('Chưa chọn giai đoạn'); return; }
-      const title = document.getElementById('mgmtItemTitle').value.trim();
-      const type = document.getElementById('mgmtItemType').value;
-      if (!title) { alert('Vui lòng nhập tiêu đề'); return; }
-      if (!stage.items) stage.items = [];
-      if (editingMgmtItemId) {
-        const it = stage.items.find(i => i.id === editingMgmtItemId);
-        if (it) { it.title = title; it.type = type; }
-        editingMgmtItemId = null;
-        document.getElementById('mgmtSaveBtnText').textContent = 'Thêm vào giai đoạn';
-      } else {
-        stage.items.push({ id: genId(), title, type });
-      }
-      saveTrainingList().then(() => {
-        document.getElementById('mgmtItemTitle').value = '';
-        renderMgmtItems();
-      }).catch(err => alert('Lỗi lưu: ' + (err.message || err)));
-    }
-
-    function editMgmtItem(id) {
-      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      if (!stage) return;
-      const it = stage.items.find(i => i.id === id);
-      if (!it) return;
-      document.getElementById('mgmtItemTitle').value = it.title;
-      document.getElementById('mgmtItemType').value = it.type || 'podcast';
-      editingMgmtItemId = id;
-      document.getElementById('mgmtSaveBtnText').textContent = 'Cập nhật';
-      document.getElementById('mgmtItemTitle').focus();
-    }
-
-    function deleteMgmtItem(id) {
-      if (!confirm('Xoá mục này?')) return;
-      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      if (!stage) return;
-      stage.items = stage.items.filter(i => i.id !== id);
-      saveTrainingList().then(() => renderMgmtItems());
-    }
-
-    function addMgmtStage() {
-      const name = prompt('Tên giai đoạn mới:');
-      if (!name || !name.trim()) return;
-      const desc = prompt('Mô tả ngắn (có thể bỏ trống):') || '';
-      const newStage = { id: 's_' + Date.now().toString(36), name: name.trim(), description: desc.trim(), items: [] };
-      trainingData.stages.push(newStage);
-      currentMgmtStageId = newStage.id;
-      saveTrainingList().then(() => {
-        renderMgmtStageOptions();
-        renderMgmtItems();
-      });
-    }
-
-    function deleteMgmtStage() {
-      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      if (!stage) return;
-      if (!confirm(`Xoá giai đoạn "${stage.name}" và toàn bộ nội dung bên trong?`)) return;
-      trainingData.stages = trainingData.stages.filter(s => s.id !== currentMgmtStageId);
-      currentMgmtStageId = trainingData.stages[0]?.id || null;
-      saveTrainingList().then(() => {
-        renderMgmtStageOptions();
-        renderMgmtItems();
-      });
-    }
-
-    function resetListToDefaults() {
-      if (!confirm('Khôi phục toàn bộ 9 giai đoạn và 86 nội dung mặc định? Mọi thay đổi hiện tại sẽ bị mất.')) return;
-      trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
-      currentMgmtStageId = trainingData.stages[0]?.id || null;
-      saveTrainingList().then(() => {
-        renderMgmtStageOptions();
-        renderMgmtItems();
-      });
-    }
-
-    /* ============================================================ */
-
-    /* ============================================================ */
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA1VY6qnw9cSyTtPONSXsJiI2sG0t7fBwg",
-      authDomain: "baogia-561a0.firebaseapp.com",
-      projectId: "baogia-561a0",
-      storageBucket: "baogia-561a0.appspot.com",
-      messagingSenderId: "847010040872",
-      appId: "1:847010040872:web:37fb80756b00519db9391d",
-      measurementId: "G-VSJKEV5DH1"
     };
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
 
-    const STANDARD_LIST = [
-        "Nghe lời đầu tiên cho các bạn mới khi gia nhập công ty - Cần xem",
-        "Lời đầu tiên cho các bạn kinh doanh mới vào công ty cần nghe - Phần 1",
-        "Bạn kinh doanh mới cần tìm hiểu hội nhập việc gì?",
-        "Lời chia sẻ thêm cho các bạn mới hội nhập công ty cần nắm (Phần 2)",
-        "Lời chia sẻ cho các bạn mới vào cty cần nghe - Phần 4",
-        "Nội dung chia sẻ toàn cán bộ nhân viên cty nên xem, nắm và áp dụng tốt",
-        "Những đề nghị và quy định công việc cơ bản cần nắm",
-        "Những nội dung công sở cần tránh để tốt hơn",
-        "Những việc cần tránh để tốt hơn - Các bạn mới cần nghe kỹ",
-        "Tìm hiểu những điều không tốt là cách mình làm tốt hơn nhanh nhất",
-        "Bài ca \"ĐỪNG ĐỂ TIẾC NUỐI\" - ST: MTRIET",
-        "Tại sao phải tập làm Checklist công việc?",
-        "Phân biệt Checklist và Kế hoạch tuần (Weekly Plan)",
-        "Tìm hiểu tại sao cty yêu cầu lập kế hoạch tốt vì điều gì - Lỗi cần tránh",
-        "Các lỗi cần tránh khi LẬP KẾ HOẠCH- LẬP BÁO CÁO",
-        "Lỗi cơ bản trong lập kế hoạch tuần- Nghe để tránh- Làm tốt hơn Phần 2",
-        "Cách lập kế hoạch tuần trên ERP thế nào ? Cần nghe - Thực hành tốt Phần 1",
-        "KHAI BÁO CÁO HOẠT ĐỘNG GIAO DỊCH ERP ( CẦN NGHE PHẦN 2)",
-        "Kinh doanh nên tập ứng dụng quản lý khách hàng đặt hàng trên ERP",
-        "Các lên đơn hàng trên ERP thế nào là đúng?",
-        "Các lên đơn hàng thế nào cho tốt - Phần tiếp theo",
-        "Tìm hiểu thêm báo cáo giao dịch khách hàng cần làm đúng vì sao (Phần 2)",
-        "Lời khuyên cho các bạn KD cần phải nắm - Phần 1",
-        "Lời khuyên cho các bạn kinh doanh cần nghe - Phần 2",
-        "Lời khuyên cho các bạn kinh doanh cần nghe - Phần 3",
-        "Lời khuyên cho các bạn kinh doanh cần nắm - Phần 4",
-        "Nội dung lời khuyên cho các bạn KD mới bổ sung thêm",
-        "Những điều kinh doanh nhất định nghe điều này để bán hàng tốt hơn",
-        "Các bạn KD nên tránh dùng từ thế nào trong bán hàng/gọi điện",
-        "CÁC GIAO TIẾP VỚI KHÁCH HÀNG THẾ NÀO- TỪ LỜI KHUYÊN BGĐ CẦN NẮM- PHẦN 2",
-        "LỜI KHUYÊN TƯƠNG TÁC TRONG BÁN HÀNG THẾ NÀO GIÚP CÁC BẠN KD CHỐT TỐT HƠN",
-        "Tìm hiểu về kinh doanh thuốc: Điều kiện, cách tiếp cận",
-        "Kinh doanh nên tìm hiểu lý do tại sao không chốt được đơn?",
-        "Kinh doanh nên nghe lời khuyên xử lý tình huống trong bán hàng",
-        "LỜI KHUYÊN VỀ CÁCH XỬ LÝ TRONG BÁN HÀNG- CÁC BẠN KINH DOANH MỚI CẦN NGHE",
-        "Những vấn đề cần tránh trong bán hàng nên xem để làm tốt hơn",
-        "KINH DOANH MỚI CẦN NGHE TÌNH HUỐNG XỬ LÝ ĐƠN HÀNG NHÓM KHÔNG PHẢI THUỐC",
-        "Kinh doanh cần nghe: Cách xử lý đơn hàng KHÔNG PHẢI THUỐC",
-        "Bạn được giao quản lý CHUỖI NT LỚN thì phải làm thế nào cho đúng",
-        "Hướng dẫn cách giao dịch khách hàng giao hợp tác thế nào là tốt",
-        "Quy định - Quy trình công ty cần nắm",
-        "Quy định quy trình kinh doanh - kế toán - kho cần phối hợp đúng",
-        "GDP là gì? Chúng ta cần nắm, hiểu để thực hiện đúng",
-        "Cách điệu nhắc nhở mọi nhân viên cần thực hiện tốt xử lý phát sinh",
-        "Lỗi Giao hàng sai- giao trễ -sai sót khó ảnh hưởng thế nào đến cty ta- em cần nắm nghe",
-        "Quy trình phụ trách điều phối kho - quản lý kế toán cần nắm",
-        "Phụ trách điều phối kho - giao nhận cần phải nắm việc thế nào?",
-        "Những điều phụ trách điều phối kho đảm nhận",
-        "Mô tả công việc phụ trách điều phối - phát triển kinh doanh"
-    ];
+    // ---------- Firebase #2: IDECO ----------
+    const FIREBASE_IDECO = {
+        appName: 'idecoAnalysisApp',
+        config: {
+            apiKey: "AIzaSyA-l6Cn7eVp2uw01omUFdipIjhc6NTCMaE",
+            authDomain: "dltelesales.firebaseapp.com",
+            databaseURL: "https://dltelesales-default-rtdb.firebaseio.com",
+            projectId: "dltelesales",
+            storageBucket: "dltelesales.firebasestorage.app",
+            messagingSenderId: "243733043274",
+            appId: "1:243733043274:web:7e1d0151f1cc22be5b2eb3",
+            measurementId: "G-ST3FE5D9NH"
+        }
+    };
 
-    const DEFAULT_IMAGE = "https://cdn.imgpile.com/f/iQXQIi9_xl.png";
-    let currentSortMethod = 'default';
-    let allContent = [];
-    let filteredContent = [];
-    let allSlides = []; // Lưu slides để hỗ trợ tìm kiếm
-    
-    let pendingContentKey = null;
-    let pendingContentType = null;
-    let pendingContentLink = null;
-    
-    const MAX_RECORDS_PER_CONTENT = 100;
-    const DATA_RETENTION_DAYS = 30;
+    // ---------- LỊCH XUẤT HIỆN POPUP ----------
+    const popupSchedule = {
+        days: [0, 1, 2, 3, 4, 5, 6],
+        times: [
+            { hour: 9,  minute: 46 },
+            { hour: 10, minute: 45 },
+            { hour: 11, minute: 40 },
+            { hour: 13, minute: 40 },
+            { hour: 14, minute: 40 },
+            { hour: 15, minute: 40 },
+            { hour: 17, minute: 0  }
+        ]
+    };
 
-    const listenersPanelState = {};
-    let adminPanelCollapsed = false;
+    // ⭐ CỬA SỔ BÙ GIỜ — phút sau mốc thiết lập vẫn còn hiện popup
+    //    Vd: mốc 10:00, LATE_TOLERANCE_MINUTES=60 → máy vào trong khoảng 10:00–11:00 vẫn thấy
+    //    Đặt = 0 để TẮT cơ chế bù (chỉ hiện trong đúng phút thiết lập)
+    //    Đặt = 30 để bù ngắn, = 120 để bù 2 tiếng, v.v.
+    const LATE_TOLERANCE_MINUTES = 60;
 
-    // Hàm loại bỏ dấu tiếng Việt
-    function removeDiacritics(str) {
-      return str.normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/đ/g, 'd')
-        .replace(/Đ/g, 'D');
+    const MIN_READ_TIME_SECONDS = 8;
+    const CHECK_INTERVAL_MS     = 60000;
+    const POPUP_HEADER = "🔔 Huyền nhắc nhé: Tranh thủ gọi -tiếp xúc khách hàng chưa có đơn phát sinh - ưu tiên nhé bạn!";
+
+    // localStorage key prefix
+    const LS_PREFIX = 'popupRead_';
+
+    // ================================================================
+    // HELPER
+    // ================================================================
+    function getOrInitApp(cfg) {
+        const existing = (firebase.apps || []).find(a => a && a.name === cfg.appName);
+        if (existing) { LOG(`Dùng lại Firebase app "${cfg.appName}".`); return existing; }
+        try {
+            const a = firebase.initializeApp(cfg.config, cfg.appName);
+            LOG(`Khởi tạo Firebase app: ${cfg.appName}`);
+            return a;
+        } catch (e) { ERR(`Lỗi khởi tạo "${cfg.appName}":`, e); return null; }
     }
 
-    // Hàm lấy tất cả từ khóa gợi ý từ dữ liệu
-    function getAllSuggestions() {
-      const suggestions = new Set();
-      const stopWords = ['các', 'bạn', 'cho', 'với', 'của', 'và', 'là', 'có', 'được', 'mới', 'những', 'trong', 'khi', 'về', 'đến', 'này', 'phần', 'bài', 'cty', 'cần', 'nghe', 'xem', 'làm', 'tốt', 'hơn', 'điều'];
-      
-      allContent.forEach(item => {
-        // Tách từ và lọc từ có nghĩa
-        const words = item.name.toLowerCase().split(/[\s\-–—,.:;?!()"]+/);
-        words.forEach(word => {
-          word = word.trim();
-          // Lọc từ có độ dài > 2 và không phải từ dừng
-          if (word.length > 2 && !stopWords.includes(word)) {
-            // Thêm cả từ không dấu để gợi ý
-            suggestions.add(word);
-            // Thêm từ gốc (có dấu) nếu có
-            const originalWord = item.name.split(/[\s\-–—,.:;?!()"]+/).find(w => 
-              removeDiacritics(w.toLowerCase()) === word
-            );
-            if (originalWord && originalWord.length > 2) {
-              suggestions.add(originalWord);
+    function waitFirebaseReady(cb) {
+        let tries = 0;
+        const t = setInterval(() => {
+            tries++;
+            if (window.firebase && firebase.initializeApp && firebase.database) {
+                clearInterval(t); LOG(`Firebase compat sẵn sàng (${tries*100}ms).`); cb();
+            } else if (tries % 20 === 0) {
+                WARN(`Đang chờ Firebase compat... (${tries/10}s)`);
             }
-          }
-        });
-      });
-      
-      return Array.from(suggestions).sort();
+            if (tries >= 200) { clearInterval(t); ERR('Firebase compat không tải được sau 20s.'); }
+        }, 100);
     }
 
-    // Hàm hiển thị gợi ý tìm kiếm
-    function showSearchSuggestions(searchTerm) {
-      const listDiv = document.getElementById("contentList");
-      const allSuggestions = getAllSuggestions();
-      const searchTermLower = searchTerm.toLowerCase();
-      const searchTermNoDiacritics = removeDiacritics(searchTermLower);
-      
-      // Lọc gợi ý dựa trên từ khóa
-      let matchedSuggestions = allSuggestions.filter(suggestion => {
-        const suggestionLower = suggestion.toLowerCase();
-        const suggestionNoDiacritics = removeDiacritics(suggestionLower);
-        
-        return suggestionLower.includes(searchTermLower) || 
-               suggestionNoDiacritics.includes(searchTermNoDiacritics) ||
-               // Tìm kiếm gần đúng
-               levenshteinDistance(suggestionLower.slice(0, searchTermLower.length), searchTermLower) < 3;
-      });
-      
-      // Nếu không có gợi ý nào khớp, hiển thị top 20 gợi ý phổ biến nhất
-      if (matchedSuggestions.length === 0) {
-        // Đếm tần suất xuất hiện của từ
-        const wordFrequency = new Map();
-        allContent.forEach(item => {
-          const words = item.name.toLowerCase().split(/[\s\-–—,.:;?!()"]+/);
-          words.forEach(word => {
-            if (word.length > 2) {
-              wordFrequency.set(word, (wordFrequency.get(word) || 0) + 1);
+    function rtdbToArray(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data.filter(x => x !== null && x !== undefined);
+        if (typeof data === 'object') {
+            return Object.keys(data).map(k => {
+                const v = data[k];
+                if (v && typeof v === 'object' && !Array.isArray(v)) return { _key: k, ...v };
+                return v;
+            }).filter(x => x !== null && x !== undefined);
+        }
+        return [];
+    }
+
+    function formatVND(amount) {
+        const n = typeof amount === 'number' ? amount : (Number(amount) || 0);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+    }
+
+    function nzLower(s) { return (s || '').toString().trim().toLowerCase(); }
+
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // ⭐ Tạo key ngày hôm nay dạng YYYY-MM-DD (dùng cho localStorage)
+    function todayKey() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    // ⭐ Đọc / ghi / dọn localStorage an toàn (Safari Private mode có thể fail)
+    function lsGet(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+    function lsSet(key, value) {
+        try { localStorage.setItem(key, value); return true; } catch (e) { WARN('localStorage không khả dụng:', e); return false; }
+    }
+    function cleanupOldStorage() {
+        try {
+            const today = todayKey();
+            const toRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith(LS_PREFIX) && !k.includes(today)) {
+                    toRemove.push(k);
+                }
             }
-          });
-        });
-        
-        // Sắp xếp theo tần suất và lấy top 20
-        matchedSuggestions = Array.from(wordFrequency.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 20)
-          .map(entry => entry[0]);
-      }
-      
-      let suggestionsHTML = `
-        <div class="empty-state">
-          <i class="fas fa-search"></i>
-          <p>Không tìm thấy nội dung phù hợp với "<strong>${searchTerm}</strong>"</p>
-      `;
-      
-      if (matchedSuggestions.length > 0) {
-        suggestionsHTML += `
-          <div class="suggestions-container">
-            <div class="suggestions-title">
-              <i class="fas fa-lightbulb"></i>
-              <span>Gợi ý tìm kiếm:</span>
-            </div>
-            <div class="suggestions-grid">
-        `;
-        
-        matchedSuggestions.slice(0, 15).forEach(suggestion => {
-          suggestionsHTML += `
-            <button class="suggestion-tag" onclick="useSuggestion('${suggestion.replace(/'/g, "\\'")}')">
-              <i class="fas fa-search"></i> ${suggestion}
-            </button>
-          `;
-        });
-        
-        suggestionsHTML += `
-            </div>
-          </div>
-        `;
-      }
-      
-      suggestionsHTML += '</div>';
-      listDiv.innerHTML = suggestionsHTML;
+            toRemove.forEach(k => localStorage.removeItem(k));
+            if (toRemove.length > 0) LOG(`Đã dọn ${toRemove.length} entry localStorage cũ.`);
+        } catch (e) { /* ignore */ }
     }
 
-    // Hàm sử dụng gợi ý
-    function useSuggestion(suggestion) {
-      document.getElementById("searchInput").value = suggestion;
-      filterContent();
-    }
+    // ================================================================
+    // MODULE POPUP
+    // ================================================================
+    const PopupApp = (function () {
+        let dbTbkh = null, dbIdeco = null;
+        let shadowRoot = null;
+        let popupDisplayTime = null;
+        let lastDisplayedTime = null;
 
-    // Hàm tính khoảng cách Levenshtein để tìm từ gần giống
-    function levenshteinDistance(a, b) {
-      if (a.length === 0) return b.length;
-      if (b.length === 0) return a.length;
-      
-      const matrix = [];
-      for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-      }
-      for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-      }
-      
-      for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-          if (b.charAt(i - 1) === a.charAt(j - 1)) {
-            matrix[i][j] = matrix[i - 1][j - 1];
-          } else {
-            matrix[i][j] = Math.min(
-              matrix[i - 1][j - 1] + 1,
-              matrix[i][j - 1] + 1,
-              matrix[i - 1][j] + 1
+        const template = `
+            <style>
+                :host { font-family: Arial, sans-serif; color:#333; line-height:1.5; }
+                * { box-sizing: border-box; margin:0; padding:0; }
+
+                #overlay {
+                    display:none; position:fixed; top:0; left:0;
+                    width:100%; height:100%; background:rgba(0,0,0,0.6);
+                    z-index:2147483645;
+                }
+                #mainPopup {
+                    display:none; position:fixed; top:50%; left:50%;
+                    transform:translate(-50%,-50%);
+                    width:1280px; max-width:96vw;
+                    height:auto; max-height:88vh;
+                    background:#ffffe0;
+                    border:3px solid #f44336; border-radius:10px;
+                    z-index:2147483646;
+                    box-shadow:0 8px 25px rgba(0,0,0,0.4);
+                    flex-direction:column; overflow:hidden;
+                }
+                .popup-header {
+                    background:#f44336;
+                    color:#fff; padding:12px 18px;
+                    display:flex; justify-content:space-between; align-items:center;
+                    flex-shrink:0;
+                }
+                .popup-header h3 { font-size:18px; font-weight:bold; flex:1; }
+                .popup-header .meta {
+                    font-size:13px; opacity:0.95; margin-left:12px;
+                    white-space:nowrap;
+                }
+                .popup-content {
+                    padding:16px 18px; overflow-y:auto; flex-grow:1;
+                    background:#fffef5;
+                }
+
+                .stats {
+                    background:#fff; padding:12px 15px; border-radius:8px;
+                    border-left:4px solid #f44336; margin-bottom:16px;
+                }
+                .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+                .stat-item { text-align:center; padding:8px; border-radius:6px; }
+                .stat-num { font-size:22px; font-weight:bold; }
+                .stat-lbl { font-size:11px; color:#7f8c8d; margin-top:2px; font-weight:bold; }
+                .s-total   { background:#e8f4fd; color:#2980b9; }
+                .s-staff   { background:#f3e5f5; color:#8e44ad; }
+                .s-bad     { background:#fde8e8; color:#c0392b; }
+                .s-warning { background:#fef5e8; color:#d35400; }
+                .s-good    { background:#e8f8ef; color:#27ae60; }
+
+                .staff-section { margin-bottom:22px; }
+                .staff-section:last-child { margin-bottom:0; }
+                .staff-title {
+                    color:#d9534f;
+                    border-bottom:2px solid #ccc;
+                    padding-bottom:6px;
+                    margin-bottom:8px;
+                    font-size:17px; font-weight:bold;
+                }
+                .staff-summary {
+                    margin-bottom:8px; font-size:14px;
+                    background:#fff8e1; padding:6px 12px; border-radius:5px;
+                    border-left:3px solid #ffa726;
+                }
+                .staff-summary strong { color:#e65100; font-size:15px; }
+
+                table.kh-list {
+                    width:100%; border-collapse:collapse;
+                    background:#fff; font-size:13px;
+                    border:1px solid #ddd; border-radius:6px; overflow:hidden;
+                }
+                table.kh-list th {
+                    background:#3498db; color:#fff;
+                    padding:9px 8px; text-align:left;
+                    font-size:13px; font-weight:bold;
+                    border-right:1px solid rgba(255,255,255,0.2);
+                }
+                table.kh-list th:last-child { border-right:none; }
+                table.kh-list td {
+                    padding:8px; border-bottom:1px solid #ececec;
+                    vertical-align:top;
+                }
+                table.kh-list tr:last-child td { border-bottom:none; }
+                table.kh-list tr:hover td { background:#f5f9ff; }
+                td.stt    { text-align:center; font-weight:bold; color:#555; }
+                td.code   { font-family:monospace; color:#555; }
+                td.name   { font-weight:bold; }
+                td.ct     { color:#e67e22; font-weight:bold; }
+                td.phone  { font-family:monospace; }
+                td.money  { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+                td.money.zero { color:#bbb; }
+                .status-bad     { color:#c0392b; font-weight:bold; }
+                .status-warning { color:#d35400; font-weight:bold; }
+                .status-good    { color:#27ae60; font-weight:bold; }
+
+                .empty {
+                    text-align:center; padding:50px; color:#27ae60;
+                    font-size:18px; font-weight:bold;
+                    background:#e8f8ef; border-radius:8px;
+                }
+
+                .popup-footer {
+                    text-align:center; padding:14px;
+                    border-top:1px solid #ddd; background:#f9f9f9;
+                    flex-shrink:0;
+                }
+                .popup-footer button {
+                    background:#4CAF50; color:#fff;
+                    padding:11px 28px; font-size:16px;
+                    border:none; border-radius:6px;
+                    cursor:pointer; font-weight:bold;
+                    transition:background 0.2s;
+                }
+                .popup-footer button:hover { background:#45a049; }
+
+                #snoozePopup {
+                    display:none; position:fixed; top:50%; left:50%;
+                    transform:translate(-50%,-50%);
+                    width:900px; max-width:94vw;
+                    background:#fff;
+                    border:5px solid #009688; border-radius:15px;
+                    padding:30px; z-index:2147483647;
+                    box-shadow:0 8px 30px rgba(0,0,0,0.5);
+                    text-align:center;
+                    flex-direction:column; justify-content:center; align-items:center;
+                }
+                #snoozePopup h2 {
+                    color:#009688; font-size:24px;
+                    margin-bottom:15px; font-weight:bold;
+                }
+                #snoozePopup p {
+                    font-size:16px; color:#388e3c;
+                    margin-bottom:12px; line-height:1.5;
+                }
+                #snoozePopup button {
+                    background:#009688; color:#fff;
+                    padding:12px 26px; font-size:17px;
+                    border:none; border-radius:8px;
+                    cursor:pointer; font-weight:bold; margin-top:10px;
+                }
+                #snoozePopup button:hover { background:#00796b; }
+            </style>
+
+            <div id="overlay"></div>
+
+            <div id="mainPopup">
+                <div class="popup-header">
+                    <h3>${POPUP_HEADER}</h3>
+                    <div class="meta" id="popupMeta"></div>
+                </div>
+                <div class="popup-content">
+                    <div class="stats" id="statsPanel">
+                        <p style="color:#888;font-style:italic;">Đang tải dữ liệu...</p>
+                    </div>
+                    <div id="staffContainer"></div>
+                </div>
+                <div class="popup-footer">
+                    <button id="closeBtn">Đã đọc</button>
+                </div>
+            </div>
+
+            <div id="snoozePopup">
+                <h2>😊 BẠN CÓ LẺ CHƯA ĐỌC KỸ DANH SÁCH PHẢI KHÔNG!</h2>
+                <p>Bạn hãy xem lại khách hàng chưa có đơn - hay bạn quên bấm để chủ động tương tác nhanh lại có đơn nhé</p>
+                <p>Khi tương tác lại - <strong>nên gọi điện thay vì chat</strong>: luôn tìm cớ giới thiệu mới UVS / Thuốc / CTMK để tăng cơ hội mở rộng</p>
+                <p>Khi hỏi thăm đơn hàng - luôn khuyến khích lấy thêm, tăng giá trị đơn càng tốt. Đừng hỏi "Hàng anh/chị bán được không?"</p>
+                <p>Trong icon DỮ LIỆU KHÁCH HÀNG - luôn tìm poster Thuốc / UVS Silicone gel / UVS Nailcare để chia sẻ trong mọi giao thức</p>
+                <p>Đặt mục tiêu cụ thể trong tuần - chốt đơn KH chưa lên - mở app Quản lý khách hàng kiểm tra cuối ngày</p>
+                <p>LƯU Ý: KPI thưởng tính theo số đơn lập trong kỳ thành công - hãy chú ý!</p>
+                <button id="closeSnoozeBtn">Quay lại danh sách</button>
+            </div>
+        `;
+
+        function createDOM() {
+            const host = document.createElement('div');
+            host.id = 'popup-host-root';
+            document.body.appendChild(host);
+            shadowRoot = host.attachShadow({ mode: 'open' });
+            shadowRoot.innerHTML = template;
+            shadowRoot.getElementById('closeBtn').addEventListener('click', handleClose);
+            shadowRoot.getElementById('closeSnoozeBtn').addEventListener('click', closeSnooze);
+            LOG('DOM Shadow đã sẵn sàng.');
+        }
+
+        // ============================================================
+        // TẢI 2 FIREBASE SONG SONG
+        // ============================================================
+        function loadAllData() {
+            LOG('Đang tải dữ liệu từ 2 Firebase...');
+            return Promise.all([
+                dbTbkh.ref('customerManagement/customers').once('value'),
+                dbIdeco.ref('orders/current').once('value'),
+                dbIdeco.ref('orders/previous').once('value')
+            ]).then(([tbkhSnap, curSnap, prevSnap]) => {
+                const tbkhCustomers  = rtdbToArray(tbkhSnap.val());
+                const currentOrders  = rtdbToArray(curSnap.val());
+                const previousOrders = rtdbToArray(prevSnap.val());
+                LOG(`Đã tải: ${tbkhCustomers.length} KH (TBKH), ${currentOrders.length} đơn kỳ này, ${previousOrders.length} đơn kỳ trước.`);
+                return { tbkhCustomers, currentOrders, previousOrders };
+            });
+        }
+
+        // ============================================================
+        // PHÂN TÍCH
+        // ============================================================
+        function analyze(data) {
+            const { tbkhCustomers, currentOrders, previousOrders } = data;
+
+            const sumByName = (orders) => {
+                const r = {};
+                orders.forEach(o => {
+                    if (!o || !o.customer) return;
+                    const key = nzLower(o.customer);
+                    r[key] = (r[key] || 0) + (Number(o.total) || 0);
+                });
+                return r;
+            };
+            const currentMap  = sumByName(currentOrders);
+            const previousMap = sumByName(previousOrders);
+
+            const findRevenue = (customer, map) => {
+                const nameLower = nzLower(customer.name);
+                if (!nameLower) return 0;
+                if (map[nameLower] !== undefined) return map[nameLower];
+                for (const k in map) {
+                    if (k.includes(nameLower) || nameLower.includes(k)) return map[k];
+                }
+                return 0;
+            };
+
+            const buildRecommendation = (current, previous) => {
+                let growth = 0;
+                if (previous > 0) growth = ((current - previous) / previous) * 100;
+                else if (current > 0) growth = 100;
+
+                if (current === 0 && previous === 0)
+                    return { rec: '🆕 KH mới - Cần tiếp cận',   status: 'status-warning' };
+                if (current === 0)
+                    return { rec: '📞 Mất đơn - Cần gọi gấp',   status: 'status-bad' };
+                if (growth < -50)
+                    return { rec: '⚠️ Giảm mạnh - Cần gặp',     status: 'status-bad' };
+                if (growth < 0)
+                    return { rec: '📉 Giảm - Cần hỗ trợ',        status: 'status-warning' };
+                if (growth < 20)
+                    return { rec: '📊 Tăng thấp - Đẩy mạnh',    status: 'status-warning' };
+                return     { rec: '📈 Tăng tốt - Duy trì',       status: 'status-good' };
+            };
+
+            const staffNames = [...new Set(
+                tbkhCustomers
+                    .map(c => c && c.staff ? c.staff.trim() : '')
+                    .filter(Boolean)
+            )].sort((a, b) => a.localeCompare(b, 'vi'));
+
+            const staffGroups = [];
+            let totalAll = 0, totalBad = 0, totalWarning = 0, totalGood = 0;
+
+            staffNames.forEach(staff => {
+                const staffLower = staff.toLowerCase();
+                const list = tbkhCustomers
+                    .filter(c =>
+                        c &&
+                        (c.staff ? c.staff.trim().toLowerCase() : '') === staffLower &&
+                        !c.ordered && !c.medicineOrdered
+                    )
+                    .map(c => {
+                        const current  = findRevenue(c, currentMap);
+                        const previous = findRevenue(c, previousMap);
+                        const { rec, status } = buildRecommendation(current, previous);
+                        return {
+                            code:    c.code    || '',
+                            name:    c.name    || '',
+                            contact: c.contact || c.contactPerson || '',
+                            phone:   c.phone   || '',
+                            current, previous,
+                            recommendation: rec,
+                            statusClass: status
+                        };
+                    });
+
+                if (list.length === 0) return;
+
+                const order = { 'status-bad': 0, 'status-warning': 1, 'status-good': 2 };
+                list.sort((a, b) => {
+                    const d = (order[a.statusClass] ?? 9) - (order[b.statusClass] ?? 9);
+                    if (d !== 0) return d;
+                    return (b.previous + b.current) - (a.previous + a.current);
+                });
+                list.forEach((r, i) => r.stt = i + 1);
+
+                const stats = {
+                    total:   list.length,
+                    bad:     list.filter(r => r.statusClass === 'status-bad').length,
+                    warning: list.filter(r => r.statusClass === 'status-warning').length,
+                    good:    list.filter(r => r.statusClass === 'status-good').length
+                };
+                totalAll += stats.total; totalBad += stats.bad;
+                totalWarning += stats.warning; totalGood += stats.good;
+
+                staffGroups.push({ staff, list, stats });
+            });
+
+            return {
+                staffGroups,
+                summary: {
+                    totalStaff: staffGroups.length,
+                    total:   totalAll,
+                    bad:     totalBad,
+                    warning: totalWarning,
+                    good:    totalGood
+                }
+            };
+        }
+
+        // ============================================================
+        // RENDER
+        // ============================================================
+        function render(staffGroups, summary, scheduledTimeStr, minutesLate) {
+            const stats     = shadowRoot.getElementById('statsPanel');
+            const container = shadowRoot.getElementById('staffContainer');
+            const meta      = shadowRoot.getElementById('popupMeta');
+            const now       = new Date();
+
+            const lateNote = minutesLate > 0 ? ` (bù ${minutesLate}p)` : '';
+            meta.innerHTML = `📅 ${now.toLocaleDateString('vi-VN')} &nbsp;⏰ Mốc ${scheduledTimeStr}${lateNote}`;
+
+            stats.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-item s-staff">
+                        <div class="stat-num">${summary.totalStaff}</div>
+                        <div class="stat-lbl">NHÂN VIÊN CÒN KH</div>
+                    </div>
+                    <div class="stat-item s-total">
+                        <div class="stat-num">${summary.total}</div>
+                        <div class="stat-lbl">TỔNG KH CHƯA ĐẶT</div>
+                    </div>
+                    <div class="stat-item s-bad">
+                        <div class="stat-num">${summary.bad}</div>
+                        <div class="stat-lbl">CẦN GỌI GẤP</div>
+                    </div>
+                    <div class="stat-item s-good">
+                        <div class="stat-num">${summary.good}</div>
+                        <div class="stat-lbl">DUY TRÌ TỐT</div>
+                    </div>
+                </div>
+            `;
+
+            if (staffGroups.length === 0) {
+                container.innerHTML = `<div class="empty">🎉 Tuyệt vời! Tất cả nhân viên đã hoàn thành đặt hàng cho khách.</div>`;
+                return;
+            }
+
+            container.innerHTML = staffGroups.map(g => `
+                <div class="staff-section">
+                    <h4 class="staff-title">👤 Nhân viên: ${escapeHtml(g.staff)}</h4>
+                    <div class="staff-summary">
+                        Bạn còn <strong>${g.stats.total}</strong> khách hàng chưa đặt hàng
+                        ${g.stats.bad > 0     ? `&nbsp;|&nbsp; <span class="status-bad">🔴 ${g.stats.bad} cần gọi gấp</span>` : ''}
+                        ${g.stats.warning > 0 ? `&nbsp;|&nbsp; <span class="status-warning">🟠 ${g.stats.warning} cần hỗ trợ</span>` : ''}
+                        ${g.stats.good > 0    ? `&nbsp;|&nbsp; <span class="status-good">🟢 ${g.stats.good} duy trì tốt</span>` : ''}
+                    </div>
+                    <table class="kh-list">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">STT</th>
+                                <th style="width:90px;">Mã KH</th>
+                                <th>Tên khách hàng</th>
+                                <th style="width:140px;">Người liên hệ</th>
+                                <th style="width:120px;">Điện thoại</th>
+                                <th style="width:130px;">DS tháng trước</th>
+                                <th style="width:130px;">DS kỳ tháng trước đó nữa</th>
+                                <th style="width:180px;">Khuyến nghị</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${g.list.map(r => `
+                                <tr>
+                                    <td class="stt">${r.stt}</td>
+                                    <td class="code">${escapeHtml(r.code) || '—'}</td>
+                                    <td class="name">${escapeHtml(r.name) || '—'}</td>
+                                    <td class="ct">${escapeHtml(r.contact) || '—'}</td>
+                                    <td class="phone">${escapeHtml(r.phone) || '—'}</td>
+                                    <td class="money ${r.current === 0 ? 'zero' : ''}">${formatVND(r.current)}</td>
+                                    <td class="money ${r.previous === 0 ? 'zero' : ''}">${formatVND(r.previous)}</td>
+                                    <td class="${r.statusClass}">${r.recommendation}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `).join('');
+        }
+
+        function showError(msg) {
+            const stats     = shadowRoot.getElementById('statsPanel');
+            const container = shadowRoot.getElementById('staffContainer');
+            stats.innerHTML = `<p style="color:#c0392b;font-weight:bold;">⚠️ ${escapeHtml(msg)}</p>`;
+            container.innerHTML = '';
+        }
+
+        // ============================================================
+        function showPopup() {
+            shadowRoot.getElementById('snoozePopup').style.display = 'none';
+            shadowRoot.getElementById('overlay').style.display     = 'block';
+            shadowRoot.getElementById('mainPopup').style.display   = 'flex';
+            if (popupDisplayTime === null) popupDisplayTime = Date.now();
+        }
+        function showSnooze()  { shadowRoot.getElementById('snoozePopup').style.display = 'flex'; }
+        function closeSnooze() { shadowRoot.getElementById('snoozePopup').style.display = 'none'; LOG('Tiếp tục tính thời gian đọc...'); }
+
+        function handleClose() {
+            if (shadowRoot.getElementById('mainPopup').style.display !== 'flex') return;
+            if (!popupDisplayTime) {
+                shadowRoot.getElementById('overlay').style.display   = 'none';
+                shadowRoot.getElementById('mainPopup').style.display = 'none';
+                return;
+            }
+            const elapsed = (Date.now() - popupDisplayTime) / 1000;
+            if (elapsed < MIN_READ_TIME_SECONDS) {
+                LOG(`Đóng quá nhanh (${elapsed.toFixed(1)}s) → nhắc lại.`);
+                showSnooze();
+            } else {
+                LOG(`Xem đủ ${elapsed.toFixed(1)}s → đóng hoàn toàn.`);
+                shadowRoot.getElementById('overlay').style.display     = 'none';
+                shadowRoot.getElementById('mainPopup').style.display   = 'none';
+                shadowRoot.getElementById('snoozePopup').style.display = 'none';
+
+                // ⭐ Ghi localStorage: máy này đã đọc mốc này hôm nay
+                if (lastDisplayedTime) {
+                    const key = `${LS_PREFIX}${todayKey()}_${lastDisplayedTime}`;
+                    if (lsSet(key, Date.now().toString())) {
+                        LOG(`Ghi localStorage: ${key} → sẽ không hiện lại hôm nay.`);
+                    }
+                }
+                popupDisplayTime = null;
+            }
+        }
+
+        // ============================================================
+        // ⭐ CƠ CHẾ LỊCH + BÙ GIỜ
+        // ============================================================
+        function checkPendingReminder() {
+            if (!shadowRoot) return;
+            if (shadowRoot.getElementById('mainPopup').style.display === 'flex') return;
+
+            const now = new Date();
+            const dow = now.getDay();
+            if (!popupSchedule.days.includes(dow)) {
+                LOG(`Hôm nay (thứ ${dow}) không trong lịch hiển thị.`);
+                return;
+            }
+
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+
+            // Tìm mốc gần nhất đã qua TRONG cửa sổ bù
+            // Sắp xếp giảm dần để lấy mốc gần nhất trước
+            const sortedTimes = [...popupSchedule.times].sort(
+                (a, b) => (b.hour * 60 + b.minute) - (a.hour * 60 + a.minute)
             );
-          }
-        }
-      }
-      return matrix[b.length][a.length];
-    }
 
-    // Hàm tính điểm liên quan cho kết quả tìm kiếm
-    function getRelevanceScore(itemName, searchTerm) {
-      let score = 0;
-      const searchLower = searchTerm.toLowerCase();
-      const itemLower = itemName.toLowerCase();
-      const searchNoDiacritics = removeDiacritics(searchLower);
-      const itemNoDiacritics = removeDiacritics(itemLower);
-      
-      // Điểm cao nhất nếu tên bắt đầu bằng từ khóa
-      if (itemLower.startsWith(searchLower) || itemNoDiacritics.startsWith(searchNoDiacritics)) {
-        score += 100;
-      }
-      
-      // Điểm cao nếu tên chứa chính xác từ khóa
-      if (itemLower.includes(searchLower) || itemNoDiacritics.includes(searchNoDiacritics)) {
-        score += 50;
-      }
-      
-      // Điểm cho mỗi từ khớp
-      const searchWords = searchLower.split(' ');
-      searchWords.forEach(word => {
-        if (word.length > 1) {
-          const wordNoDiacritics = removeDiacritics(word);
-          if (itemLower.includes(word) || itemNoDiacritics.includes(wordNoDiacritics)) {
-            score += 10;
-          }
-        }
-      });
-      
-      // Điểm cho độ dài tương đối (ưu tiên kết quả ngắn gọn hơn)
-      score += (100 / (itemLower.length + 1));
-      
-      return score;
-    }
-
-    function applyStandardOrder() {
-      const pass = prompt("Nhập password để ĐÁNH SỐ THỨ TỰ và sắp xếp:");
-      if (pass !== "minhtriet1973") {
-        if(pass !== null) alert("Sai password!");
-        return;
-      }
-
-      if (!confirm("Hành động này sẽ:\n1. TỰ ĐỘNG THÊM SỐ (1., 2....) vào trước tên bài.\n2. Sắp xếp lại thứ tự từ 1-49 theo nhóm.\n\nBạn có chắc chắn không?")) return;
-
-      db.ref('contents').once('value').then(snap => {
-        const contents = snap.val();
-        if (!contents) {
-            alert("Chưa có dữ liệu bài nào!");
-            return;
-        }
-
-        const newOrder = [];
-        const updates = {}; 
-        const remainingKeys = new Set(Object.keys(contents)); 
-        const unMatchedItems = [];
-        
-        const toSimpleKey = (str) => {
-            if (!str) return "";
-            return str.toLowerCase()
-                .trim()
-                .replace(/^[\d\s\.\-\)\:]+(?=[\w])/g, "")
-                .replace(/^bài\s+\d+[\s\:\.\-]+/g, "")
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/[^a-z0-9]/g, "");
-        };
-        
-        STANDARD_LIST.forEach((tenChuan, index) => {
-            const tenChuanSimple = toSimpleKey(tenChuan);
-            let foundKey = null;
-
-            for (let k of remainingKeys) {
-                const currentName = contents[k].name;
-                const currentNameSimple = toSimpleKey(currentName);
-                
-                if (currentNameSimple === tenChuanSimple || 
-                    (currentNameSimple.length > 5 && currentNameSimple.includes(tenChuanSimple)) || 
-                    (tenChuanSimple.length > 5 && tenChuanSimple.includes(currentNameSimple))) {
-                    
-                    foundKey = k;
+            let slot = null, slotStr = null, minutesLate = 0;
+            for (const t of sortedTimes) {
+                const tm = t.hour * 60 + t.minute;
+                const diff = nowMin - tm;
+                if (diff >= 0 && diff <= LATE_TOLERANCE_MINUTES) {
+                    slot = t;
+                    slotStr = `${String(t.hour).padStart(2,'0')}:${String(t.minute).padStart(2,'0')}`;
+                    minutesLate = diff;
                     break;
                 }
             }
 
-            if (foundKey) {
-                newOrder.push(foundKey);
-                remainingKeys.delete(foundKey);
-                const nameWithNumber = `${index + 1}. ${tenChuan}`;
-                updates['contents/' + foundKey + '/name'] = nameWithNumber;
-            } else {
-                unMatchedItems.push(`${index + 1}. ${tenChuan}`);
-            }
-        });
-
-        const leftovers = Array.from(remainingKeys);
-        const finalOrder = [...newOrder, ...leftovers];
-
-        const promises = [];
-        
-        if (Object.keys(updates).length > 0) {
-            promises.push(db.ref().update(updates));
-        }
-        
-        promises.push(db.ref('contentOrder').set(finalOrder));
-
-        Promise.all(promises)
-            .then(() => {
-                let msg = `🎉 Đã ĐÁNH SỐ và SẮP XẾP thành công ${newOrder.length}/${STANDARD_LIST.length} bài!`;
-                if (unMatchedItems.length > 0) {
-                    msg += `\n\n⚠️ Có ${unMatchedItems.length} bài trong danh sách chuẩn chưa tìm thấy trên Web:\n` + unMatchedItems.slice(0, 5).join("\n") + "\n...";
-                }
-                if (leftovers.length > 0) {
-                     msg += `\n\nℹ️ Có ${leftovers.length} bài trên Web không thuộc danh sách chuẩn.`;
-                }
-                alert(msg);
-                location.reload();
-            })
-            .catch(err => alert("Lỗi: " + err));
-      });
-    }
-
-    function generateUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    }
-
-    function extractYoutubeId(url) {
-      const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w\d_-]{11})/;
-      const match = url.match(regex);
-      return match ? match[1] : null;
-    }
-
-    function uploadContent() {
-      const type = document.getElementById("contentType").value;
-
-      if (type === 'slide') {
-        const title = document.getElementById("slideTitle").value.trim();
-        const link = document.getElementById("slideLink").value.trim();
-        if (!title || !link) {
-          alert("Vui lòng nhập đầy đủ tiêu đề và link cho slide!");
-          return;
-        }
-        db.ref('slides').push({ title, link });
-        document.getElementById("slideTitle").value = "";
-        document.getElementById("slideLink").value = "";
-        alert("Đã thêm Slide thành công!");
-        
-      } else if (type === 'infographic') {
-        const title = document.getElementById("infoTitle").value.trim();
-        const link = document.getElementById("infoLink").value.trim();
-        
-        if (!title || !link) {
-          alert("Vui lòng nhập tên và link ảnh!");
-          return;
-        }
-        
-        db.ref('infographics').push({ title, link });
-        document.getElementById("infoTitle").value = "";
-        document.getElementById("infoLink").value = "";
-        showGlobalNotification("Đã thêm Infographic: " + title);
-        
-      } else {
-        const name = document.getElementById("contentName").value.trim();
-        const link = document.getElementById("contentLink").value.trim();
-        
-        if (!name || !link) {
-          alert("Vui lòng nhập đầy đủ tên và link!");
-          return;
-        }
-        
-        let processedLink = link;
-        if (type === 'audio' && !/^https:\/\/vocaroo\.com\/embed\/[\w\d]+$/.test(link)) {
-          alert("Link Vocaroo phải có dạng: https://vocaroo.com/embed/xxxxxx");
-          return;
-        }
-        
-        if (type === 'video') {
-          const videoId = extractYoutubeId(link);
-          if (!videoId) {
-            alert("Link YouTube không hợp lệ. Vui lòng nhập:\n" +
-                  "- Video thường: https://www.youtube.com/watch?v=xxxxxx\n" +
-                  "- Video Shorts: https://youtube.com/shorts/xxxxxx\n" +
-                  "- Hoặc: https://youtu.be/xxxxxx");
-            return;
-          }
-          processedLink = videoId;
-        }
-        
-        const newContentRef = db.ref('contents').push();
-        const newKey = newContentRef.key;
-        const createdAt = firebase.database.ServerValue.TIMESTAMP;
-        
-        newContentRef.set({ 
-          name, 
-          link: processedLink,
-          image: DEFAULT_IMAGE,
-          type,
-          createdAt
-        });
-        
-        document.getElementById("contentName").value = "";
-        document.getElementById("contentLink").value = "";
-
-        db.ref('contentOrder').once('value', snap => {
-          let order = snap.val() || [];
-          order.unshift(newKey);
-          db.ref('contentOrder').set(order);
-        });
-        
-        // Auto-sync to training list
-        autoAddToTrainingList(name, type);
-        
-        showGlobalNotification(name);
-      }
-    }
-
-    function deleteContent(key) {
-      const pass = prompt("Nhập password để xóa:");
-      if (pass === null) return;
-      if (pass === "minhtriet1973") {
-        if (!confirm("Bạn chắc chắn muốn xóa nội dung này?")) return;
-        // Get name before deleting for training list sync
-        const content = allContent.find(p => p.key === key);
-        const contentName = content ? content.name : null;
-        db.ref('contents/' + key).remove();
-        db.ref('contentListeners/' + key).remove();
-        db.ref('contentOrder').once('value', snap => {
-          let order = snap.val() || [];
-          order = order.filter(k => k !== key);
-          db.ref('contentOrder').set(order);
-        });
-        // Auto-sync: remove from training list
-        if (contentName) autoRemoveFromTrainingList(contentName);
-      } else {
-        alert("Sai password!");
-      }
-    }
-    
-    function deleteSlide(key) {
-      const pass = prompt("Nhập password để xóa slide này:");
-      if (pass === null) return;
-      if (pass === "minhtriet1973") {
-        if (!confirm("Bạn chắc chắn muốn xóa slide đào tạo này?")) return;
-        db.ref('slides/' + key).remove();
-      } else {
-        alert("Sai password!");
-      }
-    }
-
-    function deleteInfographic(key) {
-      const pass = prompt("Nhập password để xóa Infographic:");
-      if (pass === "minhtriet") {
-        if (confirm("Bạn chắc chắn muốn xóa ảnh này?")) {
-          db.ref('infographics/' + key).remove();
-        }
-      } else if (pass !== null) {
-        alert("Sai password!");
-      }
-    }
-
-    function editContent(key) {
-      const item = document.querySelector(`.audio-item[data-key="${key}"]`);
-      item.classList.add('edit-mode');
-      
-      const currentName = item.querySelector('.audio-name').textContent.replace(/<[^>]*>/g, '');
-      const nameInput = item.querySelector('.audio-name-input');
-      nameInput.value = currentName;
-      nameInput.focus();
-    }
-
-    function saveContent(key) {
-      const item = document.querySelector(`.audio-item[data-key="${key}"]`);
-      const newName = item.querySelector('.audio-name-input').value.trim();
-      
-      if (!newName) {
-        alert("Tên không được để trống!");
-        return;
-      }
-      
-      // Get old name for training list sync
-      const content = allContent.find(p => p.key === key);
-      const oldName = content ? content.name : null;
-      
-      db.ref('contents/' + key).update({ name: newName }, (error) => {
-        if (error) {
-          alert("Có lỗi khi lưu tên: " + error.message);
-        } else {
-          if (content) content.name = newName;
-          filterContent();
-          populateTableOfContents();
-          // Auto-sync: rename in training list
-          if (oldName && oldName !== newName) autoRenameInTrainingList(oldName, newName);
-        }
-      });
-    }
-
-    function requestContentAccess(contentKey, contentType, contentLink) {
-      pendingContentKey = contentKey;
-      pendingContentType = contentType;
-      pendingContentLink = contentLink;
-      
-      document.getElementById("loginModal").style.display = "flex";
-      document.getElementById("userNameInput").value = "";
-      document.getElementById("userNameInput").focus();
-    }
-
-    function closeLoginModal() {
-      document.getElementById("loginModal").style.display = "none";
-      pendingContentKey = null;
-      pendingContentType = null;
-      pendingContentLink = null;
-    }
-
-    function confirmLogin() {
-      const userName = document.getElementById("userNameInput").value.trim();
-      
-      if (!userName) {
-        alert("Vui lòng nhập tên của bạn!");
-        return;
-      }
-      
-      recordContentView(pendingContentKey, userName);
-      showContent(pendingContentKey, pendingContentType, pendingContentLink);
-      closeLoginModal();
-    }
-
-    function recordContentView(contentKey, userName) {
-      const timestamp = Date.now();
-      
-      db.ref(`contentListeners/${contentKey}`).once('value').then(snapshot => {
-        const listenersData = snapshot.val() || {};
-        const listenerIds = Object.keys(listenersData);
-        
-        if (listenerIds.length >= MAX_RECORDS_PER_CONTENT) {
-          let oldestId = null;
-          let oldestTime = timestamp;
-          
-          for (const id of listenerIds) {
-            if (listenersData[id].timestamp < oldestTime) {
-              oldestTime = listenersData[id].timestamp;
-              oldestId = id;
-            }
-          }
-          
-          if (oldestId) {
-            db.ref(`contentListeners/${contentKey}/${oldestId}`).remove();
-          }
-        }
-        
-        db.ref(`contentListeners/${contentKey}`).push({
-          userName: userName,
-          timestamp: timestamp
-        });
-        
-        cleanupOldDataForContent(contentKey, DATA_RETENTION_DAYS);
-      });
-    }
-
-    function cleanupOldDataForContent(contentKey, daysThreshold) {
-      const thresholdTime = Date.now() - (daysThreshold * 24 * 60 * 60 * 1000);
-      
-      db.ref(`contentListeners/${contentKey}`).once('value').then(snapshot => {
-        const listenersData = snapshot.val() || {};
-        const updates = {};
-        
-        for (const [id, data] of Object.entries(listenersData)) {
-          if (data.timestamp < thresholdTime) {
-            updates[id] = null;
-          }
-        }
-        
-        if (Object.keys(updates).length > 0) {
-          db.ref(`contentListeners/${contentKey}`).update(updates);
-        }
-      });
-    }
-
-    function cleanupOldData(daysThreshold) {
-      if (!confirm(`Bạn có chắc muốn xóa tất cả dữ liệu nghe/xem cũ hơn ${daysThreshold} ngày?`)) return;
-      
-      const thresholdTime = Date.now() - (daysThreshold * 24 * 60 * 60 * 1000);
-      let deletedCount = 0;
-      
-      db.ref('contentListeners').once('value').then(snapshot => {
-        const allListenersData = snapshot.val() || {};
-        const updates = {};
-        
-        for (const [contentKey, listeners] of Object.entries(allListenersData)) {
-          for (const [id, data] of Object.entries(listeners)) {
-            if (data.timestamp < thresholdTime) {
-              if (!updates[contentKey]) updates[contentKey] = {};
-              updates[contentKey][id] = null;
-              deletedCount++;
-            }
-          }
-        }
-        
-        db.ref('contentListeners').update(updates, error => {
-          if (error) {
-            alert("Có lỗi xảy ra khi xóa dữ liệu: " + error.message);
-          } else {
-            alert(`Đã xóa ${deletedCount} bản ghi cũ hơn ${daysThreshold} ngày.`);
-            updateStats();
-          }
-        });
-      });
-    }
-
-    function removeDuplicateListeners() {
-      if (!confirm("Bạn có chắc muốn gộp các bản ghi trùng lặp? Thao tác này có thể mất vài phút.")) return;
-      
-      db.ref('contentListeners').once('value').then(snapshot => {
-        const allListenersData = snapshot.val() || {};
-        const updates = {};
-        let mergedCount = 0;
-        
-        for (const [contentKey, listeners] of Object.entries(allListenersData)) {
-          const userMap = new Map();
-          
-          for (const [id, data] of Object.entries(listeners)) {
-            const userName = data.userName.toLowerCase().trim();
-            const existing = userMap.get(userName);
-            
-            if (existing) {
-              if (data.timestamp > existing.timestamp) {
-                userMap.set(userName, { id, timestamp: data.timestamp });
-                updates[contentKey] = updates[contentKey] || {};
-                updates[contentKey][existing.id] = null;
-                mergedCount++;
-              } else {
-                updates[contentKey] = updates[contentKey] || {};
-                updates[contentKey][id] = null;
-                mergedCount++;
-              }
-            } else {
-              userMap.set(userName, { id, timestamp: data.timestamp });
-            }
-          }
-        }
-        
-        if (Object.keys(updates).length > 0) {
-          db.ref('contentListeners').update(updates, error => {
-            if (error) {
-              alert("Có lỗi xảy ra khi gộp dữ liệu: " + error.message);
-            } else {
-              alert(`Đã gộp ${mergedCount} bản ghi trùng lặp.`);
-              updateStats();
-            }
-          });
-        } else {
-          alert("Không có bản ghi trùng lặp nào để gộp.");
-        }
-      });
-    }
-
-    function exportListenersData() {
-      db.ref('contentListeners').once('value').then(snapshot => {
-        const allListenersData = snapshot.val() || {};
-        const exportData = [];
-        
-        for (const [contentKey, listeners] of Object.entries(allListenersData)) {
-          const content = allContent.find(c => c.key === contentKey);
-          const contentName = content ? content.name.replace(/<[^>]*>/g, '') : 'N/A';
-          
-          for (const [id, data] of Object.entries(listeners)) {
-            exportData.push({
-              contentId: contentKey,
-              contentName: contentName,
-              listenerName: data.userName,
-              timestamp: formatTimeForExport(data.timestamp),
-              date: new Date(data.timestamp).toLocaleDateString('vi-VN')
-            });
-          }
-        }
-        
-        const csvContent = convertToCSV(exportData);
-        downloadCSV(csvContent, 'listeners_export.csv');
-      });
-    }
-
-    function convertToCSV(data) {
-      const headers = ['Tên nội dung', 'Tên người nghe', 'Thời gian', 'Ngày'];
-      const csvRows = [headers.join(',')];
-      
-      for (const row of data) {
-        const values = [
-          `"${row.contentName.replace(/"/g, '""')}"`,
-          `"${row.listenerName.replace(/"/g, '""')}"`,
-          `"${row.timestamp}"`,
-          `"${row.date}"`
-        ];
-        csvRows.push(values.join(','));
-      }
-      
-      return csvRows.join('\n');
-    }
-
-    function downloadCSV(content, fileName) {
-      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function deleteListener(contentKey, listenerId, listenerName) {
-      const password = prompt(`Nhập password để xóa người nghe "${listenerName}":`);
-      
-      if (password === null) return;
-      
-      if (password !== "minhtriet1973") {
-        alert("Sai password! Bạn không có quyền xóa.");
-        return;
-      }
-      
-      if (!confirm(`Bạn có chắc muốn xóa "${listenerName}" khỏi danh sách người nghe?`)) return;
-      
-      db.ref(`contentListeners/${contentKey}/${listenerId}`).remove()
-        .then(() => {
-          alert(`Đã xóa "${listenerName}" khỏi danh sách người nghe.`);
-          updateStats();
-        })
-        .catch(error => {
-          alert("Có lỗi xảy ra khi xóa: " + error.message);
-        });
-    }
-
-    function toggleListenersPanel(contentKey) {
-      const panel = document.getElementById(`listeners-panel-${contentKey}`);
-      if (!panel) return;
-      
-      if (panel.classList.contains('show')) {
-        panel.classList.remove('show');
-        listenersPanelState[contentKey] = false;
-      } else {
-        panel.classList.add('show');
-        listenersPanelState[contentKey] = true;
-        loadContentListeners(contentKey);
-      }
-    }
-
-    function toggleAdminPanel() {
-      const adminPanel = document.getElementById('adminPanel');
-      adminPanelCollapsed = !adminPanelCollapsed;
-      
-      if (adminPanelCollapsed) {
-        adminPanel.classList.add('collapsed');
-      } else {
-        adminPanel.classList.remove('collapsed');
-      }
-    }
-    
-    function toggleSlideList() {
-      const slideList = document.getElementById('slideList');
-      if (slideList.style.display === 'block') {
-        slideList.style.display = 'none';
-      } else {
-        slideList.style.display = 'block';
-      }
-    }
-
-    function toggleInfographicList() {
-      const list = document.getElementById('infographicList');
-      if (list.style.display === 'block') {
-        list.style.display = 'none';
-      } else {
-        list.style.display = 'block';
-        renderInfographicList(); 
-      }
-    }
-
-    function renderInfographicList() {
-      db.ref('infographics').on('value', snap => {
-        const grid = document.getElementById('infoGrid');
-        const data = snap.val();
-        
-        if (!data) {
-          grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Chưa có infographic nào.</p>';
-          return;
-        }
-
-        const items = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        
-        let html = '';
-        items.forEach(item => {
-          html += `
-            <div class="info-item">
-              <button class="btn-delete-info" onclick="deleteInfographic('${item.key}')" title="Xóa">
-                <i class="fas fa-trash"></i>
-              </button>
-              <img src="${item.link}" class="info-thumb" onclick="viewImage('${item.link}')" onerror="this.src='https://via.placeholder.com/200?text=Lỗi+Ảnh'">
-              <div class="info-caption">${item.title}</div>
-            </div>
-          `;
-        });
-        grid.innerHTML = html;
-      });
-    }
-
-    function viewImage(src) {
-      const modal = document.getElementById('imageModal');
-      const modalImg = document.getElementById("img01");
-      modal.style.display = "flex";
-      modalImg.src = src;
-    }
-
-    function updateStats() {
-      db.ref('contentListeners').once('value').then(snapshot => {
-        const allListenersData = snapshot.val() || {};
-        let totalListeners = 0;
-        const uniqueListeners = new Set();
-        let oldestTimestamp = Date.now();
-        let hasData = false;
-        
-        for (const [contentKey, listeners] of Object.entries(allListenersData)) {
-          for (const [id, data] of Object.entries(listeners)) {
-            totalListeners++;
-            uniqueListeners.add(data.userName.toLowerCase().trim());
-            
-            if (data.timestamp < oldestTimestamp) {
-              oldestTimestamp = data.timestamp;
-              hasData = true;
-            }
-          }
-        }
-        
-        document.getElementById('totalListeners').textContent = totalListeners;
-        document.getElementById('uniqueListeners').textContent = uniqueListeners.size;
-        document.getElementById('oldestRecord').textContent = hasData ? formatTime(oldestTimestamp) : 'N/A';
-      });
-    }
-
-    function formatTime(timestamp) {
-      if (!timestamp) return 'N/A';
-      
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      return `${diffDays} ngày trước`;
-    }
-
-    function formatTimeForExport(timestamp) {
-      if (!timestamp) return 'N/A';
-      
-      const date = new Date(timestamp);
-      return date.toLocaleString('vi-VN');
-    }
-
-    function showContent(contentKey, contentType, contentLink) {
-      const contentElement = document.getElementById(`content-${contentKey}`);
-      
-      if (contentElement) {
-        let contentHTML = '';
-        if (contentType === 'audio') {
-          contentHTML = `<iframe class="audio-player" width="100%" height="60" src="${contentLink}" frameborder="0" allow="autoplay"></iframe>`;
-        } else if (contentType === 'video') {
-          const isShorts = contentLink.includes('shorts') || false;
-          const videoClass = isShorts ? 'shorts-video' : 'regular-video';
-          const paddingBottom = isShorts ? '177.78%' : '56.25%';
-          
-          contentHTML = `
-            <div class="video-container ${videoClass}" style="max-width: ${isShorts ? '360px' : '800px'}; padding-bottom: ${paddingBottom};">
-              <iframe src="https://www.youtube.com/embed/${contentLink}?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>`;
-        }
-        
-        contentElement.innerHTML = `
-          ${contentHTML}
-          <div class="listeners-panel" id="listeners-panel-${contentKey}">
-            <div class="listeners-header">
-              <div class="listeners-title">
-                <i class="fas fa-users"></i> Người đã nghe/xem <span class="listeners-count" id="listeners-count-${contentKey}">0</span>
-              </div>
-            </div>
-            <div class="listeners-list" id="listeners-${contentKey}">
-              <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Đang tải thông tin...</p></div>
-            </div>
-          </div>
-        `;
-        
-        loadContentListeners(contentKey);
-      }
-    }
-
-    function enableSorting() {
-      const el = document.getElementById("sortable-list");
-      if (!el) return;
-      new Sortable(el, {
-        animation: 150,
-        handle: '.audio-header',
-        onEnd: function () {
-          const items = Array.from(el.children);
-          const order = items.map(item => item.getAttribute("data-key"));
-          db.ref("contentOrder").set(order);
-        }
-      });
-    }
-
-    function clearSearch() {
-      document.getElementById("searchInput").value = "";
-      filterContent();
-      document.getElementById("clearSearchBtn").style.display = "none";
-      document.getElementById("searchStats").style.display = "none";
-    }
-
-    // ===== NÂNG CẤP TÌM KIẾM =====
-    // Trích xuất các cụm từ (1-5 từ) từ tên các bài chứa từ khóa tìm kiếm
-    // VD: tìm "đơn hàng" sẽ trả về: "đơn hàng", "lên đơn hàng", "xử lý đơn hàng"...
-    function getMatchingPhrases(searchTerm) {
-      const searchTermLower = searchTerm.toLowerCase().trim();
-      if (!searchTermLower) return [];
-      const searchTermNoDiacritics = removeDiacritics(searchTermLower);
-
-      // Map: phraseLower -> { display: phrase, count: số bài chứa cụm này }
-      const phraseFreq = new Map();
-
-      // Lấy tên từ cả allContent (audio/video) và allSlides (slide)
-      const allNames = [
-        ...allContent.map(it => it.name),
-        ...allSlides.map(it => it.title)
-      ].filter(n => n && typeof n === 'string');
-
-      allNames.forEach(name => {
-        // Tách thành các từ, giữ nguyên ký tự gốc
-        const words = name.split(/[\s\-–—,.:;?!()"\/\\]+/).filter(w => w.length > 0);
-        // Tập hợp các cụm có trong bài này (để chỉ đếm 1 lần/bài)
-        const seenInThisName = new Set();
-
-        // Sinh n-gram từ 1 đến 5 từ
-        for (let len = 1; len <= 5 && len <= words.length; len++) {
-          for (let i = 0; i <= words.length - len; i++) {
-            const phrase = words.slice(i, i + len).join(' ').trim();
-            if (phrase.length < searchTermLower.length) continue;
-            if (phrase.length > 60) continue; // bỏ qua cụm quá dài
-
-            const phraseLower = phrase.toLowerCase();
-            const phraseNoDiacritics = removeDiacritics(phraseLower);
-
-            // Cụm phải chứa từ khóa tìm kiếm
-            if (!phraseLower.includes(searchTermLower) &&
-                !phraseNoDiacritics.includes(searchTermNoDiacritics)) {
-              continue;
+            if (!slot) {
+                LOG(`Không có mốc nào trong cửa sổ bù ${LATE_TOLERANCE_MINUTES}p (now=${now.toLocaleTimeString('vi-VN')}).`);
+                return;
             }
 
-            // Đã tính trong bài này thì bỏ qua
-            if (seenInThisName.has(phraseLower)) continue;
-            seenInThisName.add(phraseLower);
-
-            if (phraseFreq.has(phraseLower)) {
-              phraseFreq.get(phraseLower).count += 1;
-            } else {
-              phraseFreq.set(phraseLower, { display: phrase, count: 1 });
+            // ⭐ Kiểm tra localStorage: máy này đã đóng popup mốc này hôm nay chưa?
+            const lsKey = `${LS_PREFIX}${todayKey()}_${slotStr}`;
+            if (lsGet(lsKey)) {
+                LOG(`Mốc ${slotStr}: máy này đã đọc xong hôm nay (localStorage), bỏ qua.`);
+                lastDisplayedTime = slotStr; // chốt biến RAM để không kiểm tra lặp lại trong phiên
+                return;
             }
-          }
+
+            if (slotStr === lastDisplayedTime) {
+                LOG(`Mốc ${slotStr} đang/đã xử lý trong phiên này, bỏ qua.`);
+                return;
+            }
+
+            LOG(`📢 Kích hoạt popup mốc ${slotStr} - bù ${minutesLate}p (now=${now.toLocaleTimeString('vi-VN')}).`);
+            loadAllData()
+                .then(data => {
+                    const { staffGroups, summary } = analyze(data);
+                    if (staffGroups.length === 0) {
+                        LOG('Không có nhân viên nào còn KH chưa đặt → bỏ qua popup, ghi nhận mốc.');
+                        lastDisplayedTime = slotStr;
+                        // Cũng ghi localStorage để máy này không kiểm tra lại
+                        lsSet(lsKey, Date.now().toString());
+                        return;
+                    }
+                    render(staffGroups, summary, slotStr, minutesLate);
+                    showPopup();
+                    lastDisplayedTime = slotStr;
+                    LOG(`Đã hiển thị popup: ${staffGroups.length} nhân viên, ${summary.total} khách hàng.`);
+                })
+                .catch(err => {
+                    ERR('Lỗi tải dữ liệu:', err);
+                    showError('Không thể kết nối Firebase: ' + (err.message || err));
+                    showPopup();
+                });
         }
-      });
 
-      // Sắp xếp: ưu tiên cụm chứa đúng từ khóa, rồi theo tần suất, rồi cụm ngắn trước
-      return Array.from(phraseFreq.values())
-        .sort((a, b) => {
-          // Cụm trùng KHỚP CHÍNH XÁC từ khóa lên đầu
-          const aExact = a.display.toLowerCase() === searchTermLower ? 1 : 0;
-          const bExact = b.display.toLowerCase() === searchTermLower ? 1 : 0;
-          if (aExact !== bExact) return bExact - aExact;
-          // Tần suất cao trước
-          if (b.count !== a.count) return b.count - a.count;
-          // Cụm ngắn trước
-          return a.display.length - b.display.length;
-        })
-        .slice(0, 25);
-    }
+        // ============================================================
+        function init() {
+            const appTbkh  = getOrInitApp(FIREBASE_TBKH);
+            const appIdeco = getOrInitApp(FIREBASE_IDECO);
+            if (!appTbkh || !appIdeco) { ERR('Không khởi tạo được Firebase.'); return; }
+            dbTbkh  = firebase.database(appTbkh);
+            dbIdeco = firebase.database(appIdeco);
 
-    // Render bảng gợi ý từ khóa khi người dùng đang nhập
-    function renderKeywordSuggestPanel(searchTerm) {
-      const panel = document.getElementById("keywordSuggestPanel");
-      if (!panel) return;
+            cleanupOldStorage();
+            createDOM();
 
-      if (!searchTerm || !searchTerm.trim()) {
-        panel.style.display = "none";
-        panel.innerHTML = "";
-        return;
-      }
+            LOG('=== POPUP TỔNG HỢP v3.1 (BÙ GIỜ + localStorage) ===');
+            LOG('Lịch:', popupSchedule.times.map(t =>
+                `${String(t.hour).padStart(2,'0')}:${String(t.minute).padStart(2,'0')}`
+            ).join(', '));
+            LOG(`Cửa sổ bù: ${LATE_TOLERANCE_MINUTES} phút sau mốc thiết lập.`);
 
-      const phrases = getMatchingPhrases(searchTerm);
-      if (phrases.length === 0) {
-        panel.style.display = "none";
-        panel.innerHTML = "";
-        return;
-      }
-
-      let html = `
-        <div class="keyword-suggest-header">
-          <i class="fas fa-tags"></i>
-          <span>Từ khóa liên quan đến "<strong>${escapeHtml(searchTerm)}</strong>"</span>
-          <span class="keyword-suggest-count">${phrases.length}</span>
-        </div>
-        <div class="keyword-chips">
-      `;
-      phrases.forEach(p => {
-        const safe = p.display.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        html += `
-          <button class="keyword-chip" onclick="useSuggestion('${safe}')" title="Bấm để tìm '${escapeHtml(p.display)}'">
-            <i class="fas fa-search"></i>
-            <span>${escapeHtml(p.display)}</span>
-            <span class="chip-count">${p.count}</span>
-          </button>
-        `;
-      });
-      html += `</div>`;
-      panel.innerHTML = html;
-      panel.style.display = "block";
-    }
-
-    // Tìm slide khớp với từ khóa (theo cụm chính xác hoặc đủ tất cả các từ)
-    function searchSlides(searchTerm) {
-      const searchLower = searchTerm.toLowerCase().trim();
-      if (!searchLower) return [];
-      const searchNoDiacritics = removeDiacritics(searchLower);
-
-      return allSlides.filter(slide => {
-        const title = (slide.title || '').toLowerCase();
-        const titleNoDiacritics = removeDiacritics(title);
-
-        // Trùng cụm chính xác
-        if (title.includes(searchLower) || titleNoDiacritics.includes(searchNoDiacritics)) {
-          return true;
+            checkPendingReminder();
+            setInterval(checkPendingReminder, CHECK_INTERVAL_MS);
         }
-        // Hoặc đủ tất cả các từ trong từ khóa
-        const words = searchLower.split(' ').filter(w => w.length >= 2);
-        if (words.length === 0) return false;
-        return words.every(word => {
-          const wNoDiacritics = removeDiacritics(word);
-          return title.includes(word) || titleNoDiacritics.includes(wNoDiacritics);
+
+        return { init };
+    })();
+
+    // ================================================================
+    // KHỞI CHẠY
+    // ================================================================
+    function bootstrap() {
+        waitFirebaseReady(() => {
+            try { PopupApp.init(); }
+            catch (e) { ERR('Bootstrap lỗi:', e); }
         });
-      });
     }
 
-    // Render danh sách slide khớp ở trên kết quả podcast
-    function renderSlideSearchResults(matchingSlides, searchTerm) {
-      const box = document.getElementById("slideSearchResults");
-      if (!box) return;
-
-      if (!matchingSlides || matchingSlides.length === 0) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-      }
-
-      const regex = searchTerm
-        ? new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-        : null;
-
-      let html = `
-        <div class="slide-search-header">
-          <i class="fas fa-chalkboard-teacher"></i>
-          <span>Slide đào tạo khớp</span>
-          <span class="slide-search-count">${matchingSlides.length}</span>
-        </div>
-        <ul class="slide-search-list">
-      `;
-      matchingSlides.forEach(slide => {
-        let displayTitle = escapeHtml(slide.title || '');
-        if (regex) {
-          displayTitle = displayTitle.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-        const safeLink = (slide.link || '#').replace(/"/g, '&quot;');
-        html += `
-          <li class="slide-search-item">
-            <i class="fas fa-file-powerpoint slide-icon"></i>
-            <a href="${safeLink}" target="_blank" rel="noopener noreferrer">${displayTitle}</a>
-          </li>
-        `;
-      });
-      html += `</ul>`;
-      box.innerHTML = html;
-      box.style.display = "block";
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootstrap);
+    } else {
+        bootstrap();
     }
-
-    // Helper an toàn HTML cho các đoạn text từ dữ liệu
-    function escapeHtml(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-    // ===== HẾT PHẦN NÂNG CẤP TÌM KIẾM =====
-
-    function filterContent() {
-      const searchInput = document.getElementById("searchInput");
-      const searchTerm = searchInput.value.toLowerCase().trim();
-      const clearBtn = document.getElementById("clearSearchBtn");
-      
-      if (searchTerm) {
-        clearBtn.style.display = "block";
-      } else {
-        clearBtn.style.display = "none";
-      }
-      
-      if (!searchTerm) {
-        filteredContent = [...allContent];
-        updateSearchResultsInfo(filteredContent.length, allContent.length);
-        renderContentList(filteredContent);
-        document.getElementById("searchStats").style.display = "none";
-        // Ẩn các bảng gợi ý từ khóa và slide khi không tìm kiếm
-        renderKeywordSuggestPanel("");
-        renderSlideSearchResults([], "");
-        return;
-      }
-      
-      const searchTermNoDiacritics = removeDiacritics(searchTerm);
-      
-      filteredContent = allContent.filter(item => {
-        const itemName = item.name.toLowerCase();
-        const itemNameNoDiacritics = removeDiacritics(itemName);
-        
-        // 1. Ưu tiên: trùng cụm chính xác (VD: "báo cáo giao dịch")
-        if (itemName.includes(searchTerm) || itemNameNoDiacritics.includes(searchTermNoDiacritics)) {
-          return true;
-        }
-        
-        // 2. Dự phòng: đủ tất cả các từ trong từ khóa
-        const searchWords = searchTerm.split(' ');
-        return searchWords.every(word => {
-          if (word.length < 2) return true;
-          const wordNoDiacritics = removeDiacritics(word);
-          return itemName.includes(word) || itemNameNoDiacritics.includes(wordNoDiacritics);
-        });
-      });
-      
-      // Sắp xếp kết quả theo độ liên quan (cụm trùng chính xác ưu tiên cao nhất)
-      filteredContent.sort((a, b) => {
-        const aScore = getRelevanceScore(a.name, searchTerm);
-        const bScore = getRelevanceScore(b.name, searchTerm);
-        return bScore - aScore;
-      });
-      
-      updateSearchResultsInfo(filteredContent.length, allContent.length);
-      renderContentList(filteredContent);
-
-      // Hiển thị bảng từ khóa gợi ý + danh sách slide khớp
-      renderKeywordSuggestPanel(searchTerm);
-      const matchingSlides = searchSlides(searchTerm);
-      renderSlideSearchResults(matchingSlides, searchTerm);
-    }
-
-    function updateSearchResultsInfo(filteredCount, totalCount) {
-      const resultsInfo = document.getElementById("searchResultsInfo");
-      const searchStats = document.getElementById("searchStats");
-      const filteredCountSpan = document.getElementById("filteredCount");
-      const totalCountSpan = document.getElementById("totalCount");
-      
-      if (filteredCount === totalCount) {
-        resultsInfo.textContent = "";
-        if (searchStats) searchStats.style.display = "none";
-        return;
-      }
-      
-      if (filteredCount === 0) {
-        resultsInfo.innerHTML = `<i class="fas fa-info-circle"></i> Không tìm thấy kết quả phù hợp.`;
-        if (searchStats) {
-          filteredCountSpan.textContent = filteredCount;
-          totalCountSpan.textContent = totalCount;
-          searchStats.style.display = "flex";
-        }
-      } else {
-        resultsInfo.innerHTML = `<i class="fas fa-check-circle" style="color: var(--primary);"></i> Tìm thấy ${filteredCount} kết quả.`;
-        if (searchStats) {
-          filteredCountSpan.textContent = filteredCount;
-          totalCountSpan.textContent = totalCount;
-          searchStats.style.display = "flex";
-        }
-      }
-    }
-
-    function sortContent(method) {
-      currentSortMethod = method;
-      updateSortButtons();
-      updateTocSortButtons(); 
-      
-      if (method === 'default') {
-        showContentList();
-        return;
-      }
-      
-      let contentToSort = document.getElementById("searchInput").value ? [...filteredContent] : [...allContent];
-      
-      if (method === 'title-asc') {
-        contentToSort.sort((a, b) => a.name.localeCompare(b.name, 'vi', { numeric: true }));
-      } else if (method === 'title-desc') {
-        contentToSort.sort((a, b) => b.name.localeCompare(a.name, 'vi', { numeric: true }));
-      }
-      
-      renderContentList(contentToSort);
-      populateTableOfContents(); 
-    }
-
-    function updateSortButtons() {
-      document.querySelectorAll('.sort-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (
-          (currentSortMethod === 'default' && btn.textContent.includes('Mặc định')) ||
-          (currentSortMethod === 'title-asc' && btn.textContent.includes('A-Z')) ||
-          (currentSortMethod === 'title-desc' && btn.textContent.includes('Z-A'))
-        ) {
-          btn.classList.add('active');
-        }
-      });
-    }
-    
-    function updateTocSortButtons() {
-      const defaultBtn = document.querySelector('.toc-sort-btn[onclick*="default"]');
-      const azBtn = document.querySelector('.toc-sort-btn[onclick*="title-asc"]');
-      
-      if (!defaultBtn || !azBtn) return;
-      
-      defaultBtn.classList.remove('active');
-      azBtn.classList.remove('active');
-      
-      if (currentSortMethod === 'default') {
-        defaultBtn.classList.add('active');
-      } else if (currentSortMethod === 'title-asc') {
-        azBtn.classList.add('active');
-      }
-    }
-
-    function showGlobalNotification(contentName = null) {
-      const notification = document.createElement('div');
-      notification.className = 'global-notification';
-      
-      if (contentName) {
-        notification.innerHTML = `<i class="fas fa-bell"></i><span>Đã thêm nội dung mới: <strong>${contentName}</strong></span>`;
-      } else {
-        notification.innerHTML = `<i class="fas fa-bell"></i><span>Có nội dung mới được cập nhật!</span>`;
-      }
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.style.animation = 'slideOut 0.5s ease-in';
-        setTimeout(() => notification.remove(), 500);
-      }, 5000);
-    }
-
-    function isContentNew(item) {
-      if (!item.createdAt) return false;
-      const now = Date.now();
-      const createdTime = item.createdAt;
-      const ageInHours = (now - createdTime) / (1000 * 60 * 60);
-      return ageInHours < 36;
-    }
-
-    function renderContentList(items) {
-      const listDiv = document.getElementById("contentList");
-      const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
-      
-      listDiv.innerHTML = "";
-      
-      if (items.length === 0) {
-        if (searchTerm) {
-          showSearchSuggestions(searchTerm);
-        } else {
-          listDiv.innerHTML = `<div class="empty-state"><i class="fas fa-headphones"></i><p>Chưa có nội dung nào. Hãy thêm nội dung đầu tiên!</p></div>`;
-        }
-        return;
-      }
-
-      const ul = document.createElement("div");
-      ul.id = "sortable-list";
-      
-      items.forEach((item, index) => {
-        const isNew = isContentNew(item);
-        const itemElement = document.createElement("div");
-        itemElement.className = `audio-item ${isNew ? 'new-podcast' : ''} search-result-item`;
-        itemElement.setAttribute("data-key", item.key);
-        itemElement.id = `audio-item-${item.key}`;
-        itemElement.style.animationDelay = `${index * 0.05}s`;
-        
-        // Highlight tên nếu có từ khóa tìm kiếm
-        let displayName = item.name;
-        if (searchTerm) {
-          const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          displayName = item.name.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-        
-        itemElement.innerHTML = `
-          <div class="audio-header">
-            <img src="${DEFAULT_IMAGE}" alt="${item.name}" class="audio-image">
-            <div class="audio-name">
-              ${displayName} 
-              ${isNew ? '<span class="new-badge">MỚI</span>' : ''}
-            </div>
-            <input type="text" class="audio-name-input" placeholder="Nhập tên mới...">
-          </div>
-          <div class="audio-content">
-            <div id="content-${item.key}">
-              <div class="content-placeholder">
-                <i class="fas fa-lock"></i>
-                <p>Nội dung này được bảo vệ</p>
-                <button class="play-button" onclick="requestContentAccess('${item.key}', '${item.type}', '${item.link}')">
-                  <i class="fas fa-play"></i> Nghe/Xem ngay
-                </button>
-                <p>Vui lòng đăng nhập để nghe/xem nội dung này</p>
-              </div>
-            </div>
-          </div>
-          <div class="audio-actions">
-            <button class="edit" onclick="editContent('${item.key}')"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-            <button class="save" onclick="saveContent('${item.key}')"><i class="fas fa-save"></i> Lưu</button>
-            <button class="listeners" onclick="toggleListenersPanel('${item.key}')"><i class="fas fa-users"></i> Người nghe</button>
-            <button class="delete" onclick="deleteContent('${item.key}')"><i class="fas fa-trash"></i> Xóa</button>
-          </div>
-        `;
-        ul.appendChild(itemElement);
-      });
-      
-      listDiv.appendChild(ul);
-      if (currentSortMethod === 'default' && !searchTerm) {
-        enableSorting();
-      }
-    }
-    
-    function renderSlideList() {
-      db.ref('slides').on('value', snap => {
-        const slideListDiv = document.getElementById('slideList');
-        const data = snap.val();
-        
-        if (!data) {
-          slideListDiv.innerHTML = '<p>Chưa có slide đào tạo nào.</p>';
-          allSlides = [];
-          // Cập nhật lại tìm kiếm nếu đang có từ khóa
-          if (document.getElementById("searchInput") && document.getElementById("searchInput").value.trim()) {
-            filterContent();
-          }
-          return;
-        }
-
-        const slides = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        allSlides = slides; // Lưu slides cho việc tìm kiếm
-        
-        let html = '<ul>';
-        slides.forEach(slide => {
-          html += `
-            <li>
-              <a href="${slide.link}" target="_blank" rel="noopener noreferrer">${slide.title}</a>
-              <button class="delete-slide-btn" onclick="deleteSlide('${slide.key}')" title="Xóa slide">
-                <i class="fas fa-trash"></i>
-              </button>
-            </li>`;
-        });
-        html += '</ul>';
-        
-        slideListDiv.innerHTML = html;
-
-        // Cập nhật lại tìm kiếm nếu đang có từ khóa (để hiển thị slide trùng khớp)
-        if (document.getElementById("searchInput") && document.getElementById("searchInput").value.trim()) {
-          filterContent();
-        }
-      });
-    }
-
-    function loadContentListeners(contentKey) {
-      const listenersRef = db.ref(`contentListeners/${contentKey}`);
-      
-      listenersRef.on('value', (snapshot) => {
-        const listenersData = snapshot.val();
-        const listenersContainer = document.getElementById(`listeners-${contentKey}`);
-        const listenersCount = document.getElementById(`listeners-count-${contentKey}`);
-        
-        if (!listenersData) {
-          if (listenersContainer) listenersContainer.innerHTML = '<div class="empty-state"><p>Chưa có ai nghe/xem nội dung này</p></div>';
-          if (listenersCount) listenersCount.textContent = '0';
-          return;
-        }
-        
-        const listeners = Object.entries(listenersData).map(([id, data]) => ({ id, name: data.userName, timestamp: data.timestamp }));
-        listeners.sort((a, b) => b.timestamp - a.timestamp);
-        
-        if (listenersCount) listenersCount.textContent = listeners.length;
-        if (listenersContainer) {
-          listenersContainer.innerHTML = listeners.length === 0
-            ? '<div class="empty-state"><p>Chưa có ai nghe/xem nội dung này</p></div>'
-            : listeners.map(listener => `
-              <div class="listener-item">
-                <div class="listener-info">
-                  <div class="listener-name">${listener.name}</div>
-                  <div class="listener-time">${formatTimeForExport(listener.timestamp)}</div>
-                </div>
-                <div class="listener-actions">
-                  <button class="delete-listener-btn" onclick="deleteListener('${contentKey}', '${listener.id}', '${listener.name.replace(/'/g, "\\'")}')" title="Xóa người nghe">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>`).join('');
-        }
-      });
-    }
-
-    function showContentList() {
-      db.ref('contents').on('value', snap => {
-        const data = snap.val();
-        allContent = [];
-        
-        if (!data) {
-          renderContentList([]);
-          return;
-        }
-        
-        const contents = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        
-        db.ref('contentOrder').once('value', orderSnap => {
-          const order = orderSnap.val() || [];
-          
-          allContent = order
-            .map(key => contents.find(p => p.key === key))
-            .filter(p => p)
-            .concat(contents.filter(p => !order.includes(p.key)));
-          
-          filteredContent = [...allContent];
-          const searchTerm = document.getElementById("searchInput").value;
-          if (searchTerm) {
-            filterContent();
-          } else {
-            updateSearchResultsInfo(filteredContent.length, allContent.length);
-            renderContentList(allContent);
-          }
-          
-          updateStats();
-          populateTableOfContents(); 
-        });
-      });
-    }
-
-    function populateTableOfContents() {
-      const listContainer = document.getElementById('tocList');
-      if (!listContainer) return;
-      
-      listContainer.innerHTML = '';
-
-      let itemsToRender = [...allContent];
-      
-      if (currentSortMethod === 'title-asc') {
-        itemsToRender.sort((a, b) => a.name.localeCompare(b.name, 'vi', { numeric: true }));
-      }
-
-      itemsToRender.forEach((item) => {
-        const listItem = document.createElement('li');
-        const link = document.createElement('a');
-        link.href = `#audio-item-${item.key}`;
-        link.textContent = item.name.replace(/<[^>]*>/g, ''); 
-        
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const tocPanel = document.querySelector('.toc-panel');
-          if (tocPanel) tocPanel.classList.remove('show');
-          
-          const targetElement = document.getElementById(`audio-item-${item.key}`);
-          if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetElement.style.boxShadow = '0 0 10px 3px var(--secondary)';
-            setTimeout(() => {
-              targetElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
-            }, 2000);
-          }
-        });
-        listItem.appendChild(link);
-        listContainer.appendChild(listItem);
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('contentName').placeholder = "Nhập tên (ví dụ: 1. Bài học A)...";
-      
-      showContentList();
-      renderSlideList();
-      updateSortButtons();
-      
-      const tocButton = document.getElementById('showTableOfContents');
-      const tocPanel = document.createElement('div');
-      tocPanel.className = 'toc-panel';
-      
-      tocPanel.innerHTML = `
-        <div class="toc-header">
-          <h4><i class="fas fa-list"></i> Mục lục</h4>
-          <button id="closeToc" style="background:none; border:none; color: var(--text-light); font-size: 1.2rem; cursor:pointer;">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="toc-sort-controls">
-          <button class="toc-sort-btn active" onclick="sortContent('default')">
-            <i class="fas fa-sort"></i> Mặc định
-          </button>
-          <button class="toc-sort-btn" onclick="sortContent('title-asc')">
-            <i class="fas fa-sort-alpha-down"></i> A-Z
-          </button>
-        </div>
-        <ul id="tocList" class="toc-list"></ul>
-      `;
-      document.body.appendChild(tocPanel);
-
-      updateTocSortButtons();
-
-      tocButton.addEventListener('click', () => {
-        populateTableOfContents(); 
-        tocPanel.classList.add('show');
-      });
-
-      document.getElementById('closeToc').addEventListener('click', () => {
-        tocPanel.classList.remove('show');
-      });
-
-      document.getElementById('contentType').addEventListener('change', function() {
-        const podcastVideoInputs = document.getElementById('podcastVideoInputs');
-        const slideInputs = document.getElementById('slideInputs');
-        const infographicInputs = document.getElementById('infographicInputs');
-        
-        podcastVideoInputs.style.display = 'none';
-        slideInputs.style.display = 'none';
-        infographicInputs.style.display = 'none';
-
-        if (this.value === 'slide') {
-          slideInputs.style.display = 'block';
-        } else if (this.value === 'infographic') {
-          infographicInputs.style.display = 'block';
-        } else {
-          podcastVideoInputs.style.display = 'block';
-        }
-      });
-      
-    });
-
-    setInterval(() => {
-      db.ref('contentListeners').once('value').then(snapshot => {
-        const allListenersData = snapshot.val() || {};
-        for (const contentKey of Object.keys(allListenersData)) {
-          cleanupOldDataForContent(contentKey, DATA_RETENTION_DAYS);
-        }
-      });
-    }, 24 * 60 * 60 * 1000);
-  </script>
-</body>
-</html>
+})();
+</script>
