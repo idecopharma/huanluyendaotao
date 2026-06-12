@@ -1753,6 +1753,137 @@
   }
   .list-info-banner i { color: var(--secondary); font-size: 18px; margin-top: 2px; }
 
+  /* ===== Training list search (autocomplete) ===== */
+  .training-search-container {
+    position: relative;
+    margin-bottom: 26px;
+    z-index: 50;
+  }
+  .training-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .training-search-wrapper .ts-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-light);
+    font-size: 15px;
+    pointer-events: none;
+  }
+  #trainingSearchInput {
+    width: 100%;
+    padding: 14px 44px 14px 44px;
+    border: 2px solid rgba(33, 150, 243, 0.25);
+    border-radius: 14px;
+    font-size: 0.98rem;
+    font-family: inherit;
+    background: #fff;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  #trainingSearchInput:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.12);
+  }
+  .ts-clear-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 17px;
+    cursor: pointer;
+    display: none;
+    padding: 4px;
+    line-height: 1;
+  }
+  .ts-clear-btn:hover { color: var(--danger); }
+  .training-suggestions {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+    max-height: 380px;
+    overflow-y: auto;
+    display: none;
+    z-index: 100;
+  }
+  .training-suggestions.show { display: block; }
+  .ts-suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 11px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s;
+  }
+  .ts-suggestion-item:last-child { border-bottom: none; }
+  .ts-suggestion-item:hover,
+  .ts-suggestion-item.active { background: rgba(33, 150, 243, 0.08); }
+  .ts-sug-icon { font-size: 17px; flex-shrink: 0; }
+  .ts-sug-body { flex: 1; min-width: 0; }
+  .ts-sug-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .ts-sug-title mark {
+    background: rgba(255, 193, 7, 0.45);
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .ts-sug-stage {
+    font-size: 0.76rem;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+  .ts-sug-open {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--secondary);
+    background: rgba(33, 150, 243, 0.1);
+    padding: 4px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .ts-no-result {
+    padding: 16px 14px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+  .ts-count-badge {
+    padding: 8px 14px;
+    font-size: 0.76rem;
+    color: var(--text-light);
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    border-radius: 14px 14px 0 0;
+    position: sticky;
+    top: 0;
+  }
+  /* item match highlight when filtering the stage list */
+  .training-item.ts-match {
+    border-color: var(--warning) !important;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
+  }
+
   /* Admin: list management */
   .admin-menu-item {
     background: #f8fafc;
@@ -1959,6 +2090,23 @@
       <div class="list-info-banner">
         <i class="fas fa-info-circle"></i>
         <div><strong>Hướng dẫn:</strong> Học theo thứ tự giai đoạn để hiệu quả tốt nhất. Mục có biểu tượng 🎧 sẽ mở podcast, 🎬 mở video, 📄 mở tài liệu.</div>
+      </div>
+
+      <!-- ===== Search with autocomplete suggestions ===== -->
+      <div class="training-search-container">
+        <div class="training-search-wrapper">
+          <i class="fas fa-search ts-icon"></i>
+          <input type="text" id="trainingSearchInput"
+                 placeholder="🔎 Gõ từ khóa để tìm bài học... (VD: ứng xử, kế hoạch, chốt sales, GDP...)"
+                 autocomplete="off"
+                 oninput="onTrainingSearchInput()"
+                 onkeydown="onTrainingSearchKeydown(event)"
+                 onfocus="onTrainingSearchInput()">
+          <button class="ts-clear-btn" id="tsClearBtn" onclick="clearTrainingSearch()" title="Xoá tìm kiếm">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+        <div id="trainingSuggestions" class="training-suggestions"></div>
       </div>
 
       <div id="trainingStagesContainer">
@@ -2697,6 +2845,12 @@
           </div>
         `;
       }).join('');
+
+      // Giữ nguyên bộ lọc tìm kiếm khi danh sách được render lại (Firebase sync)
+      const tsInput = document.getElementById('trainingSearchInput');
+      if (tsInput && tsInput.value.trim() && typeof filterTrainingStages === 'function') {
+        filterTrainingStages(tsInput.value.trim());
+      }
     }
 
     /* Click on training item: switch to podcast tab and auto-search */
@@ -2717,6 +2871,194 @@
         showAutoSearchBanner(keyword);
       }, 200);
     }
+
+    /* ============================================================
+       TRAINING LIST SEARCH — Autocomplete gợi ý theo tiêu đề
+       Gõ từ khóa (có dấu hoặc không dấu) → hiện danh sách gợi ý
+       → bấm chọn để mở đúng nội dung.
+       ============================================================ */
+    let tsActiveIndex = -1;       // mục đang chọn bằng phím mũi tên
+    let tsCurrentResults = [];    // kết quả gợi ý hiện tại
+
+    /* Bỏ dấu tiếng Việt, giữ nguyên độ dài chuỗi (1 ký tự gốc → 1 ký tự thường)
+       để map chính xác vị trí highlight */
+    function vnNormalize(str) {
+      let out = '';
+      for (const ch of (str || '')) {
+        let c = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (c === 'đ') c = 'd';
+        if (c === 'Đ') c = 'D';
+        out += (c.length === 1 ? c : ch).toLowerCase();
+      }
+      return out;
+    }
+
+    /* Gom toàn bộ items từ mọi giai đoạn (kèm tên giai đoạn) */
+    function getAllTrainingItems() {
+      const out = [];
+      (trainingData.stages || []).forEach((stage, sIdx) => {
+        (stage.items || []).forEach(item => {
+          out.push({
+            title: item.title,
+            type: item.type || 'podcast',
+            stageName: stage.name,
+            stageNum: sIdx + 1
+          });
+        });
+      });
+      return out;
+    }
+
+    /* Highlight phần khớp trong tiêu đề (tìm không dấu vẫn highlight đúng) */
+    function tsHighlight(title, query) {
+      const nTitle = vnNormalize(title);
+      const nQuery = vnNormalize(query.trim());
+      if (!nQuery) return escHtml(title);
+      const idx = nTitle.indexOf(nQuery);
+      if (idx === -1) return escHtml(title);
+      const before = title.slice(0, idx);
+      const match = title.slice(idx, idx + nQuery.length);
+      const after = title.slice(idx + nQuery.length);
+      return escHtml(before) + '<mark>' + escHtml(match) + '</mark>' + escHtml(after);
+    }
+
+    /* Tìm kiếm: hỗ trợ nhiều từ khóa cách nhau bởi khoảng trắng (AND logic) */
+    function tsSearchItems(query) {
+      const terms = vnNormalize(query).split(/\s+/).filter(Boolean);
+      if (terms.length === 0) return [];
+      return getAllTrainingItems().filter(it => {
+        const nTitle = vnNormalize(it.title);
+        return terms.every(t => nTitle.includes(t));
+      });
+    }
+
+    function onTrainingSearchInput() {
+      const input = document.getElementById('trainingSearchInput');
+      const box = document.getElementById('trainingSuggestions');
+      const clearBtn = document.getElementById('tsClearBtn');
+      if (!input || !box) return;
+      const q = input.value.trim();
+      clearBtn.style.display = q ? 'block' : 'none';
+      tsActiveIndex = -1;
+
+      // Lọc trực tiếp danh sách giai đoạn bên dưới
+      filterTrainingStages(q);
+
+      if (!q) {
+        box.classList.remove('show');
+        box.innerHTML = '';
+        tsCurrentResults = [];
+        return;
+      }
+
+      tsCurrentResults = tsSearchItems(q).slice(0, 15);
+      if (tsCurrentResults.length === 0) {
+        box.innerHTML = '<div class="ts-no-result"><i class="fas fa-search-minus"></i> Không tìm thấy nội dung nào khớp với "' + escHtml(q) + '"</div>';
+        box.classList.add('show');
+        return;
+      }
+
+      box.innerHTML =
+        '<div class="ts-count-badge">💡 Tìm thấy <strong>' + tsCurrentResults.length + '</strong> nội dung — bấm để mở nghe ngay</div>' +
+        tsCurrentResults.map((it, i) => `
+          <button class="ts-suggestion-item" data-idx="${i}"
+                  onclick="selectTrainingSuggestion(${i})"
+                  onmouseenter="tsSetActive(${i})">
+            <span class="ts-sug-icon">${typeIcon(it.type)}</span>
+            <span class="ts-sug-body">
+              <span class="ts-sug-title">${tsHighlight(it.title, q)}</span>
+              <span class="ts-sug-stage" style="display:block;">GĐ ${it.stageNum} · ${escHtml(it.stageName)}</span>
+            </span>
+            <span class="ts-sug-open"><i class="fas fa-play"></i> Mở</span>
+          </button>
+        `).join('');
+      box.classList.add('show');
+    }
+
+    function tsSetActive(i) {
+      tsActiveIndex = i;
+      document.querySelectorAll('.ts-suggestion-item').forEach((el, idx) => {
+        el.classList.toggle('active', idx === i);
+      });
+    }
+
+    function onTrainingSearchKeydown(e) {
+      const box = document.getElementById('trainingSuggestions');
+      if (!box || !box.classList.contains('show') || tsCurrentResults.length === 0) {
+        if (e.key === 'Escape') clearTrainingSearch();
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        tsSetActive(Math.min(tsActiveIndex + 1, tsCurrentResults.length - 1));
+        tsScrollActiveIntoView();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        tsSetActive(Math.max(tsActiveIndex - 1, 0));
+        tsScrollActiveIntoView();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        selectTrainingSuggestion(tsActiveIndex >= 0 ? tsActiveIndex : 0);
+      } else if (e.key === 'Escape') {
+        box.classList.remove('show');
+      }
+    }
+
+    function tsScrollActiveIntoView() {
+      const el = document.querySelector('.ts-suggestion-item.active');
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+
+    /* Bấm chọn gợi ý → chuyển sang tab Podcast và tự tìm đúng nội dung */
+    function selectTrainingSuggestion(i) {
+      const it = tsCurrentResults[i];
+      if (!it) return;
+      const input = document.getElementById('trainingSearchInput');
+      const box = document.getElementById('trainingSuggestions');
+      if (input) input.value = it.title;
+      if (box) box.classList.remove('show');
+      goToPodcastSearch(getSearchKeyword(it.title));
+    }
+
+    function clearTrainingSearch() {
+      const input = document.getElementById('trainingSearchInput');
+      const box = document.getElementById('trainingSuggestions');
+      const clearBtn = document.getElementById('tsClearBtn');
+      if (input) { input.value = ''; input.focus(); }
+      if (box) { box.classList.remove('show'); box.innerHTML = ''; }
+      if (clearBtn) clearBtn.style.display = 'none';
+      tsCurrentResults = [];
+      tsActiveIndex = -1;
+      filterTrainingStages('');
+    }
+
+    /* Lọc trực tiếp các thẻ trong danh sách giai đoạn theo từ khóa */
+    function filterTrainingStages(query) {
+      const terms = vnNormalize(query).split(/\s+/).filter(Boolean);
+      document.querySelectorAll('#trainingStagesContainer .stage-block').forEach(block => {
+        let visibleCount = 0;
+        block.querySelectorAll('.training-item').forEach(itemEl => {
+          const titleEl = itemEl.querySelector('.training-item-title');
+          const nTitle = vnNormalize(titleEl ? titleEl.textContent : '');
+          const match = terms.length === 0 || terms.every(t => nTitle.includes(t));
+          itemEl.style.display = match ? '' : 'none';
+          itemEl.classList.toggle('ts-match', match && terms.length > 0);
+          if (match) visibleCount++;
+        });
+        // Ẩn cả giai đoạn nếu không còn mục nào khớp
+        const hasItems = block.querySelectorAll('.training-item').length > 0;
+        block.style.display = (terms.length > 0 && hasItems && visibleCount === 0) ? 'none' : '';
+      });
+    }
+
+    /* Đóng dropdown khi bấm ra ngoài */
+    document.addEventListener('click', function (e) {
+      const container = document.querySelector('.training-search-container');
+      const box = document.getElementById('trainingSuggestions');
+      if (container && box && !container.contains(e.target)) {
+        box.classList.remove('show');
+      }
+    });
 
     /* ============================================================
        LIST MANAGEMENT (admin)
