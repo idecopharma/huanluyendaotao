@@ -2,7 +2,9 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>PODCAST & VIDEO - Đào Tạo Hội Nhập & Kỹ Năng</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trung tâm đào tạo IDECO: lộ trình hội nhập, khách hàng, đơn hàng, báo cáo, kế hoạch và kỹ năng bán hàng dành cho nhân viên mới.">
+  <title>Trung tâm Đào tạo IDECO - Lộ trình nhân viên mới</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -284,6 +286,20 @@
   .new-podcast {
     border-left: 4px solid var(--primary);
     animation: highlight 3s ease-out;
+  }
+
+  .duplicate-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fdba74;
+    font-size: 0.68rem;
+    font-weight: 800;
+    white-space: nowrap;
   }
   
   .modal {
@@ -1867,7 +1883,7 @@
     font-size: 2.2rem;
     font-weight: 800;
     color: var(--primary);
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--stage-color, var(--primary)), var(--secondary));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1958,6 +1974,153 @@
     gap: 10px;
   }
   .list-info-banner i { color: var(--secondary); font-size: 18px; margin-top: 2px; }
+
+  .module-outline {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0 0;
+  }
+  .training-menu-panel {
+    margin: 0 0 28px;
+    padding: 24px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #f8fbff 0%, #f0fdf4 100%);
+    border: 1px solid #dbeafe;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+  .training-menu-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .training-menu-heading h2 {
+    margin: 0 0 5px;
+    color: #0f172a;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+  .training-menu-heading p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .training-menu-badge {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border-radius: 999px;
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+  .training-use-guide {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .training-use-step {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,.82);
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 0.84rem;
+    line-height: 1.4;
+  }
+  .training-use-step span:first-child {
+    width: 25px;
+    height: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--secondary);
+    color: white;
+    font-weight: 800;
+  }
+  .module-outline-btn {
+    background: #fff;
+    color: var(--text-dark);
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--module-color, var(--secondary));
+    border-radius: 10px;
+    padding: 13px 14px;
+    margin: 0;
+    box-shadow: none;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: start;
+    gap: 10px;
+    font-size: 0.86rem;
+    line-height: 1.35;
+    min-height: 92px;
+  }
+  .module-outline-btn:hover {
+    border-color: var(--module-color, var(--secondary));
+    background: #f8fafc;
+  }
+  .module-outline-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: var(--module-color, var(--secondary));
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+  .module-outline-body {
+    min-width: 0;
+  }
+  .module-outline-body strong {
+    display: block;
+    color: #1e293b;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+  .module-outline-body small {
+    display: block;
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .module-outline-count {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    padding-top: 3px;
+  }
+  .stage-block.menu-target-flash {
+    animation: menuTargetFlash 1.6s ease;
+  }
+  @keyframes menuTargetFlash {
+    0%, 35% { background: #eff6ff; box-shadow: 0 0 0 4px rgba(33,150,243,.18); }
+    100% { background: transparent; box-shadow: none; }
+  }
+  @media (max-width: 900px) {
+    .module-outline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .training-menu-panel { padding: 18px 14px; }
+    .training-menu-heading { display: block; }
+    .training-menu-badge { display: inline-flex; margin-top: 10px; }
+    .training-use-guide, .module-outline { grid-template-columns: 1fr; }
+    .module-outline-btn { min-height: 0; }
+  }
 
   /* ===== Training list search (autocomplete) ===== */
   .training-search-container {
@@ -2232,13 +2395,13 @@
 
       <!-- List management (opens directly, no password) -->
       <div id="adminListMgmt">
-        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý danh sách đào tạo</h3>
-        <p class="modal-subtitle">Thêm/sửa/xoá nội dung trong các giai đoạn. Lưu trên Firebase, áp dụng cho mọi thiết bị.</p>
+        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý lộ trình đào tạo</h3>
+        <p class="modal-subtitle">Thêm, sửa hoặc sắp xếp bài học theo từng nhóm. Danh sách được đồng bộ để nhân viên dùng chung trên mọi thiết bị.</p>
 
         <div class="list-mgmt-stage-row">
           <select id="mgmtStageSelect" onchange="renderMgmtItems()"></select>
-          <button class="list-mgmt-icon-btn" onclick="addMgmtStage()" title="Thêm giai đoạn" style="width:36px;height:36px;"><i class="fas fa-plus"></i></button>
-          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtStage()" title="Xoá giai đoạn này" style="width:36px;height:36px;"><i class="fas fa-trash"></i></button>
+          <button class="list-mgmt-icon-btn" onclick="addMgmtStage()" title="Thêm nhóm đào tạo" style="width:36px;height:36px;"><i class="fas fa-plus"></i></button>
+          <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtStage()" title="Xoá nhóm này" style="width:36px;height:36px;"><i class="fas fa-trash"></i></button>
         </div>
 
         <div class="list-mgmt-form-row">
@@ -2249,14 +2412,15 @@
             <option value="document">📄 Tài liệu</option>
           </select>
           <button class="gate-btn-primary" style="margin-bottom:0;" onclick="saveMgmtItem()">
-            <i class="fas fa-save"></i> <span id="mgmtSaveBtnText">Thêm vào giai đoạn</span>
+            <i class="fas fa-save"></i> <span id="mgmtSaveBtnText">Thêm vào nhóm</span>
           </button>
         </div>
 
         <div id="mgmtItemList" class="list-mgmt-items"></div>
 
-        <div style="margin-top:14px; display:flex; gap:8px;">
-          <button class="btn-secondary" style="flex:1;" onclick="resetListToDefaults()">↻ Khôi phục mặc định</button>
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn-secondary" style="flex:1; min-width:190px;" onclick="rebuildStructuredTrainingList()"><i class="fas fa-wand-magic-sparkles"></i> Chuẩn hóa từ thư viện</button>
+          <button class="btn-secondary" style="flex:1; min-width:150px;" onclick="resetListToDefaults()">↻ Dữ liệu mẫu</button>
           <button class="btn-secondary" style="flex:1;" onclick="closeAdminPwModal()">Đóng</button>
         </div>
       </div>
@@ -2264,22 +2428,22 @@
   </div>
 
   <!-- Floating admin button (always visible) -->
-  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Quản trị danh sách">
+  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Quản lý lộ trình đào tạo">
     <i class="fas fa-cog"></i>
   </button>
 
   <div class="container">
-    <h1><i class="fas fa-podcast"></i> VIDEO PODCAST HUẤN LUYỆN QUẢN LÝ CHUNG CÁC BẠN</h1>
+    <h1><i class="fas fa-graduation-cap"></i> TRUNG TÂM ĐÀO TẠO IDECO</h1>
 
     <!-- ============ MAIN TAB NAVIGATION ============ -->
     <div class="main-tabs">
       <button class="main-tab active" id="tabBtnList" onclick="switchMainTab('list')">
         <i class="fas fa-list-check"></i>
-        <span>DANH SÁCH ĐÀO TẠO</span>
+        <span>LỘ TRÌNH NHÂN VIÊN MỚI</span>
       </button>
       <button class="main-tab" id="tabBtnPodcast" onclick="switchMainTab('podcast')">
         <i class="fas fa-headphones"></i>
-        <span>NGHE PODCAST</span>
+        <span>THƯ VIỆN PODCAST & VIDEO</span>
       </button>
     </div>
 
@@ -2287,23 +2451,39 @@
     <div id="listView">
       <div class="list-hero">
         <div>
-          <h2>Lộ trình đào tạo nhân viên kinh doanh</h2>
-          <p>Bấm vào bất kỳ mục nào — hệ thống sẽ tự động tìm và mở đúng podcast/video tương ứng để bạn nghe ngay. Không cần copy tên, không cần tìm thủ công.</p>
+          <h2>Lộ trình hội nhập và phát triển năng lực</h2>
+          <p>Dành cho nhân viên mới: học lần lượt từ văn hóa và quy định, đến khách hàng, đơn hàng, báo cáo, kế hoạch và kỹ năng bán hàng thực tế.</p>
         </div>
         <img src="https://cdn.imgpile.com/f/k6mAb9L_xl.png" alt="Sales team" onerror="this.style.display='none'">
       </div>
 
       <div class="list-info-banner">
         <i class="fas fa-info-circle"></i>
-        <div><strong>Hướng dẫn:</strong> Học theo thứ tự giai đoạn để hiệu quả tốt nhất. Mục có biểu tượng 🎧 sẽ mở podcast, 🎬 mở video, 📄 mở tài liệu.</div>
+        <div><strong>Cách học:</strong> Bắt đầu từ Nhóm 01 và học theo thứ tự. Mỗi bài chỉ xuất hiện trong một nhóm phù hợp nhất; bấm vào bài để mở đúng podcast, video hoặc tài liệu.</div>
       </div>
+
+      <section class="training-menu-panel" aria-labelledby="trainingMenuTitle">
+        <div class="training-menu-heading">
+          <div>
+            <h2 id="trainingMenuTitle"><i class="fas fa-compass" style="color:var(--secondary);"></i> MENU 9 NHÓM ĐÀO TẠO CHÍNH</h2>
+            <p>Chọn đúng nhóm để đến nội dung cần học, hoặc dùng ô tìm kiếm ngay bên dưới.</p>
+          </div>
+          <span class="training-menu-badge"><i class="fas fa-user-graduate"></i> Dành cho nhân viên mới</span>
+        </div>
+        <div class="training-use-guide" aria-label="Ba bước sử dụng ứng dụng đào tạo">
+          <div class="training-use-step"><span>1</span><div><strong>Chọn nhóm</strong><br>theo công việc cần tìm hiểu</div></div>
+          <div class="training-use-step"><span>2</span><div><strong>Hoặc gõ từ khóa</strong><br>như khách hàng, đơn hàng, báo cáo</div></div>
+          <div class="training-use-step"><span>3</span><div><strong>Bấm tên bài</strong><br>để mở đúng podcast hoặc video</div></div>
+        </div>
+        <div id="moduleOutline" class="module-outline" aria-label="Chín nhóm đào tạo chính"></div>
+      </section>
 
       <!-- ===== Search with autocomplete suggestions ===== -->
       <div class="training-search-container">
         <div class="training-search-wrapper">
           <i class="fas fa-search ts-icon"></i>
           <input type="text" id="trainingSearchInput"
-                 placeholder="🔎 Gõ từ khóa để tìm bài học... (VD: ứng xử, kế hoạch, chốt sales, GDP...)"
+                 placeholder="🔎 Tìm theo chủ đề hoặc tên bài... (VD: hội nhập, khách hàng, đơn hàng, báo cáo, chốt sales)"
                  autocomplete="off"
                  oninput="onTrainingSearchInput()"
                  onkeydown="onTrainingSearchKeydown(event)"
@@ -2318,7 +2498,7 @@
       <div id="trainingStagesContainer">
         <div style="text-align:center; padding:40px; color:var(--text-light);">
           <i class="fas fa-spinner fa-spin" style="font-size:24px;"></i>
-          <p style="margin-top:12px;">Đang tải danh sách đào tạo...</p>
+          <p style="margin-top:12px;">Đang tải lộ trình đào tạo...</p>
         </div>
       </div>
     </div>
@@ -2336,7 +2516,12 @@
       
       <div id="podcastVideoInputs">
         <label for="contentName"><i class="fas fa-heading"></i> Tên nội dung:</label>
-        <input type="text" id="contentName" placeholder="Nhập tên (ví dụ: 1. Bài học A)..." />
+        <input type="text" id="contentName" placeholder="Nhập tiêu đề rõ nội dung (ví dụ: Cách quản lý khách hàng chuỗi nhà thuốc)" />
+
+        <label for="contentCategory"><i class="fas fa-layer-group"></i> Nhóm đào tạo:</label>
+        <select id="contentCategory" style="width:100%; padding:12px 15px; margin-bottom:15px; border-radius:8px; border:1px solid #e2e8f0; background:white;">
+          <option value="auto">Tự động phân nhóm theo tiêu đề</option>
+        </select>
         
         <label for="contentLink"><i class="fas fa-link"></i> Link nội dung:</label>
         <input type="text" id="contentLink" placeholder="Link Vocaroo, YouTube hoặc YouTube Shorts..." />
@@ -2364,15 +2549,15 @@
         </p>
       </div>
       
-      <button onclick="uploadContent()"><i class="fas fa-upload"></i> Upload</button>
+      <button onclick="uploadContent()"><i class="fas fa-plus-circle"></i> Thêm nội dung</button>
       
       <!-- Sync to training list button -->
       <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
         <button onclick="syncAllToTrainingList()" style="background: linear-gradient(135deg, #f59e0b, #ef4444); width: 100%; font-size: 0.95rem;">
-          <i class="fas fa-sync-alt"></i> Đồng bộ tất cả Podcast/Video → Danh sách đào tạo
+          <i class="fas fa-sync-alt"></i> Cập nhật Podcast/Video → Lộ trình đào tạo
         </button>
         <p style="font-size: 0.78rem; color: #718096; margin-top: 6px; text-align: center;">
-          <i>Quét toàn bộ podcast/video hiện có và thêm vào tab "Danh sách đào tạo" (bỏ qua mục đã tồn tại)</i>
+          <i>Thêm nội dung mới vào đúng nhóm; bài đã có hoặc trùng tiêu đề sẽ được bỏ qua.</i>
         </p>
       </div>
     </div>
@@ -2587,131 +2772,216 @@
     /* ============================================================
        TRAINING LIST: data + sync with Firebase
        ============================================================ */
+    const TRAINING_STRUCTURE_VERSION = 2;
+    const TRAINING_STAGE_DEFS = [
+      { id:'s1', category:'hoinhap', name:'Hội nhập, tổ chức & văn hóa IDECO', color:'#0891b2', description:'Dành cho nhân viên mới: hiểu công ty, văn hóa, môi trường làm việc, trách nhiệm và quy định nền tảng.' },
+      { id:'s2', category:'noibo', name:'Công việc, quy trình & phối hợp nội bộ', color:'#2563eb', description:'Hiểu vai trò, quy trình phối hợp giữa kinh doanh – kế toán – kho – giao nhận và cách xử lý phát sinh.' },
+      { id:'s3', category:'khachhang', name:'Quản lý & chăm sóc khách hàng', color:'#7c3aed', description:'Quản lý khách hàng được giao, chăm sóc khách hàng, khách hàng chuỗi và duy trì quan hệ hợp tác.' },
+      { id:'s4', category:'donhang', name:'Đơn hàng, kho & giao nhận', color:'#b45309', description:'Lên đơn đúng, khai báo đơn hàng, tuân thủ quy định và xử lý các tình huống liên quan đơn – hàng – giao nhận.' },
+      { id:'s5', category:'baocao', name:'Báo cáo giao dịch & báo cáo định kỳ', color:'#db2777', description:'Khai báo hoạt động giao dịch khách hàng, báo cáo kết quả và hoàn thành báo cáo tháng đúng yêu cầu.' },
+      { id:'s6', category:'kehoach', name:'Lập kế hoạch, KPI & quản trị công việc', color:'#0f766e', description:'Biết lập checklist, kế hoạch tuần, quản lý KPI, ưu tiên và chủ động hoàn thành công việc.' },
+      { id:'s7', category:'sales', name:'Kỹ năng bán hàng & chốt sales', color:'#dc2626', description:'Giao tiếp, telesales, thuyết phục, báo giá, xử lý tình huống và chốt đơn trong thực tế.' },
+      { id:'s8', category:'duoc', name:'Kiến thức dược, sản phẩm & chuẩn GDP', color:'#16a34a', description:'Kiến thức ngành, sản phẩm, chính sách bán thuốc, GDP, thẩm định và tình huống thanh tra.' },
+      { id:'s9', category:'quanly', name:'Công cụ AI, tư duy & phát triển năng lực', color:'#475569', description:'Ứng dụng AI, tư duy quản lý, động lực nghề nghiệp và năng lực phát triển bền vững.' }
+    ];
+
     const DEFAULT_TRAINING_DATA = (() => {
-      const mk = (id, num, title) => ({
-        id, title: `Số ${num} — ${title}`, type: 'podcast'
-      });
-      return {
-        stages: [
-          { id:'s1', name:'Hội nhập & Tư duy ban đầu', description:'Hiểu môi trường, văn hóa, mindset làm việc — "làm người trước khi làm việc".',
-            items:[
-              mk('s1_01',1,'Lời chia sẻ hội nhập'), mk('s1_02',2,'Lời chia sẻ hội nhập'),
-              mk('s1_04',4,'Lời chia sẻ hội nhập'), mk('s1_05',5,'Lời chia sẻ hội nhập'),
-              mk('s1_03',3,'Bạn kinh doanh mới cần tìm hiểu gì'),
-              mk('s1_06',6,'Nội dung toàn công ty nên nắm'),
-              mk('s1_07',7,'Quy định công việc cơ bản'),
-              mk('s1_08',8,'Những điều cần tránh'), mk('s1_09',9,'Những điều cần tránh'), mk('s1_10',10,'Những điều cần tránh'),
-              mk('s1_62',62,'Cách ứng xử công sở'),
-              mk('s1_64',64,'Tại sao phải phấn đấu mỗi ngày'),
-              mk('s1_74',74,'Tránh hối tiếc trong công việc'),
-              mk('s1_70',70,'Lý do không thành công & sai lầm phổ biến'),
-              mk('s1_71',71,'Lý do không thành công & sai lầm phổ biến'),
-              mk('s1_72',72,'Lý do không thành công & sai lầm phổ biến')
-            ]},
-          { id:'s2', name:'Hiểu công việc & Cách làm việc', description:'Làm việc có hệ thống, không làm theo cảm tính.',
-            items:[
-              mk('s2_12',12,'Checklist & kế hoạch'), mk('s2_13',13,'Checklist & kế hoạch'),
-              mk('s2_14',14,'Checklist & kế hoạch'), mk('s2_15',15,'Checklist & kế hoạch'),
-              mk('s2_69',69,'Chủ động công việc là gì'),
-              mk('s2_78',78,'Quản trị công việc'), mk('s2_79',79,'Quản trị công việc'),
-              mk('s2_59',59,'KPI công ty'),
-              mk('s2_61',61,'Báo cáo cuối tháng'),
-              mk('s2_44',44,'Xử lý phát sinh'),
-              mk('s2_45',45,'Sai sót giao hàng ảnh hưởng gì')
-            ]},
-          { id:'s3', name:'Công cụ & Quy trình (ERP — Nội bộ)', description:'Làm đúng quy trình = không bị lỗi hệ thống.',
-            items:[
-              mk('s3_17',17,'Lập kế hoạch tuần ERP'),
-              mk('s3_18',18,'Báo cáo giao dịch khách hàng'), mk('s3_22',22,'Báo cáo giao dịch khách hàng'),
-              mk('s3_19',19,'Quản lý khách hàng trên ERP'),
-              mk('s3_20',20,'Lên đơn hàng ERP'), mk('s3_21',21,'Lên đơn hàng ERP'), mk('s3_82',82,'Lên đơn hàng ERP'),
-              mk('s3_80',80,'Quản lý khách hàng – Chăm sóc KH'), mk('s3_83',83,'Quản lý khách hàng – Chăm sóc KH'),
-              mk('s3_52',52,'IDECO AI'), mk('s3_53',53,'IDECO AI'),
-              mk('s3_41',41,'Quy trình công ty'), mk('s3_42',42,'Quy trình công ty'),
-              mk('s3_46',46,'Điều phối kho'), mk('s3_47',47,'Điều phối kho'), mk('s3_48',48,'Điều phối kho'),
-              mk('s3_49',49,'Vai trò điều phối & phát triển KD'),
-              mk('s3_50',50,'Vai trò điều phối & phát triển KD'),
-              mk('s3_51',51,'Vai trò điều phối & phát triển KD')
-            ]},
-          { id:'s4', name:'Kỹ năng kinh doanh cơ bản', description:'Biết nói chuyện để bán được hàng.',
-            items:[
-              mk('s4_29',29,'Tránh dùng từ sai'),
-              mk('s4_30',30,'Giao tiếp khách hàng'), mk('s4_31',31,'Giao tiếp khách hàng'),
-              mk('s4_40',40,'Giao dịch hợp tác'),
-              mk('s4_84',84,'Thiết lập giao dịch'),
-              mk('s4_76',76,'Kịch bản telesales'),
-              mk('s4_63',63,'Thuyết phục khách hàng'),
-              mk('s4_65',65,'Kỹ năng chốt sales')
-            ]},
-          { id:'s5', name:'Bán hàng thực chiến & Xử lý tình huống', description:'Biết bán hàng thật – không chỉ học lý thuyết.',
-            items:[
-              mk('s5_33',33,'Vì sao không chốt được đơn'),
-              mk('s5_34',34,'Xử lý tình huống bán hàng'), mk('s5_35',35,'Xử lý tình huống bán hàng'),
-              mk('s5_36',36,'Những lỗi cần tránh'),
-              mk('s5_37',37,'Xử lý đơn hàng'), mk('s5_38',38,'Xử lý đơn hàng'),
-              mk('s5_60',60,'Rút kinh nghiệm chốt sales'),
-              mk('s5_66',66,'Lỗi kinh doanh'),
-              mk('s5_67',67,'Sai lầm báo giá'),
-              mk('s5_72b',72,'Sai lầm không phát triển')
-            ]},
-          { id:'s6', name:'Kiến thức ngành (Dược & Sản phẩm)', description:'Hiểu sản phẩm = bán hàng tự tin hơn.',
-            items:[
-              mk('s6_32',32,'Kinh doanh thuốc'),
-              mk('s6_67b',67,'Bán thuốc cần hiểu gì'),
-              mk('s6_68',68,'Nhóm không phải thuốc'),
-              mk('s6_75',75,'Chính sách bán thuốc'),
-              mk('s6_80b',80,'Giao dịch thuốc')
-            ]},
-          { id:'s7', name:'Quy định – Chuẩn GDP – Thanh tra', description:'Làm đúng luật – tránh rủi ro lớn.',
-            items:[
-              mk('s7_43',43,'GDP là gì'),
-              mk('s7_56',56,'Chuẩn bị thẩm định'),
-              mk('s7_57',57,'Tình huống thanh tra'), mk('s7_58',58,'Tình huống thanh tra')
-            ]},
-          { id:'s8', name:'Phát triển nâng cao & Quản lý', description:'Từ nhân viên → người có tư duy quản lý.',
-            items:[
-              mk('s8_39',39,'Quản lý chuỗi nhà thuốc'),
-              mk('s8_81',81,'Pharmacity'),
-              mk('s8_82b',82,'Chính sách thưởng'),
-              mk('s8_77',77,'AI trợ lý BGĐ'),
-              mk('s8_85',85,'Tham gia đào tạo')
-            ]},
-          { id:'s9', name:'Tư duy – Động lực – Phát triển bản thân', description:'Giữ lửa & phát triển bền.',
-            items:[
-              mk('s9_23',23,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_24',24,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_25',25,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_26',26,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_27',27,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_28',28,'Chuỗi lời khuyên kinh doanh'),
-              mk('s9_11',11,'Đừng để tiếc nuối'),
-              mk('s9_73',73,'Thư giãn'),
-              mk('s9_77b',77,'Hiểu chuyện để làm tốt')
-            ]}
+      const mk = (id, num, title, type = 'podcast') => ({ id, title: `Số ${num} — ${title}`, type });
+      const byStage = {
+        s1: [
+          mk('s1_01',1,'Hội nhập: lời chào và định hướng ban đầu'),
+          mk('s1_02',2,'Hội nhập dành cho nhân viên kinh doanh mới – Phần 1'),
+          mk('s1_03',3,'Nhân viên kinh doanh mới cần tìm hiểu những gì'),
+          mk('s1_04',4,'Hội nhập công ty – Phần 2'),
+          mk('s1_05',5,'Hội nhập công ty – Phần 4'),
+          mk('s1_06',6,'Những nội dung toàn công ty cần nắm'),
+          mk('s1_07',7,'Quy định công việc cơ bản'),
+          mk('s1_08',8,'Ứng xử công sở và những điều cần tránh – Phần 1'),
+          mk('s1_09',9,'Ứng xử công sở và những điều cần tránh – Phần 2'),
+          mk('s1_10',10,'Nhìn nhận điều chưa tốt để làm tốt hơn'),
+          mk('s1_62',62,'Cách ứng xử công sở')
+        ],
+        s2: [
+          mk('s2_41',41,'Quy định và quy trình chung của công ty'),
+          mk('s2_42',42,'Phối hợp đúng giữa kinh doanh – kế toán – kho'),
+          mk('s2_44',44,'Trách nhiệm xử lý công việc phát sinh'),
+          mk('s2_45',45,'Ảnh hưởng của giao sai, giao trễ và sai sót'),
+          mk('s2_46',46,'Quy trình điều phối kho và phối hợp kế toán'),
+          mk('s2_47',47,'Nhiệm vụ điều phối kho – giao nhận'),
+          mk('s2_48',48,'Phạm vi trách nhiệm của điều phối kho'),
+          mk('s2_49',49,'Vai trò điều phối và phát triển kinh doanh'),
+          mk('s2_50',50,'Phối hợp điều hành công việc – Phần 2'),
+          mk('s2_51',51,'Phối hợp điều hành công việc – Phần 3')
+        ],
+        s3: [
+          mk('s3_19',19,'Quản lý khách hàng được giao trên ERP'),
+          mk('s3_39',39,'Quản lý khách hàng chuỗi nhà thuốc lớn'),
+          mk('s3_40',40,'Thiết lập giao dịch hợp tác với khách hàng'),
+          mk('s3_80',80,'Quản lý và chăm sóc khách hàng'),
+          mk('s3_81',81,'Quản lý khách hàng chuỗi Pharmacity'),
+          mk('s3_83',83,'Chăm sóc khách hàng được giao – Bài bổ sung'),
+          mk('s3_84',84,'Thiết lập giao dịch và theo dõi cơ hội')
+        ],
+        s4: [
+          mk('s4_20',20,'Cách lên đơn hàng đúng trên ERP – Phần 1'),
+          mk('s4_21',21,'Quy định và cách lên đơn hàng – Phần 2'),
+          mk('s4_37',37,'Xử lý đơn hàng nhóm không phải thuốc – Phần 1'),
+          mk('s4_38',38,'Xử lý đơn hàng nhóm không phải thuốc – Phần 2'),
+          mk('s4_82',82,'Lên đơn hàng ERP – Bài thực hành bổ sung')
+        ],
+        s5: [
+          mk('s5_18',18,'Khai báo hoạt động giao dịch khách hàng trên ERP – Phần 1'),
+          mk('s5_22',22,'Báo cáo giao dịch khách hàng – Phần 2'),
+          mk('s5_61',61,'Cách hoàn thành báo cáo cuối tháng')
+        ],
+        s6: [
+          mk('s6_12',12,'Vì sao cần checklist công việc'),
+          mk('s6_13',13,'Phân biệt checklist và kế hoạch tuần'),
+          mk('s6_14',14,'Mục đích của việc lập kế hoạch'),
+          mk('s6_15',15,'Lỗi cần tránh khi lập kế hoạch và báo cáo'),
+          mk('s6_16',16,'Lỗi cơ bản trong kế hoạch tuần – Phần 2'),
+          mk('s6_17',17,'Cách lập kế hoạch tuần trên ERP'),
+          mk('s6_59',59,'Hiểu và thực hiện KPI công ty'),
+          mk('s6_69',69,'Chủ động trong công việc là gì'),
+          mk('s6_78',78,'Quản trị công việc – Phần 1'),
+          mk('s6_79',79,'Quản trị công việc – Phần 2')
+        ],
+        s7: [
+          mk('s7_23',23,'Lời khuyên kinh doanh thực tế – Phần 1'),
+          mk('s7_24',24,'Lời khuyên kinh doanh thực tế – Phần 2'),
+          mk('s7_25',25,'Lời khuyên kinh doanh thực tế – Phần 3'),
+          mk('s7_26',26,'Lời khuyên kinh doanh thực tế – Phần 4'),
+          mk('s7_27',27,'Lời khuyên bổ sung cho nhân viên mới'),
+          mk('s7_28',28,'Những điều cần nắm để bán hàng tốt hơn'),
+          mk('s7_29',29,'Những từ nên tránh khi bán hàng và gọi điện'),
+          mk('s7_30',30,'Giao tiếp với khách hàng – Phần 1'),
+          mk('s7_31',31,'Tương tác để nâng khả năng chốt đơn'),
+          mk('s7_33',33,'Vì sao chưa chốt được đơn hàng'),
+          mk('s7_34',34,'Xử lý tình huống bán hàng – Phần 1'),
+          mk('s7_35',35,'Xử lý tình huống bán hàng – Phần 2'),
+          mk('s7_36',36,'Những lỗi cần tránh trong bán hàng'),
+          mk('s7_60',60,'Rút kinh nghiệm sau mỗi lần chốt sales'),
+          mk('s7_63',63,'Kỹ năng thuyết phục khách hàng'),
+          mk('s7_65',65,'Kỹ năng chốt sales'),
+          mk('s7_66',66,'Các lỗi kinh doanh thường gặp'),
+          mk('s7_67',67,'Sai lầm khi báo giá'),
+          mk('s7_72',72,'Sai lầm khiến không phát triển khách hàng'),
+          mk('s7_76',76,'Kịch bản telesales thực hành')
+        ],
+        s8: [
+          mk('s8_32',32,'Kinh doanh thuốc: điều kiện và cách tiếp cận'),
+          mk('s8_43',43,'GDP là gì và vì sao phải thực hiện đúng'),
+          mk('s8_56',56,'Chuẩn bị cho thẩm định GDP'),
+          mk('s8_57',57,'Tình huống thanh tra – Phần 1'),
+          mk('s8_58',58,'Tình huống thanh tra – Phần 2'),
+          mk('s8_68',68,'Kiến thức về nhóm sản phẩm không phải thuốc'),
+          mk('s8_75',75,'Chính sách bán thuốc cần nắm')
+        ],
+        s9: [
+          mk('s9_11',11,'Đừng để tiếc nuối trong công việc'),
+          mk('s9_52',52,'Ứng dụng IDECO AI – Phần 1'),
+          mk('s9_53',53,'Ứng dụng IDECO AI – Phần 2'),
+          mk('s9_64',64,'Tại sao phải phấn đấu mỗi ngày'),
+          mk('s9_70',70,'Những nguyên nhân dẫn đến không thành công'),
+          mk('s9_71',71,'Những sai lầm phổ biến cần tránh'),
+          mk('s9_73',73,'Giữ cân bằng và tái tạo năng lượng'),
+          mk('s9_74',74,'Tránh hối tiếc trong công việc'),
+          mk('s9_77',77,'AI trợ lý Ban Giám đốc'),
+          mk('s9_85',85,'Tinh thần tham gia đào tạo')
         ]
+      };
+      return {
+        structureVersion: TRAINING_STRUCTURE_VERSION,
+        mode: 'structured',
+        stages: TRAINING_STAGE_DEFS.map(stage => ({ ...stage, items: byStage[stage.id] || [] }))
       };
     })();
 
+    const DEFAULT_TRAINING_ITEM_BY_NUMBER = (() => {
+      const map = new Map();
+      DEFAULT_TRAINING_DATA.stages.forEach(stage => {
+        stage.items.forEach(item => {
+          const match = item.title.match(/[Ss]ố\s*(\d+)/);
+          if (match && !map.has(match[1])) map.set(match[1], item.title);
+        });
+      });
+      return map;
+    })();
+
     let trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
+    let storedTrainingData = null;
     let currentMgmtStageId = trainingData.stages[0]?.id || null;
 
+    function createStructuredStageShells() {
+      return TRAINING_STAGE_DEFS.map(stage => ({ ...stage, items: [] }));
+    }
+
+    function canonicalizeLegacyTrainingTitle(title) {
+      const raw = String(title || '').trim();
+      const match = raw.match(/[Ss]ố\s*(\d+)/) || raw.match(/^\s*(\d+)\s*[.\-–—:]/);
+      return match && DEFAULT_TRAINING_ITEM_BY_NUMBER.has(match[1])
+        ? DEFAULT_TRAINING_ITEM_BY_NUMBER.get(match[1])
+        : raw;
+    }
+
+    function normalizeLegacyTrainingData(source) {
+      if (!source || !Array.isArray(source.stages)) {
+        return JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
+      }
+      const stages = createStructuredStageShells();
+      const seen = new Set();
+      source.stages.forEach(sourceStage => {
+        (sourceStage.items || []).forEach(sourceItem => {
+          const title = canonicalizeLegacyTrainingTitle(sourceItem.title);
+          const numberMatch = title.match(/[Ss]ố\s*(\d+)/);
+          const key = numberMatch
+            ? `number:${numberMatch[1]}`
+            : `title:${removeDiacritics(title.toLowerCase()).replace(/[^a-z0-9]+/g, '')}`;
+          if (!title || seen.has(key)) return;
+          seen.add(key);
+
+          const stageId = findBestStageByKeyword(title) || 's9';
+          const target = stages.find(stage => stage.id === stageId) || stages[stages.length - 1];
+          target.items.push({
+            ...sourceItem,
+            id: sourceItem.id || genId(),
+            title,
+            type: sourceItem.type || 'podcast'
+          });
+        });
+      });
+      stages.forEach(stage => stage.items.sort((a, b) => {
+        const na = parseInt((a.title.match(/[Ss]ố\s*(\d+)/) || [])[1] || '9999', 10);
+        const nb = parseInt((b.title.match(/[Ss]ố\s*(\d+)/) || [])[1] || '9999', 10);
+        return na - nb || a.title.localeCompare(b.title, 'vi');
+      }));
+      return { structureVersion: TRAINING_STRUCTURE_VERSION, mode: 'structured', stages };
+    }
+
     function startTrainingListSync() {
-      // Initial render with defaults so users see something instantly
+      // Hiển thị khung chuẩn ngay; dữ liệu thực tế sẽ được phân nhóm khi Firebase tải xong.
       renderTrainingList();
       try {
         db.ref('settings/trainingList').on('value', snap => {
           const val = snap.val();
-          if (val && val.stages && Array.isArray(val.stages)) {
+          storedTrainingData = val || null;
+          if (val && val.structureVersion >= TRAINING_STRUCTURE_VERSION && val.mode === 'manual' && Array.isArray(val.stages)) {
             trainingData = val;
+          } else if (typeof allContent !== 'undefined' && allContent.length > 0 && typeof buildTrainingDataFromContents === 'function') {
+            trainingData = buildTrainingDataFromContents(allContent);
+          } else {
+            trainingData = normalizeLegacyTrainingData(val || DEFAULT_TRAINING_DATA);
           }
-          // Always re-render after Firebase responds (even if empty - keeps defaults)
           renderTrainingList();
         });
       } catch (e) { /* keep defaults */ }
     }
 
-    function saveTrainingList() {
+    function saveTrainingList(mode = 'manual') {
       try {
+        trainingData.structureVersion = TRAINING_STRUCTURE_VERSION;
+        trainingData.mode = mode;
+        storedTrainingData = JSON.parse(JSON.stringify(trainingData));
         return db.ref('settings/trainingList').set(trainingData);
       } catch (e) { return Promise.reject(e); }
     }
@@ -2728,15 +2998,15 @@
        Mỗi stage có danh sách keywords; điểm = tổng độ dài keyword khớp
        → ưu tiên keyword dài hơn (chính xác hơn). */
     const KEYWORD_TO_STAGE = {
-      's1': ['lời chia sẻ hội nhập','hội nhập','mindset','văn hóa công ty','ứng xử công sở','ứng xử','phấn đấu mỗi ngày','phấn đấu','hối tiếc','tránh hối tiếc','sai lầm phổ biến','không thành công','toàn công ty','kinh doanh mới','quy định công việc','những điều cần tránh','làm người','tư duy ban đầu'],
-      's2': ['checklist','kế hoạch tuần','kế hoạch','chủ động công việc','chủ động','quản trị công việc','kpi công ty','kpi','báo cáo cuối tháng','báo cáo tháng','xử lý phát sinh','sai sót giao hàng','giao hàng ảnh hưởng','hệ thống công việc'],
-      's3': ['lập kế hoạch tuần erp','báo cáo giao dịch khách hàng','quản lý khách hàng trên erp','lên đơn hàng erp','quản lý khách hàng – chăm sóc kh','chăm sóc kh','chăm sóc khách hàng','ideco ai','quy trình công ty','điều phối kho','vai trò điều phối','phát triển kd','erp','quy trình','lên đơn hàng','đơn hàng erp'],
-      's4': ['tránh dùng từ sai','dùng từ sai','giao tiếp khách hàng','giao dịch hợp tác','thiết lập giao dịch','kịch bản telesales','telesales','thuyết phục khách hàng','thuyết phục','kỹ năng chốt sales','chốt sales','chốt sale'],
-      's5': ['vì sao không chốt','không chốt được đơn','xử lý tình huống bán hàng','xử lý tình huống','những lỗi cần tránh','xử lý đơn hàng','rút kinh nghiệm chốt sales','rút kinh nghiệm','lỗi kinh doanh','sai lầm báo giá','báo giá','sai lầm không phát triển','không phát triển'],
-      's6': ['kinh doanh thuốc','bán thuốc cần hiểu','nhóm không phải thuốc','chính sách bán thuốc','giao dịch thuốc','dược','sản phẩm thuốc','thuốc'],
-      's7': ['gdp là gì','chuẩn gdp','gdp','chuẩn bị thẩm định','thẩm định','tình huống thanh tra','thanh tra','đúng luật'],
-      's8': ['quản lý chuỗi nhà thuốc','chuỗi nhà thuốc','pharmacity','chính sách thưởng','ai trợ lý bgđ','trợ lý bgđ','tham gia đào tạo','tư duy quản lý','quản lý nâng cao'],
-      's9': ['chuỗi lời khuyên kinh doanh','lời khuyên kinh doanh','lời khuyên','đừng để tiếc nuối','tiếc nuối','thư giãn','hiểu chuyện để làm tốt','hiểu chuyện','động lực','phát triển bản thân','giữ lửa']
+      's1': ['lời chia sẻ hội nhập','hội nhập','gia nhập công ty','mới vào công ty','lời đầu tiên','nhân viên mới','các bạn mới','kinh doanh mới','văn hóa công ty','văn hoá công ty','toàn công ty','quy định công việc cơ bản','ứng xử công sở','công sở','những điều cần tránh'],
+      's2': ['quy trình công ty','quy định quy trình','phối hợp đúng','kinh doanh - kế toán - kho','kinh doanh – kế toán – kho','xử lý phát sinh','sai sót giao hàng','giao sai','giao trễ','điều phối kho','giao nhận','vai trò điều phối','phát triển kinh doanh'],
+      's3': ['quản lý khách hàng trên erp','quản lý khách hàng được giao','quản lý khách hàng','chăm sóc khách hàng','chăm sóc kh','chuỗi nhà thuốc','pharmacity','giao dịch hợp tác','thiết lập giao dịch','khách hàng chuỗi'],
+      's4': ['khai báo đơn hàng','lên đơn hàng erp','lên đơn hàng','đơn hàng erp','xử lý đơn hàng','quy định đơn hàng','đơn đặt hàng','đơn hàng nhóm','đơn hàng'],
+      's5': ['báo cáo giao dịch khách hàng','khai báo cáo hoạt động giao dịch','khai báo hoạt động giao dịch','báo cáo cuối tháng','báo cáo tháng','báo cáo giao dịch','lập báo cáo'],
+      's6': ['checklist','kế hoạch tuần erp','kế hoạch tuần','lập kế hoạch','weekly plan','chủ động công việc','quản trị công việc','kpi công ty','kpi'],
+      's7': ['lời khuyên kinh doanh','lời khuyên cho các bạn kd','tránh dùng từ','giao tiếp với khách hàng','tương tác trong bán hàng','kịch bản telesales','telesales','thuyết phục khách hàng','kỹ năng chốt sales','chốt sales','chốt sale','không chốt được đơn','xử lý tình huống bán hàng','lỗi trong bán hàng','lỗi kinh doanh','sai lầm báo giá','báo giá','không phát triển khách hàng'],
+      's8': ['kinh doanh thuốc','bán thuốc cần hiểu','nhóm không phải thuốc','chính sách bán thuốc','giao dịch thuốc','gdp là gì','chuẩn gdp','gdp','chuẩn bị thẩm định','thẩm định','tình huống thanh tra','thanh tra','dược','sản phẩm thuốc'],
+      's9': ['ideco ai','ai trợ lý bgđ','trợ lý bgđ','tư duy quản lý','quản lý nâng cao','tham gia đào tạo','phấn đấu mỗi ngày','không thành công','sai lầm phổ biến','hối tiếc','tiếc nuối','thư giãn','hiểu chuyện','động lực','phát triển bản thân','giữ lửa']
     };
 
     /** Tìm stage phù hợp nhất theo từ khóa. Trả về stage.id hoặc null nếu không match. */
@@ -2778,6 +3048,10 @@
 
     function autoAddToTrainingList(podcastName, podcastType) {
       if (!podcastName) return;
+      if (trainingData.mode !== 'manual') {
+        showSyncNotification('✅ Nội dung mới sẽ tự động được xếp vào đúng nhóm đào tạo.', 'success');
+        return;
+      }
 
       // Parse số + tiêu đề (regex linh hoạt với . - : — – hoặc khoảng trắng)
       const parsed = parsePodcastTitle(podcastName);
@@ -2830,13 +3104,14 @@
       });
 
       // Lưu Firebase + render lại NGAY (không chờ listener echo)
-      saveTrainingList();
+      saveTrainingList(trainingData.mode === 'manual' ? 'manual' : 'structured');
       renderTrainingList();
       showSyncNotification('✅ Đã thêm "' + trainingTitle + '" vào khung "' + targetStageName + '"', 'success');
     }
 
     function autoRemoveFromTrainingList(podcastName) {
       if (!podcastName) return;
+      if (trainingData.mode !== 'manual') return;
       // Build the training title to match
       let trainingTitle = podcastName;
       const numMatch = podcastName.match(/^(\d+)\.\s*(.+)/);
@@ -2848,11 +3123,12 @@
         stage.items = stage.items.filter(item => item.title !== trainingTitle);
         if (stage.items.length < before) changed = true;
       });
-      if (changed) saveTrainingList();
+      if (changed) saveTrainingList(trainingData.mode === 'manual' ? 'manual' : 'structured');
     }
 
     function autoRenameInTrainingList(oldName, newName) {
       if (!oldName || !newName) return;
+      if (trainingData.mode !== 'manual') return;
       // Convert both names to training title format
       let oldTitle = oldName, newTitle = newName;
       const oldMatch = oldName.match(/^(\d+)\.\s*(.+)/);
@@ -2869,13 +3145,23 @@
           }
         });
       });
-      if (changed) saveTrainingList();
+      if (changed) saveTrainingList(trainingData.mode === 'manual' ? 'manual' : 'structured');
     }
 
     /* --- Sync ALL existing podcast/video to training list (SMART) ------- */
     function syncAllToTrainingList() {
       if (!allContent || allContent.length === 0) {
         showSyncNotification('Chưa có dữ liệu podcast. Vui lòng đợi tải xong.', 'warning');
+        return;
+      }
+
+      if (trainingData.mode !== 'manual') {
+        trainingData = buildTrainingDataFromContents(allContent);
+        currentMgmtStageId = trainingData.stages[0]?.id || null;
+        saveTrainingList('structured');
+        renderTrainingList();
+        const total = trainingData.stages.reduce((sum, stage) => sum + (stage.items || []).length, 0);
+        showSyncNotification(`✅ Đã cập nhật ${total} bài vào đúng nhóm, không lặp tiêu đề.`, 'success');
         return;
       }
 
@@ -2940,7 +3226,7 @@
           });
         });
 
-        saveTrainingList();
+        saveTrainingList(trainingData.mode === 'manual' ? 'manual' : 'structured');
         renderTrainingList(); // render ngay, không chờ Firebase echo
 
         // Báo cáo chi tiết phân bổ vào từng khung
@@ -3029,7 +3315,8 @@
       const container = document.getElementById('trainingStagesContainer');
       if (!container) return;
       if (!trainingData.stages || trainingData.stages.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-light); padding:40px;">Chưa có giai đoạn nào.</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-light); padding:40px;">Chưa có nhóm đào tạo nào.</p>';
+        renderModuleOutline();
         return;
       }
       container.innerHTML = trainingData.stages.map((stage, idx) => {
@@ -3037,25 +3324,27 @@
         const itemsHtml = !stage.items || stage.items.length === 0
           ? '<p style="color:var(--text-light); font-style:italic; padding:14px;">Chưa có nội dung.</p>'
           : `<div class="training-items-grid">${stage.items.map(item => `
-              <button class="training-item" onclick="goToPodcastSearch('${escHtml(getSearchKeyword(item.title)).replace(/'/g, "\\'")}')">
+              <button class="training-item" onclick="goToPodcastSearch('${escHtml(item.searchKeyword || getSearchKeyword(item.title)).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}', '${escHtml(item.sourceKey || '').replace(/'/g, "\\'")}')">
                 <span class="training-item-type tt-${escHtml(item.type || 'podcast')}">${typeIcon(item.type)} ${typeLabel(item.type)}</span>
                 <div class="training-item-title">${escHtml(item.title)}</div>
                 <div class="training-item-cta">Mở để nghe</div>
               </button>
             `).join('')}</div>`;
         return `
-          <div class="stage-block">
+          <div class="stage-block" id="training-stage-${escHtml(stage.id)}">
             <div class="stage-block-header">
-              <div class="stage-num">${num}</div>
+              <div class="stage-num" style="--stage-color:${escHtml(stage.color || 'var(--primary)')};">${num}</div>
               <div class="stage-block-info">
                 <h3>${escHtml(stage.name)}</h3>
-                ${stage.description ? `<p>${escHtml(stage.description)}</p>` : ''}
+                ${stage.description ? `<p>${escHtml(stage.description)} <strong>(${(stage.items || []).length} bài)</strong></p>` : ''}
               </div>
             </div>
             ${itemsHtml}
           </div>
         `;
       }).join('');
+
+      renderModuleOutline();
 
       // Giữ nguyên bộ lọc tìm kiếm khi danh sách được render lại (Firebase sync)
       const tsInput = document.getElementById('trainingSearchInput');
@@ -3064,8 +3353,47 @@
       }
     }
 
+    function renderModuleOutline() {
+      const outline = document.getElementById('moduleOutline');
+      if (!outline) return;
+      const currentStages = (trainingData && Array.isArray(trainingData.stages)) ? trainingData.stages : [];
+      const menuStages = TRAINING_STAGE_DEFS.map(definition => {
+        const current = currentStages.find(stage => stage.id === definition.id || stage.category === definition.category);
+        return current ? { ...definition, ...current, description: definition.description } : { ...definition, items:[] };
+      });
+      outline.innerHTML = menuStages.map((stage, index) => {
+        const category = typeof CATEGORY_MAP !== 'undefined' ? CATEGORY_MAP[stage.category] : null;
+        const icon = category ? category.icon : 'fa-folder-open';
+        return `
+        <button class="module-outline-btn" type="button" style="--module-color:${escHtml(stage.color || '#2196F3')};" onclick="scrollToTrainingStage('${escHtml(stage.id).replace(/'/g, "\\'")}')" aria-label="Mở nhóm ${index + 1}: ${escHtml(stage.name)}">
+          <span class="module-outline-num">${String(index + 1).padStart(2, '0')}</span>
+          <span class="module-outline-body">
+            <strong><i class="fas ${escHtml(icon)}" style="color:${escHtml(stage.color || '#2196F3')}; margin-right:5px;"></i>${escHtml(stage.name)}</strong>
+            <small>${escHtml(stage.description)}</small>
+          </span>
+          <span class="module-outline-count">${(stage.items || []).length} bài</span>
+        </button>
+      `}).join('');
+    }
+
+    function scrollToTrainingStage(stageId) {
+      const el = document.getElementById(`training-stage-${stageId}`);
+      if (el) {
+        const searchInput = document.getElementById('trainingSearchInput');
+        if (searchInput && searchInput.value) {
+          searchInput.value = '';
+          filterTrainingStages('');
+        }
+        el.scrollIntoView({ behavior:'smooth', block:'start' });
+        el.classList.remove('menu-target-flash');
+        void el.offsetWidth;
+        el.classList.add('menu-target-flash');
+        setTimeout(() => el.classList.remove('menu-target-flash'), 1700);
+      }
+    }
+
     /* Click on training item: switch to podcast tab and auto-search */
-    function goToPodcastSearch(keyword) {
+    function goToPodcastSearch(keyword, sourceKey = '') {
       switchMainTab('podcast');
       setTimeout(() => {
         const input = document.getElementById('searchInput');
@@ -3078,6 +3406,16 @@
             // Fallback: dispatch input event
             input.dispatchEvent(new Event('input', { bubbles: true }));
           }
+        }
+        if (sourceKey) {
+          setTimeout(() => {
+            const target = document.getElementById(`audio-item-${sourceKey}`);
+            if (target) {
+              target.scrollIntoView({ behavior:'smooth', block:'center' });
+              target.style.boxShadow = '0 0 0 3px rgba(33,150,243,.28), 0 10px 30px rgba(0,0,0,.12)';
+              setTimeout(() => { target.style.boxShadow = ''; }, 2200);
+            }
+          }, 120);
         }
         showAutoSearchBanner(keyword);
       }, 200);
@@ -3112,7 +3450,10 @@
           out.push({
             title: item.title,
             type: item.type || 'podcast',
+            sourceKey: item.sourceKey || '',
+            searchKeyword: item.searchKeyword || getSearchKeyword(item.title),
             stageName: stage.name,
+            stageDescription: stage.description || '',
             stageNum: sIdx + 1
           });
         });
@@ -3138,8 +3479,8 @@
       const terms = vnNormalize(query).split(/\s+/).filter(Boolean);
       if (terms.length === 0) return [];
       return getAllTrainingItems().filter(it => {
-        const nTitle = vnNormalize(it.title);
-        return terms.every(t => nTitle.includes(t));
+        const searchable = vnNormalize(`${it.title} ${it.stageName} ${it.stageDescription}`);
+        return terms.every(t => searchable.includes(t));
       });
     }
 
@@ -3178,7 +3519,7 @@
             <span class="ts-sug-icon">${typeIcon(it.type)}</span>
             <span class="ts-sug-body">
               <span class="ts-sug-title">${tsHighlight(it.title, q)}</span>
-              <span class="ts-sug-stage" style="display:block;">GĐ ${it.stageNum} · ${escHtml(it.stageName)}</span>
+              <span class="ts-sug-stage" style="display:block;">Nhóm ${it.stageNum} · ${escHtml(it.stageName)}</span>
             </span>
             <span class="ts-sug-open"><i class="fas fa-play"></i> Mở</span>
           </button>
@@ -3228,7 +3569,7 @@
       const box = document.getElementById('trainingSuggestions');
       if (input) input.value = it.title;
       if (box) box.classList.remove('show');
-      goToPodcastSearch(getSearchKeyword(it.title));
+      goToPodcastSearch(it.searchKeyword || getSearchKeyword(it.title), it.sourceKey || '');
     }
 
     function clearTrainingSearch() {
@@ -3248,10 +3589,12 @@
       const terms = vnNormalize(query).split(/\s+/).filter(Boolean);
       document.querySelectorAll('#trainingStagesContainer .stage-block').forEach(block => {
         let visibleCount = 0;
+        const stageText = vnNormalize(block.querySelector('.stage-block-info')?.textContent || '');
+        const stageMatch = terms.length > 0 && terms.every(t => stageText.includes(t));
         block.querySelectorAll('.training-item').forEach(itemEl => {
           const titleEl = itemEl.querySelector('.training-item-title');
           const nTitle = vnNormalize(titleEl ? titleEl.textContent : '');
-          const match = terms.length === 0 || terms.every(t => nTitle.includes(t));
+          const match = terms.length === 0 || stageMatch || terms.every(t => nTitle.includes(t));
           itemEl.style.display = match ? '' : 'none';
           itemEl.classList.toggle('ts-match', match && terms.length > 0);
           if (match) visibleCount++;
@@ -3279,7 +3622,7 @@
     function renderMgmtStageOptions() {
       const sel = document.getElementById('mgmtStageSelect');
       sel.innerHTML = trainingData.stages.map((s, i) =>
-        `<option value="${escHtml(s.id)}" ${s.id === currentMgmtStageId ? 'selected' : ''}>GĐ ${i+1}: ${escHtml(s.name)}</option>`
+        `<option value="${escHtml(s.id)}" ${s.id === currentMgmtStageId ? 'selected' : ''}>Nhóm ${i+1}: ${escHtml(s.name)}</option>`
       ).join('');
       if (!trainingData.stages.find(s => s.id === currentMgmtStageId)) {
         currentMgmtStageId = trainingData.stages[0]?.id || null;
@@ -3311,7 +3654,7 @@
 
     function saveMgmtItem() {
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
-      if (!stage) { alert('Chưa chọn giai đoạn'); return; }
+      if (!stage) { alert('Chưa chọn nhóm đào tạo'); return; }
       const title = document.getElementById('mgmtItemTitle').value.trim();
       const type = document.getElementById('mgmtItemType').value;
       if (!title) { alert('Vui lòng nhập tiêu đề'); return; }
@@ -3320,7 +3663,7 @@
         const it = stage.items.find(i => i.id === editingMgmtItemId);
         if (it) { it.title = title; it.type = type; }
         editingMgmtItemId = null;
-        document.getElementById('mgmtSaveBtnText').textContent = 'Thêm vào giai đoạn';
+        document.getElementById('mgmtSaveBtnText').textContent = 'Thêm vào nhóm';
       } else {
         stage.items.push({ id: genId(), title, type });
       }
@@ -3351,7 +3694,7 @@
     }
 
     function addMgmtStage() {
-      const name = prompt('Tên giai đoạn mới:');
+      const name = prompt('Tên nhóm đào tạo mới:');
       if (!name || !name.trim()) return;
       const desc = prompt('Mô tả ngắn (có thể bỏ trống):') || '';
       const newStage = { id: 's_' + Date.now().toString(36), name: name.trim(), description: desc.trim(), items: [] };
@@ -3366,7 +3709,7 @@
     function deleteMgmtStage() {
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
       if (!stage) return;
-      if (!confirm(`Xoá giai đoạn "${stage.name}" và toàn bộ nội dung bên trong?`)) return;
+      if (!confirm(`Xoá nhóm "${stage.name}" và toàn bộ nội dung bên trong?`)) return;
       trainingData.stages = trainingData.stages.filter(s => s.id !== currentMgmtStageId);
       currentMgmtStageId = trainingData.stages[0]?.id || null;
       saveTrainingList().then(() => {
@@ -3376,13 +3719,29 @@
     }
 
     function resetListToDefaults() {
-      if (!confirm('Khôi phục toàn bộ 9 giai đoạn và 86 nội dung mặc định? Mọi thay đổi hiện tại sẽ bị mất.')) return;
+      if (!confirm('Khôi phục hệ thống 9 nhóm đào tạo chuẩn? Các thay đổi thủ công trong lộ trình hiện tại sẽ bị thay thế.')) return;
       trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
       currentMgmtStageId = trainingData.stages[0]?.id || null;
-      saveTrainingList().then(() => {
+      saveTrainingList('structured').then(() => {
         renderMgmtStageOptions();
         renderMgmtItems();
       });
+    }
+
+    function rebuildStructuredTrainingList() {
+      if (!allContent || allContent.length === 0) {
+        alert('Thư viện Podcast/Video chưa tải xong hoặc chưa có nội dung.');
+        return;
+      }
+      if (!confirm('Tạo lại lộ trình từ toàn bộ Podcast/Video hiện có, gộp tiêu đề trùng và phân vào 9 nhóm chuẩn?')) return;
+      trainingData = buildTrainingDataFromContents(allContent);
+      currentMgmtStageId = trainingData.stages[0]?.id || null;
+      saveTrainingList('structured').then(() => {
+        renderTrainingList();
+        renderMgmtStageOptions();
+        renderMgmtItems();
+        showSyncNotification('✅ Đã chuẩn hóa lộ trình theo 9 nhóm đào tạo.', 'success');
+      }).catch(err => alert('Lỗi lưu: ' + (err.message || err)));
     }
 
     /* ============================================================ */
@@ -3471,32 +3830,33 @@
     let adminPanelCollapsed = false;
 
     /* ============================================================
-       CATEGORY SYSTEM - phan loai thong minh danh sach Podcast/Video
-       5 nhom theo yeu cau: Hoi nhap - Don hang - Quan ly khach hang -
-       Ky nang quan tri - Chia se quan ly (+ "Khac" cho noi dung chua khop)
+       CATEGORY SYSTEM - một hệ phân nhóm dùng chung cho Lộ trình
+       và Thư viện Podcast/Video.
        ============================================================ */
     const CATEGORY_DEFS = [
-      { id: 'hoinhap',       name: 'Hội nhập',            icon: 'fa-door-open',   color: '#0891b2', bg: '#ecfeff',
-        desc: 'Văn hoá công ty, tư duy làm việc, quy định cơ bản — điểm bắt đầu cho nhân viên mới.' },
-      { id: 'donhang',       name: 'Đơn hàng',            icon: 'fa-box',         color: '#b45309', bg: '#fffbeb',
-        desc: 'Quy trình ERP, lên đơn, xử lý đơn hàng, kho vận, kế hoạch & báo cáo công việc.' },
-      { id: 'khachhang',     name: 'Quản lý khách hàng',  icon: 'fa-handshake',   color: '#7c3aed', bg: '#f5f3ff',
-        desc: 'Giao tiếp, chăm sóc, thuyết phục, chốt sales và xử lý tình huống với khách hàng.' },
-      { id: 'kynangquantri', name: 'Kỹ năng quản trị',    icon: 'fa-shield-alt',  color: '#dc2626', bg: '#fef2f2',
-        desc: 'Chuẩn GDP, quy định pháp lý, thanh tra và năng lực quản lý nâng cao.' },
-      { id: 'chiasequanly',  name: 'Chia sẻ quản lý',     icon: 'fa-lightbulb',   color: '#059669', bg: '#ecfdf5',
-        desc: 'Tư duy, động lực và kinh nghiệm quản lý được chia sẻ từ Ban giám đốc.' },
-      { id: 'khac',          name: 'Khác',                icon: 'fa-ellipsis-h',  color: '#64748b', bg: '#f1f5f9',
-        desc: 'Nội dung chưa xác định rõ danh mục.' }
+      { id:'hoinhap', name:'Hội nhập IDECO', icon:'fa-door-open', color:'#0891b2', bg:'#ecfeff', desc:'Tổ chức, văn hóa, môi trường làm việc và quy định nền tảng cho nhân viên mới.' },
+      { id:'noibo', name:'Quy trình nội bộ', icon:'fa-sitemap', color:'#2563eb', bg:'#eff6ff', desc:'Vai trò công việc, phối hợp kinh doanh – kế toán – kho – giao nhận và xử lý phát sinh.' },
+      { id:'khachhang', name:'Quản lý khách hàng', icon:'fa-address-book', color:'#7c3aed', bg:'#f5f3ff', desc:'Quản lý khách hàng được giao, chăm sóc khách hàng và khách hàng chuỗi nhà thuốc.' },
+      { id:'donhang', name:'Đơn hàng & giao nhận', icon:'fa-box', color:'#b45309', bg:'#fffbeb', desc:'Lên đơn, khai báo đơn, quy định đơn hàng, kho và giao nhận.' },
+      { id:'baocao', name:'Báo cáo giao dịch', icon:'fa-clipboard-check', color:'#db2777', bg:'#fdf2f8', desc:'Khai báo giao dịch khách hàng, báo cáo kết quả và báo cáo định kỳ.' },
+      { id:'kehoach', name:'Kế hoạch & KPI', icon:'fa-calendar-check', color:'#0f766e', bg:'#f0fdfa', desc:'Checklist, kế hoạch tuần, KPI, ưu tiên và quản trị công việc.' },
+      { id:'sales', name:'Kỹ năng bán hàng', icon:'fa-bullseye', color:'#dc2626', bg:'#fef2f2', desc:'Giao tiếp, telesales, thuyết phục, xử lý tình huống, báo giá và chốt sales.' },
+      { id:'duoc', name:'Dược, sản phẩm & GDP', icon:'fa-capsules', color:'#16a34a', bg:'#f0fdf4', desc:'Kiến thức thuốc, sản phẩm, chính sách bán hàng, GDP, thẩm định và thanh tra.' },
+      { id:'quanly', name:'AI & phát triển năng lực', icon:'fa-lightbulb', color:'#475569', bg:'#f8fafc', desc:'Ứng dụng AI, tư duy quản lý, động lực và phát triển nghề nghiệp bền vững.' },
+      { id:'khac', name:'Cần phân loại', icon:'fa-tag', color:'#64748b', bg:'#f1f5f9', desc:'Nội dung mới chưa đủ thông tin để xếp vào một nhóm chuyên môn.' }
     ];
     const CATEGORY_MAP = Object.fromEntries(CATEGORY_DEFS.map(c => [c.id, c]));
 
     const CATEGORY_KEYWORDS = {
-      hoinhap: ['lời chia sẻ hội nhập','hội nhập','mindset','văn hóa công ty','văn hóa','ứng xử công sở','ứng xử','phấn đấu mỗi ngày','phấn đấu','hối tiếc','tránh hối tiếc','sai lầm phổ biến','không thành công','toàn công ty','kinh doanh mới','quy định công việc','những điều cần tránh','làm người','tư duy ban đầu','nhân viên mới','người mới'],
-      donhang: ['checklist','kế hoạch tuần','kế hoạch','chủ động công việc','chủ động','quản trị công việc','báo cáo cuối tháng','báo cáo tháng','xử lý phát sinh','sai sót giao hàng','giao hàng ảnh hưởng','hệ thống công việc','lập kế hoạch tuần erp','lên đơn hàng erp','lên đơn hàng','đơn hàng erp','xử lý đơn hàng','điều phối kho','quy trình công ty','quy trình','erp','đơn hàng','giao hàng','kho vận','vận đơn','báo cáo'],
-      khachhang: ['báo cáo giao dịch khách hàng','quản lý khách hàng trên erp','quản lý khách hàng','chăm sóc kh','chăm sóc khách hàng','giao dịch hợp tác','thiết lập giao dịch','tránh dùng từ sai','dùng từ sai','giao tiếp khách hàng','giao tiếp','kịch bản telesales','telesales','thuyết phục khách hàng','thuyết phục','kỹ năng chốt sales','chốt sales','chốt sale','vì sao không chốt','không chốt được đơn','xử lý tình huống bán hàng','xử lý tình huống','những lỗi cần tránh','rút kinh nghiệm chốt sales','rút kinh nghiệm','lỗi kinh doanh','sai lầm báo giá','báo giá','sai lầm không phát triển','không phát triển','kinh doanh thuốc','bán thuốc cần hiểu','nhóm không phải thuốc','chính sách bán thuốc','giao dịch thuốc','khách hàng','chăm sóc','sales'],
-      kynangquantri: ['gdp là gì','chuẩn gdp','gdp','chuẩn bị thẩm định','thẩm định','tình huống thanh tra','thanh tra','đúng luật','quản lý chuỗi nhà thuốc','chuỗi nhà thuốc','pharmacity','chính sách thưởng','ai trợ lý bgđ','trợ lý bgđ','tham gia đào tạo','tư duy quản lý','quản lý nâng cao','ideco ai','vai trò điều phối','phát triển kd','kpi công ty','kpi','quản trị'],
-      chiasequanly: ['chuỗi lời khuyên kinh doanh','lời khuyên kinh doanh','lời khuyên','đừng để tiếc nuối','tiếc nuối','thư giãn','hiểu chuyện để làm tốt','hiểu chuyện','động lực','phát triển bản thân','giữ lửa','chia sẻ quản lý','chia sẻ']
+      hoinhap: KEYWORD_TO_STAGE.s1,
+      noibo: KEYWORD_TO_STAGE.s2,
+      khachhang: [...KEYWORD_TO_STAGE.s3, 'khách hàng được giao', 'quản lý chuỗi', 'chăm sóc'],
+      donhang: KEYWORD_TO_STAGE.s4,
+      baocao: KEYWORD_TO_STAGE.s5,
+      kehoach: KEYWORD_TO_STAGE.s6,
+      sales: [...KEYWORD_TO_STAGE.s7, 'giao tiếp khách hàng', 'thuyết phục', 'xử lý tình huống', 'lời khuyên'],
+      duoc: KEYWORD_TO_STAGE.s8,
+      quanly: KEYWORD_TO_STAGE.s9
     };
 
     /** Phan loai noi dung theo ten - dung khi them moi hoac phan loai lai. */
@@ -3520,13 +3880,90 @@
       return bestScore >= 4 ? bestId : 'khac';
     }
 
+    function getContentCategory(item) {
+      if (item && item.categoryManual === true && item.category && CATEGORY_MAP[item.category]) {
+        return item.category;
+      }
+      return classifyCategory(item && item.name ? item.name : '');
+    }
+
+    function getStructuredDisplayTitle(rawName) {
+      const parsed = parsePodcastTitle(String(rawName || '').replace(/\s+/g, ' ').trim());
+      if (parsed.num && DEFAULT_TRAINING_ITEM_BY_NUMBER.has(String(parsed.num))) {
+        return DEFAULT_TRAINING_ITEM_BY_NUMBER.get(String(parsed.num));
+      }
+      return parsed.num ? `Số ${parsed.num} — ${parsed.title}` : parsed.title;
+    }
+
+    function deduplicateContentsForDisplay(contents) {
+      const seen = new Map();
+      const unique = [];
+      (contents || []).forEach(content => {
+        const parsed = parsePodcastTitle(String(content.name || '').replace(/\s+/g, ' ').trim());
+        const normalizedTitle = removeDiacritics(parsed.title.toLowerCase())
+          .replace(/[^a-z0-9]+/g, ' ')
+          .trim();
+        const identity = `${content.type || 'audio'}:${normalizedTitle}`;
+        if (!normalizedTitle || !seen.has(identity)) {
+          const item = { ...content, duplicateCount: 1 };
+          seen.set(identity, item);
+          unique.push(item);
+        } else {
+          seen.get(identity).duplicateCount += 1;
+        }
+      });
+      return unique;
+    }
+
+    function buildTrainingDataFromContents(contents) {
+      const stages = createStructuredStageShells();
+      const otherStage = {
+        id:'s_other', category:'khac', name:'Nội dung cần phân loại', color:'#64748b',
+        description:'Nội dung mới chưa đủ thông tin để xếp nhóm. Quản trị viên có thể sửa tiêu đề hoặc chọn danh mục.', items:[]
+      };
+      const categoryToStage = Object.fromEntries(TRAINING_STAGE_DEFS.map(stage => [stage.category, stage.id]));
+      const seen = new Set();
+
+      (contents || []).forEach((content, orderIndex) => {
+        if (!content || !content.name || !['audio', 'video'].includes(content.type)) return;
+        const parsed = parsePodcastTitle(content.name);
+        const normalizedTitle = removeDiacritics(parsed.title.toLowerCase())
+          .replace(/\b(podcast|video)\b/g, '')
+          .replace(/[^a-z0-9]+/g, ' ')
+          .trim();
+        if (!normalizedTitle || seen.has(normalizedTitle)) return;
+        seen.add(normalizedTitle);
+
+        const category = getContentCategory(content);
+        const stageId = categoryToStage[category];
+        const target = stages.find(stage => stage.id === stageId) || otherStage;
+        target.items.push({
+          id: `content_${content.key || orderIndex}`,
+          sourceKey: content.key || null,
+          title: getStructuredDisplayTitle(content.name),
+          searchKeyword: content.name,
+          type: content.type === 'video' ? 'video' : 'podcast',
+          orderIndex
+        });
+      });
+
+      stages.forEach(stage => stage.items.sort((a, b) => {
+        const na = parseInt((a.title.match(/[Ss]ố\s*(\d+)/) || [])[1] || '9999', 10);
+        const nb = parseInt((b.title.match(/[Ss]ố\s*(\d+)/) || [])[1] || '9999', 10);
+        return na - nb || a.orderIndex - b.orderIndex;
+      }));
+      if (otherStage.items.length) stages.push(otherStage);
+      stages.forEach(stage => stage.items.forEach(item => delete item.orderIndex));
+      return { structureVersion: TRAINING_STRUCTURE_VERSION, mode:'structured', stages };
+    }
+
     let activeCategoryFilter = 'all';
 
     function getCategoryCounts() {
       const counts = {};
       CATEGORY_DEFS.forEach(c => counts[c.id] = 0);
       allContent.forEach(item => {
-        const cat = (item.category && CATEGORY_MAP[item.category]) ? item.category : 'khac';
+        const cat = getContentCategory(item);
         counts[cat] = (counts[cat] || 0) + 1;
       });
       return counts;
@@ -3624,6 +4061,7 @@
       const updates = {};
       allContent.forEach(item => {
         updates[`contents/${item.key}/category`] = classifyCategory(item.name);
+        updates[`contents/${item.key}/categoryManual`] = false;
       });
       db.ref().update(updates)
         .then(() => alert('✅ Đã phân loại lại toàn bộ nội dung!'))
@@ -3940,6 +4378,7 @@
       } else {
         const name = document.getElementById("contentName").value.trim();
         const link = document.getElementById("contentLink").value.trim();
+        const categoryChoice = document.getElementById("contentCategory")?.value || 'auto';
         
         if (!name || !link) {
           alert("Vui lòng nhập đầy đủ tên và link!");
@@ -3967,13 +4406,17 @@
         const newContentRef = db.ref('contents').push();
         const newKey = newContentRef.key;
         const createdAt = firebase.database.ServerValue.TIMESTAMP;
+        const selectedCategory = categoryChoice !== 'auto' && CATEGORY_MAP[categoryChoice]
+          ? categoryChoice
+          : classifyCategory(name);
         
         newContentRef.set({ 
           name, 
           link: processedLink,
           image: DEFAULT_IMAGE,
           type,
-          category: classifyCategory(name),
+          category: selectedCategory,
+          categoryManual: categoryChoice !== 'auto',
           createdAt
         });
         
@@ -4041,7 +4484,8 @@
       const item = document.querySelector(`.audio-item[data-key="${key}"]`);
       item.classList.add('edit-mode');
       
-      const currentName = item.querySelector('.audio-name').textContent.replace(/<[^>]*>/g, '');
+      const content = allContent.find(entry => entry.key === key);
+      const currentName = content ? content.name : '';
       const nameInput = item.querySelector('.audio-name-input');
       nameInput.value = currentName;
       nameInput.focus();
@@ -4063,7 +4507,12 @@
       const oldName = content ? content.name : null;
 
       const updates = { name: newName };
-      if (newCategory && CATEGORY_MAP[newCategory]) updates.category = newCategory;
+      if (newCategory && CATEGORY_MAP[newCategory]) {
+        const resolvedBeforeEdit = content ? getContentCategory(content) : null;
+        const userChangedCategory = !!content && newCategory !== resolvedBeforeEdit;
+        updates.category = userChangedCategory ? newCategory : classifyCategory(newName);
+        updates.categoryManual = userChangedCategory || !!(content && content.categoryManual === true);
+      }
       
       db.ref('contents/' + key).update(updates, (error) => {
         if (error) {
@@ -4071,7 +4520,10 @@
         } else {
           if (content) {
             content.name = newName;
-            if (updates.category) content.category = updates.category;
+            if (updates.category) {
+              content.category = updates.category;
+              content.categoryManual = updates.categoryManual;
+            }
           }
           filterContent();
           populateTableOfContents();
@@ -4699,7 +5151,7 @@
       // 0. Lọc theo danh mục đang chọn (chip / quick-nav) trước tiên
       const baseList = activeCategoryFilter === 'all'
         ? allContent
-        : allContent.filter(item => ((item.category && CATEGORY_MAP[item.category]) ? item.category : 'khac') === activeCategoryFilter);
+        : allContent.filter(item => getContentCategory(item) === activeCategoryFilter);
       
       if (!searchTerm) {
         filteredContent = [...baseList];
@@ -4721,7 +5173,7 @@
       filteredContent = baseList.filter(item => {
         const itemName = item.name.toLowerCase();
         const itemNameNoDiacritics = removeDiacritics(itemName);
-        const itemCategory = (item.category && CATEGORY_MAP[item.category]) ? item.category : 'khac';
+        const itemCategory = getContentCategory(item);
         
         // 1. Ưu tiên: trùng cụm chính xác (VD: "báo cáo giao dịch")
         if (itemName.includes(searchTerm) || itemNameNoDiacritics.includes(searchTermNoDiacritics)) {
@@ -4758,7 +5210,7 @@
       renderSlideSearchResults(matchingSlides, searchTerm);
       renderCategorySuggestBanner(Array.from(matchedCategoryIds).filter(id =>
         id !== activeCategoryFilter &&
-        allContent.some(it => ((it.category && CATEGORY_MAP[it.category]) ? it.category : 'khac') === id)
+        allContent.some(it => getContentCategory(it) === id)
       ));
     }
 
@@ -4902,7 +5354,7 @@
           displayName = item.name.replace(regex, '<span class="search-highlight">$1</span>');
         }
 
-        const itemCatId = (item.category && CATEGORY_MAP[item.category]) ? item.category : 'khac';
+        const itemCatId = getContentCategory(item);
         const itemCat = CATEGORY_MAP[itemCatId];
         
         itemElement.innerHTML = `
@@ -4911,6 +5363,7 @@
             <div class="audio-name">
               ${displayName} 
               ${isNew ? '<span class="new-badge">MỚI</span>' : ''}
+              ${item.duplicateCount > 1 ? `<span class="duplicate-badge"><i class="fas fa-compress-alt"></i> Đã gộp ${item.duplicateCount} bản trùng</span>` : ''}
               <span class="category-badge" style="--cat-color:${itemCat.color}; --cat-bg:${itemCat.bg};"><i class="fas ${itemCat.icon}"></i> ${itemCat.name}</span>
             </div>
             <input type="text" class="audio-name-input" placeholder="Nhập tên mới...">
@@ -5037,10 +5490,19 @@
         db.ref('contentOrder').once('value', orderSnap => {
           const order = orderSnap.val() || [];
           
-          allContent = order
+          const orderedContents = order
             .map(key => contents.find(p => p.key === key))
             .filter(p => p)
             .concat(contents.filter(p => !order.includes(p.key)));
+          allContent = deduplicateContentsForDisplay(orderedContents);
+
+          // Với dữ liệu cũ, tạo lại lộ trình trực tiếp từ thư viện thật:
+          // một bài chỉ xuất hiện một lần và cả hai màn hình dùng cùng một hệ phân nhóm.
+          if (!(storedTrainingData && storedTrainingData.structureVersion >= TRAINING_STRUCTURE_VERSION && storedTrainingData.mode === 'manual')) {
+            trainingData = buildTrainingDataFromContents(allContent);
+            currentMgmtStageId = trainingData.stages[0]?.id || null;
+            renderTrainingList();
+          }
           
           filterContent();
           
@@ -5090,7 +5552,15 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('contentName').placeholder = "Nhập tên (ví dụ: 1. Bài học A)...";
+      document.getElementById('contentName').placeholder = "Tiêu đề rõ nội dung (ví dụ: Cách quản lý khách hàng chuỗi nhà thuốc)";
+      const contentCategory = document.getElementById('contentCategory');
+      if (contentCategory) {
+        contentCategory.innerHTML = '<option value="auto">Tự động phân nhóm theo tiêu đề</option>' +
+          CATEGORY_DEFS.filter(category => category.id !== 'khac').map(category =>
+            `<option value="${category.id}">${category.name}</option>`
+          ).join('') +
+          '<option value="khac">Cần phân loại</option>';
+      }
       
       showContentList();
       renderSlideList();
