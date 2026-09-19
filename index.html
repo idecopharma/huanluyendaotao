@@ -2393,14 +2393,28 @@
     <div class="modal-card" style="max-width:560px;">
       <button class="modal-close-x" onclick="closeAdminPwModal()" title="Đóng">×</button>
 
-      <!-- List management (opens directly, no password) -->
-      <div id="adminListMgmt">
-        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý lộ trình đào tạo</h3>
-        <p class="modal-subtitle">Thêm, sửa hoặc sắp xếp bài học theo từng nhóm. Danh sách được đồng bộ để nhân viên dùng chung trên mọi thiết bị.</p>
+      <!-- Password gate for training-group settings -->
+      <div id="adminPasswordGate">
+        <h3><i class="fas fa-shield-halved" style="color:var(--secondary);"></i> Cài đặt nhóm đào tạo</h3>
+        <p class="modal-subtitle">Nhập mật khẩu quản trị để thêm nhóm đào tạo mới, đổi tên nhóm hoặc quản lý nội dung trong từng nhóm.</p>
+        <input type="password" id="adminSettingsPassword" placeholder="Nhập mật khẩu quản trị" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') unlockTrainingSettings()">
+        <div id="adminSettingsMessage" class="gate-message info">Chỉ người quản trị mới có thể thay đổi cấu trúc nhóm đào tạo.</div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="gate-btn-primary" style="margin-bottom:0;" onclick="unlockTrainingSettings()"><i class="fas fa-unlock-keyhole"></i> Mở cài đặt</button>
+          <button class="btn-secondary" onclick="closeAdminPwModal()">Đóng</button>
+        </div>
+      </div>
+
+      <!-- Training list + group management (unlocked by password) -->
+      <div id="adminListMgmt" class="hidden">
+        <h3><i class="fas fa-list-check" style="color:var(--primary);"></i> Quản lý lộ trình & nhóm đào tạo</h3>
+        <p class="modal-subtitle">Thêm nhóm mới, đổi tên nhóm, sửa mô tả và sắp xếp bài học. Thay đổi được lưu trên Firebase để dùng chung trên mọi thiết bị.</p>
 
         <div class="list-mgmt-stage-row">
           <select id="mgmtStageSelect" onchange="renderMgmtItems()"></select>
           <button class="list-mgmt-icon-btn" onclick="addMgmtStage()" title="Thêm nhóm đào tạo" style="width:36px;height:36px;"><i class="fas fa-plus"></i></button>
+          <button class="list-mgmt-icon-btn" onclick="editMgmtStage()" title="Đổi tên / sửa mô tả nhóm" style="width:36px;height:36px;"><i class="fas fa-pen-to-square"></i></button>
           <button class="list-mgmt-icon-btn danger" onclick="deleteMgmtStage()" title="Xoá nhóm này" style="width:36px;height:36px;"><i class="fas fa-trash"></i></button>
         </div>
 
@@ -2427,8 +2441,8 @@
     </div>
   </div>
 
-  <!-- Floating admin button (always visible) -->
-  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Quản lý lộ trình đào tạo">
+  <!-- Floating admin button (password protected) -->
+  <button id="adminFab" class="admin-fab" onclick="openAdminPwModal()" title="Cài đặt nhóm đào tạo">
     <i class="fas fa-cog"></i>
   </button>
 
@@ -2465,7 +2479,7 @@
       <section class="training-menu-panel" aria-labelledby="trainingMenuTitle">
         <div class="training-menu-heading">
           <div>
-            <h2 id="trainingMenuTitle"><i class="fas fa-compass" style="color:var(--secondary);"></i> MENU 9 NHÓM ĐÀO TẠO CHÍNH</h2>
+            <h2 id="trainingMenuTitle"><i class="fas fa-compass" style="color:var(--secondary);"></i> MENU NHÓM ĐÀO TẠO CHÍNH</h2>
             <p>Chọn đúng nhóm để đến nội dung cần học, hoặc dùng ô tìm kiếm ngay bên dưới.</p>
           </div>
           <span class="training-menu-badge"><i class="fas fa-user-graduate"></i> Dành cho nhân viên mới</span>
@@ -2475,7 +2489,7 @@
           <div class="training-use-step"><span>2</span><div><strong>Hoặc gõ từ khóa</strong><br>như khách hàng, đơn hàng, báo cáo</div></div>
           <div class="training-use-step"><span>3</span><div><strong>Bấm tên bài</strong><br>để mở đúng podcast hoặc video</div></div>
         </div>
-        <div id="moduleOutline" class="module-outline" aria-label="Chín nhóm đào tạo chính"></div>
+        <div id="moduleOutline" class="module-outline" aria-label="Các nhóm đào tạo chính"></div>
       </section>
 
       <!-- ===== Search with autocomplete suggestions ===== -->
@@ -2674,19 +2688,50 @@
   <script>
     /* ============================================================
        PASSWORD GATE + AUTO-SEARCH FROM URL
-       Listen password (default 'ideco2026') is loaded from Firebase
-       Master password (hardcoded 'minhtriet1973') unlocks admin
+       Master password protects training-group settings.
        ============================================================ */
-    /* No password — admin opens directly to list management */
+    const MASTER_ADMIN_PASSWORD = 'minhtriet1973';
+    let adminSettingsUnlocked = false;
 
     function openAdminPwModal() {
-      document.getElementById('adminPwModal').classList.remove('hidden');
+      const modal = document.getElementById('adminPwModal');
+      const gate = document.getElementById('adminPasswordGate');
+      const mgmt = document.getElementById('adminListMgmt');
+      const input = document.getElementById('adminSettingsPassword');
+      const msg = document.getElementById('adminSettingsMessage');
+      adminSettingsUnlocked = false;
+      if (gate) gate.classList.remove('hidden');
+      if (mgmt) mgmt.classList.add('hidden');
+      if (input) input.value = '';
+      if (msg) { msg.textContent = 'Chỉ người quản trị mới có thể thay đổi cấu trúc nhóm đào tạo.'; msg.className = 'gate-message info'; }
+      modal.classList.remove('hidden');
+      setTimeout(() => input && input.focus(), 50);
+    }
+
+    function unlockTrainingSettings() {
+      const input = document.getElementById('adminSettingsPassword');
+      const msg = document.getElementById('adminSettingsMessage');
+      const value = input ? input.value : '';
+      if (value !== MASTER_ADMIN_PASSWORD) {
+        if (msg) { msg.textContent = 'Sai mật khẩu. Vui lòng kiểm tra lại.'; msg.className = 'gate-message error'; }
+        if (input) { input.select(); input.focus(); }
+        return;
+      }
+      adminSettingsUnlocked = true;
+      document.getElementById('adminPasswordGate')?.classList.add('hidden');
+      document.getElementById('adminListMgmt')?.classList.remove('hidden');
+      syncDynamicCategoryState();
       renderMgmtStageOptions();
       renderMgmtItems();
     }
 
     function closeAdminPwModal() {
+      adminSettingsUnlocked = false;
       document.getElementById('adminPwModal').classList.add('hidden');
+      document.getElementById('adminPasswordGate')?.classList.remove('hidden');
+      document.getElementById('adminListMgmt')?.classList.add('hidden');
+      const input = document.getElementById('adminSettingsPassword');
+      if (input) input.value = '';
     }
 
     /* --- Init: load training list, show app immediately --------- */
@@ -2960,6 +3005,7 @@
 
     function startTrainingListSync() {
       // Hiển thị khung chuẩn ngay; dữ liệu thực tế sẽ được phân nhóm khi Firebase tải xong.
+      syncDynamicCategoryState();
       renderTrainingList();
       try {
         db.ref('settings/trainingList').on('value', snap => {
@@ -2972,7 +3018,9 @@
           } else {
             trainingData = normalizeLegacyTrainingData(val || DEFAULT_TRAINING_DATA);
           }
+          syncDynamicCategoryState();
           renderTrainingList();
+          if (adminSettingsUnlocked) { renderMgmtStageOptions(); renderMgmtItems(); }
         });
       } catch (e) { /* keep defaults */ }
     }
@@ -2981,6 +3029,7 @@
       try {
         trainingData.structureVersion = TRAINING_STRUCTURE_VERSION;
         trainingData.mode = mode;
+        syncDynamicCategoryState();
         storedTrainingData = JSON.parse(JSON.stringify(trainingData));
         return db.ref('settings/trainingList').set(trainingData);
       } catch (e) { return Promise.reject(e); }
@@ -3046,7 +3095,7 @@
       return { num: null, title: podcastName.trim() };
     }
 
-    function autoAddToTrainingList(podcastName, podcastType) {
+    function autoAddToTrainingList(podcastName, podcastType, selectedCategory = null, forceSelectedCategory = false) {
       if (!podcastName) return;
       if (trainingData.mode !== 'manual') {
         showSyncNotification('✅ Nội dung mới sẽ tự động được xếp vào đúng nhóm đào tạo.', 'success');
@@ -3072,14 +3121,21 @@
         return;
       }
 
-      // 🎯 Tìm stage phù hợp theo từ khóa
-      const targetStageId = findBestStageByKeyword(parsed.title);
+      // 🎯 Nếu người quản trị đã chọn nhóm cụ thể khi upload, ưu tiên tuyệt đối nhóm đó.
       let targetStage = null;
       let targetStageName = '';
-
-      if (targetStageId) {
-        targetStage = trainingData.stages.find(s => s.id === targetStageId);
+      if (forceSelectedCategory && selectedCategory) {
+        targetStage = trainingData.stages.find(s => s.category === selectedCategory);
         if (targetStage) targetStageName = targetStage.name;
+      }
+
+      // Nếu để Tự động, tiếp tục dùng logic từ khóa cũ.
+      if (!targetStage) {
+        const targetStageId = findBestStageByKeyword(parsed.title);
+        if (targetStageId) {
+          targetStage = trainingData.stages.find(s => s.id === targetStageId);
+          if (targetStage) targetStageName = targetStage.name;
+        }
       }
 
       // Không match → dùng stage mặc định "Nội dung mới cập nhật"
@@ -3146,6 +3202,43 @@
         });
       });
       if (changed) saveTrainingList(trainingData.mode === 'manual' ? 'manual' : 'structured');
+    }
+
+    function moveContentToTrainingStage(contentName, contentType, categoryId, sourceKey = null) {
+      if (!contentName || !categoryId || trainingData.mode !== 'manual') return;
+      const targetStage = trainingData.stages.find(stage => stage.category === categoryId);
+      if (!targetStage) return;
+      const parsed = parsePodcastTitle(contentName);
+      const trainingTitle = parsed.num ? `Số ${parsed.num} — ${parsed.title}` : contentName;
+      let movedItem = null;
+
+      trainingData.stages.forEach(stage => {
+        if (!Array.isArray(stage.items)) stage.items = [];
+        const keep = [];
+        stage.items.forEach(item => {
+          const sameSource = sourceKey && item.sourceKey === sourceKey;
+          const sameTitle = item.title === trainingTitle;
+          if (!movedItem && (sameSource || sameTitle)) movedItem = item;
+          else keep.push(item);
+        });
+        stage.items = keep;
+      });
+
+      if (!movedItem) {
+        movedItem = {
+          id: genId(),
+          sourceKey: sourceKey || null,
+          title: trainingTitle,
+          searchKeyword: contentName,
+          type: contentType === 'video' ? 'video' : 'podcast'
+        };
+      } else {
+        movedItem.title = trainingTitle;
+        movedItem.searchKeyword = contentName;
+        movedItem.type = contentType === 'video' ? 'video' : (movedItem.type || 'podcast');
+      }
+      targetStage.items.push(movedItem);
+      saveTrainingList('manual').then(() => renderTrainingList());
     }
 
     /* --- Sync ALL existing podcast/video to training list (SMART) ------- */
@@ -3312,8 +3405,11 @@
     }
 
     function renderTrainingList() {
+      syncDynamicCategoryState();
       const container = document.getElementById('trainingStagesContainer');
       if (!container) return;
+      const menuTitle = document.getElementById('trainingMenuTitle');
+      if (menuTitle) menuTitle.innerHTML = `<i class="fas fa-compass" style="color:var(--secondary);"></i> MENU ${trainingData.stages?.length || 0} NHÓM ĐÀO TẠO CHÍNH`;
       if (!trainingData.stages || trainingData.stages.length === 0) {
         container.innerHTML = '<p style="text-align:center; color:var(--text-light); padding:40px;">Chưa có nhóm đào tạo nào.</p>';
         renderModuleOutline();
@@ -3356,24 +3452,21 @@
     function renderModuleOutline() {
       const outline = document.getElementById('moduleOutline');
       if (!outline) return;
-      const currentStages = (trainingData && Array.isArray(trainingData.stages)) ? trainingData.stages : [];
-      const menuStages = TRAINING_STAGE_DEFS.map(definition => {
-        const current = currentStages.find(stage => stage.id === definition.id || stage.category === definition.category);
-        return current ? { ...definition, ...current, description: definition.description } : { ...definition, items:[] };
-      });
+      const menuStages = (trainingData && Array.isArray(trainingData.stages)) ? trainingData.stages : [];
       outline.innerHTML = menuStages.map((stage, index) => {
-        const category = typeof CATEGORY_MAP !== 'undefined' ? CATEGORY_MAP[stage.category] : null;
+        const category = CATEGORY_MAP[stage.category] || null;
         const icon = category ? category.icon : 'fa-folder-open';
         return `
-        <button class="module-outline-btn" type="button" style="--module-color:${escHtml(stage.color || '#2196F3')};" onclick="scrollToTrainingStage('${escHtml(stage.id).replace(/'/g, "\\'")}')" aria-label="Mở nhóm ${index + 1}: ${escHtml(stage.name)}">
+        <button class="module-outline-btn" type="button" style="--module-color:${escHtml(stage.color || '#2196F3')};" onclick="scrollToTrainingStage('${escHtml(stage.id).replace(/'/g, "\\'")}' )" aria-label="Mở nhóm ${index + 1}: ${escHtml(stage.name)}">
           <span class="module-outline-num">${String(index + 1).padStart(2, '0')}</span>
           <span class="module-outline-body">
             <strong><i class="fas ${escHtml(icon)}" style="color:${escHtml(stage.color || '#2196F3')}; margin-right:5px;"></i>${escHtml(stage.name)}</strong>
-            <small>${escHtml(stage.description)}</small>
+            <small>${escHtml(stage.description || '')}</small>
           </span>
           <span class="module-outline-count">${(stage.items || []).length} bài</span>
         </button>
-      `}).join('');
+      `;
+      }).join('');
     }
 
     function scrollToTrainingStage(stageId) {
@@ -3619,6 +3712,13 @@
        ============================================================ */
     let editingMgmtItemId = null;
 
+    function requireTrainingAdmin() {
+      if (adminSettingsUnlocked) return true;
+      alert('Vui lòng nhập mật khẩu quản trị để thay đổi cài đặt nhóm đào tạo.');
+      openAdminPwModal();
+      return false;
+    }
+
     function renderMgmtStageOptions() {
       const sel = document.getElementById('mgmtStageSelect');
       sel.innerHTML = trainingData.stages.map((s, i) =>
@@ -3653,6 +3753,7 @@
     function genId() { return 'i_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
     function saveMgmtItem() {
+      if (!requireTrainingAdmin()) return;
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
       if (!stage) { alert('Chưa chọn nhóm đào tạo'); return; }
       const title = document.getElementById('mgmtItemTitle').value.trim();
@@ -3669,11 +3770,14 @@
       }
       saveTrainingList().then(() => {
         document.getElementById('mgmtItemTitle').value = '';
+        syncDynamicCategoryState();
         renderMgmtItems();
+        renderTrainingList();
       }).catch(err => alert('Lỗi lưu: ' + (err.message || err)));
     }
 
     function editMgmtItem(id) {
+      if (!requireTrainingAdmin()) return;
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
       if (!stage) return;
       const it = stage.items.find(i => i.id === id);
@@ -3686,49 +3790,95 @@
     }
 
     function deleteMgmtItem(id) {
+      if (!requireTrainingAdmin()) return;
       if (!confirm('Xoá mục này?')) return;
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
       if (!stage) return;
       stage.items = stage.items.filter(i => i.id !== id);
-      saveTrainingList().then(() => renderMgmtItems());
+      saveTrainingList().then(() => {
+        renderMgmtItems();
+        renderTrainingList();
+      });
     }
 
     function addMgmtStage() {
+      if (!requireTrainingAdmin()) return;
       const name = prompt('Tên nhóm đào tạo mới:');
       if (!name || !name.trim()) return;
-      const desc = prompt('Mô tả ngắn (có thể bỏ trống):') || '';
-      const newStage = { id: 's_' + Date.now().toString(36), name: name.trim(), description: desc.trim(), items: [] };
+      const desc = prompt('Mô tả ngắn cho nhóm (có thể bỏ trống):') || '';
+      const stamp = Date.now().toString(36);
+      const idx = trainingData.stages.length;
+      const newStage = {
+        id: 's_custom_' + stamp,
+        category: 'custom_' + stamp,
+        name: name.trim(),
+        description: desc.trim(),
+        color: CUSTOM_CATEGORY_COLORS[idx % CUSTOM_CATEGORY_COLORS.length],
+        items: []
+      };
       trainingData.stages.push(newStage);
       currentMgmtStageId = newStage.id;
-      saveTrainingList().then(() => {
+      saveTrainingList('manual').then(() => {
+        syncDynamicCategoryState();
         renderMgmtStageOptions();
         renderMgmtItems();
-      });
+        renderTrainingList();
+        showSyncNotification(`✅ Đã thêm nhóm đào tạo: ${newStage.name}`, 'success');
+      }).catch(err => alert('Lỗi thêm nhóm: ' + (err.message || err)));
+    }
+
+    function editMgmtStage() {
+      if (!requireTrainingAdmin()) return;
+      const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
+      if (!stage) { alert('Chưa chọn nhóm đào tạo.'); return; }
+      const newName = prompt('Đổi tên nhóm đào tạo:', stage.name || '');
+      if (newName === null) return;
+      if (!newName.trim()) { alert('Tên nhóm không được để trống.'); return; }
+      const newDesc = prompt('Mô tả ngắn của nhóm:', stage.description || '');
+      if (newDesc === null) return;
+      stage.name = newName.trim();
+      stage.description = newDesc.trim();
+      saveTrainingList('manual').then(() => {
+        syncDynamicCategoryState();
+        renderMgmtStageOptions();
+        document.getElementById('mgmtStageSelect').value = stage.id;
+        renderMgmtItems();
+        renderTrainingList();
+        showSyncNotification(`✅ Đã cập nhật tên nhóm: ${stage.name}`, 'success');
+      }).catch(err => alert('Lỗi cập nhật nhóm: ' + (err.message || err)));
     }
 
     function deleteMgmtStage() {
+      if (!requireTrainingAdmin()) return;
       const stage = trainingData.stages.find(s => s.id === currentMgmtStageId);
       if (!stage) return;
-      if (!confirm(`Xoá nhóm "${stage.name}" và toàn bộ nội dung bên trong?`)) return;
+      if (trainingData.stages.length <= 1) { alert('Cần giữ lại ít nhất 1 nhóm đào tạo.'); return; }
+      if (!confirm(`Xoá nhóm "${stage.name}" và toàn bộ nội dung trong lộ trình của nhóm này?\n\nPodcast/Video trong thư viện gốc vẫn được giữ nguyên.`)) return;
       trainingData.stages = trainingData.stages.filter(s => s.id !== currentMgmtStageId);
       currentMgmtStageId = trainingData.stages[0]?.id || null;
-      saveTrainingList().then(() => {
+      saveTrainingList('manual').then(() => {
+        syncDynamicCategoryState();
         renderMgmtStageOptions();
         renderMgmtItems();
-      });
+        renderTrainingList();
+      }).catch(err => alert('Lỗi xoá nhóm: ' + (err.message || err)));
     }
 
     function resetListToDefaults() {
+      if (!requireTrainingAdmin()) return;
       if (!confirm('Khôi phục hệ thống 9 nhóm đào tạo chuẩn? Các thay đổi thủ công trong lộ trình hiện tại sẽ bị thay thế.')) return;
       trainingData = JSON.parse(JSON.stringify(DEFAULT_TRAINING_DATA));
       currentMgmtStageId = trainingData.stages[0]?.id || null;
       saveTrainingList('structured').then(() => {
+        syncDynamicCategoryState();
+        renderTrainingList();
         renderMgmtStageOptions();
         renderMgmtItems();
       });
     }
 
     function rebuildStructuredTrainingList() {
+      if (!requireTrainingAdmin()) return;
       if (!allContent || allContent.length === 0) {
         alert('Thư viện Podcast/Video chưa tải xong hoặc chưa có nội dung.');
         return;
@@ -3846,6 +3996,73 @@
       { id:'khac', name:'Cần phân loại', icon:'fa-tag', color:'#64748b', bg:'#f1f5f9', desc:'Nội dung mới chưa đủ thông tin để xếp vào một nhóm chuyên môn.' }
     ];
     const CATEGORY_MAP = Object.fromEntries(CATEGORY_DEFS.map(c => [c.id, c]));
+    const BASE_CATEGORY_DEFS = CATEGORY_DEFS.map(c => ({ ...c }));
+    const CUSTOM_CATEGORY_COLORS = ['#0ea5e9','#8b5cf6','#f97316','#14b8a6','#e11d48','#6366f1','#84cc16','#a855f7'];
+
+    function safeCategoryId(value) {
+      return String(value || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '') || ('nhom_' + Date.now().toString(36));
+    }
+
+    function populateContentCategorySelect() {
+      const select = document.getElementById('contentCategory');
+      if (!select) return;
+      const currentValue = select.value || 'auto';
+      select.innerHTML = '<option value="auto">Tự động phân nhóm theo tiêu đề</option>' +
+        CATEGORY_DEFS.filter(category => category.id !== 'khac').map(category =>
+          `<option value="${escHtml(category.id)}">${escHtml(category.name)}</option>`
+        ).join('') +
+        '<option value="khac">Cần phân loại</option>';
+      if ([...select.options].some(opt => opt.value === currentValue)) select.value = currentValue;
+    }
+
+    function syncDynamicCategoryState() {
+      if (!trainingData || !Array.isArray(trainingData.stages)) return;
+      const baseMap = Object.fromEntries(BASE_CATEGORY_DEFS.map(c => [c.id, c]));
+      const stageDefById = Object.fromEntries(TRAINING_STAGE_DEFS.map(stage => [stage.id, stage]));
+      const nextDefs = [];
+
+      trainingData.stages.forEach((stage, index) => {
+        const fixedDef = stageDefById[stage.id];
+        if (!stage.category) {
+          stage.category = fixedDef?.category || ('custom_' + safeCategoryId(stage.id || stage.name));
+        }
+        const base = baseMap[stage.category] || {};
+        if (!stage.color) stage.color = base.color || CUSTOM_CATEGORY_COLORS[index % CUSTOM_CATEGORY_COLORS.length];
+        nextDefs.push({
+          id: stage.category,
+          name: stage.name || base.name || `Nhóm ${index + 1}`,
+          icon: base.icon || 'fa-folder-open',
+          color: stage.color,
+          bg: base.bg || '#f8fafc',
+          desc: stage.description || base.desc || ''
+        });
+      });
+
+      const fallback = baseMap.khac || { id:'khac', name:'Cần phân loại', icon:'fa-tag', color:'#64748b', bg:'#f1f5f9', desc:'Nội dung chưa phân loại.' };
+      if (!nextDefs.some(cat => cat.id === 'khac')) nextDefs.push({ ...fallback });
+
+      const uniqueDefs = [];
+      const seenCategoryIds = new Set();
+      nextDefs.forEach(cat => {
+        if (!cat.id || seenCategoryIds.has(cat.id)) return;
+        seenCategoryIds.add(cat.id);
+        uniqueDefs.push(cat);
+      });
+
+      CATEGORY_DEFS.splice(0, CATEGORY_DEFS.length, ...uniqueDefs);
+      Object.keys(CATEGORY_MAP).forEach(key => delete CATEGORY_MAP[key]);
+      CATEGORY_DEFS.forEach(cat => { CATEGORY_MAP[cat.id] = cat; });
+      populateContentCategorySelect();
+      if (typeof activeCategoryFilter !== 'undefined' && activeCategoryFilter !== 'all' && !CATEGORY_MAP[activeCategoryFilter]) {
+        activeCategoryFilter = 'all';
+      }
+      if (typeof renderCategoryQuickNav === 'function') renderCategoryQuickNav();
+      if (typeof renderCategoryFilterBar === 'function') renderCategoryFilterBar();
+    }
 
     const CATEGORY_KEYWORDS = {
       hoinhap: KEYWORD_TO_STAGE.s1,
@@ -4429,8 +4646,8 @@
           db.ref('contentOrder').set(order);
         });
         
-        // Auto-sync to training list
-        autoAddToTrainingList(name, type);
+        // Auto-sync to training list; nếu đã chọn nhóm thủ công thì đưa đúng vào nhóm đó.
+        autoAddToTrainingList(name, type, selectedCategory, categoryChoice !== 'auto');
         
         showGlobalNotification(name);
       }
@@ -4507,9 +4724,10 @@
       const oldName = content ? content.name : null;
 
       const updates = { name: newName };
+      let userChangedCategory = false;
       if (newCategory && CATEGORY_MAP[newCategory]) {
         const resolvedBeforeEdit = content ? getContentCategory(content) : null;
-        const userChangedCategory = !!content && newCategory !== resolvedBeforeEdit;
+        userChangedCategory = !!content && newCategory !== resolvedBeforeEdit;
         updates.category = userChangedCategory ? newCategory : classifyCategory(newName);
         updates.categoryManual = userChangedCategory || !!(content && content.categoryManual === true);
       }
@@ -4529,8 +4747,11 @@
           populateTableOfContents();
           renderCategoryQuickNav();
           renderCategoryFilterBar();
-          // Auto-sync: rename in training list
+          // Auto-sync: đổi tên và/hoặc chuyển đúng nhóm trong lộ trình thủ công.
           if (oldName && oldName !== newName) autoRenameInTrainingList(oldName, newName);
+          if (userChangedCategory && content) {
+            moveContentToTrainingStage(newName, content.type, newCategory, key);
+          }
         }
       });
     }
@@ -5553,14 +5774,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('contentName').placeholder = "Tiêu đề rõ nội dung (ví dụ: Cách quản lý khách hàng chuỗi nhà thuốc)";
-      const contentCategory = document.getElementById('contentCategory');
-      if (contentCategory) {
-        contentCategory.innerHTML = '<option value="auto">Tự động phân nhóm theo tiêu đề</option>' +
-          CATEGORY_DEFS.filter(category => category.id !== 'khac').map(category =>
-            `<option value="${category.id}">${category.name}</option>`
-          ).join('') +
-          '<option value="khac">Cần phân loại</option>';
-      }
+      syncDynamicCategoryState();
+      populateContentCategorySelect();
       
       showContentList();
       renderSlideList();
