@@ -3003,6 +3003,76 @@
       return { structureVersion: TRAINING_STRUCTURE_VERSION, mode: 'structured', stages };
     }
 
+    /* IDECO FIX 2026-10: reconcile Firebase contents with curated training groups.
+       Both sidebar and main stages must reflect the same records. */
+    let trainingReconcileBusy = false;
+    let trainingReconcileQueued = false;
+    let trainingContentReady = false;
+
+    function reconcileTrainingGroups() {
+      if (!trainingContentReady || !trainingData || !Array.isArray(trainingData.stages)) return;
+      if (trainingData.mode !== 'manual') {
+        trainingData = buildTrainingDataFromContents(allContent);
+        renderTrainingList();
+        return;
+      }
+      // Preserve admin-defined groups, ordering and custom learning resources.
+      const stages = trainingData.stages;
+      const byKey = new Map();
+      const byTitle = new Map();
+      stages.forEach(stage => (stage.items || []).forEach(item => {
+        if (item.sourceKey) byKey.set(String(item.sourceKey), {stage, item});
+        const titleKey = removeDiacritics(parsePodcastTitle(String(item.searchKeyword || item.title || '')).title.toLowerCase()).replace(/[^a-z0-9]+/g, ' ').trim();
+        if (titleKey && !byTitle.has(titleKey)) byTitle.set(titleKey, {stage, item});
+      }));
+      let changed = false;
+      allContent.forEach(content => {
+        if (!content || !content.key || !content.name || !['audio','video'].includes(content.type)) return;
+        const parsed = parsePodcastTitle(content.name);
+        const normalized = removeDiacritics(parsed.title.toLowerCase()).replace(/[^a-z0-9]+/g, ' ').trim();
+        const title = parsed.num ? `Số ${parsed.num} — ${parsed.title}` : parsed.title;
+        let located = byKey.get(String(content.key)) || (normalized ? byTitle.get(normalized) : null);
+        const category = getContentCategory(content);
+        let target = stages.find(stage => stage.category === category);
+        if (!target) target = stages.find(stage => stage.category === 'khac');
+        if (!target && !located) {
+          target = { id:'s_uncategorized_sync', category:'khac', name:'Nội dung cần phân loại', color:'#64748b', description:'Podcast và video chưa được gán nhóm.', items:[] };
+          stages.push(target); changed = true;
+        }
+        if (located) {
+          const {item, stage} = located;
+          if (!item.sourceKey) { item.sourceKey = content.key; changed = true; }
+          if (item.title !== title) { item.title = title; changed = true; }
+          if (item.searchKeyword !== content.name) { item.searchKeyword = content.name; changed = true; }
+          const type = content.type === 'video' ? 'video' : 'podcast';
+          if (item.type !== type) { item.type = type; changed = true; }
+          // Explicit category selected on the content takes precedence over old grouping.
+          if (content.categoryManual === true && target && stage !== target) {
+            stage.items = stage.items.filter(x => x !== item);
+            target.items = target.items || [];
+            target.items.push(item);
+            changed = true;
+          }
+        } else if (target) {
+          target.items = target.items || [];
+          const item = { id:`content_${content.key}`, sourceKey:content.key, title, searchKeyword:content.name, type:content.type === 'video' ? 'video' : 'podcast' };
+          target.items.push(item);
+          byKey.set(String(content.key), {stage:target, item});
+          if (normalized) byTitle.set(normalized, {stage:target, item});
+          changed = true;
+        }
+      });
+      renderTrainingList();
+      if (changed) {
+        if (trainingReconcileBusy) { trainingReconcileQueued = true; return; }
+        trainingReconcileBusy = true;
+        saveTrainingList('manual').catch(err => console.error('IDECO training sync:', err)).finally(() => {
+          trainingReconcileBusy = false;
+          if (trainingReconcileQueued) { trainingReconcileQueued = false; reconcileTrainingGroups(); }
+        });
+      }
+    }
+
     function startTrainingListSync() {
       // Hiển thị khung chuẩn ngay; dữ liệu thực tế sẽ được phân nhóm khi Firebase tải xong.
       syncDynamicCategoryState();
@@ -3019,6 +3089,7 @@
             trainingData = normalizeLegacyTrainingData(val || DEFAULT_TRAINING_DATA);
           }
           syncDynamicCategoryState();
+          reconcileTrainingGroups();
           renderTrainingList();
           if (adminSettingsUnlocked) { renderMgmtStageOptions(); renderMgmtItems(); }
         });
@@ -5702,7 +5773,12 @@
         allContent = [];
         
         if (!data) {
-          renderContentList([]);
+          trainingContentReady = true;
+          reconcileTrainingGroups();
+          filterContent();
+          populateTableOfContents();
+          renderCategoryQuickNav();
+          renderCategoryFilterBar();
           return;
         }
         
@@ -5716,14 +5792,15 @@
             .filter(p => p)
             .concat(contents.filter(p => !order.includes(p.key)));
           allContent = deduplicateContentsForDisplay(orderedContents);
+          trainingContentReady = true;
 
           // Với dữ liệu cũ, tạo lại lộ trình trực tiếp từ thư viện thật:
           // một bài chỉ xuất hiện một lần và cả hai màn hình dùng cùng một hệ phân nhóm.
           if (!(storedTrainingData && storedTrainingData.structureVersion >= TRAINING_STRUCTURE_VERSION && storedTrainingData.mode === 'manual')) {
             trainingData = buildTrainingDataFromContents(allContent);
             currentMgmtStageId = trainingData.stages[0]?.id || null;
-            renderTrainingList();
           }
+          reconcileTrainingGroups();
           
           filterContent();
           
